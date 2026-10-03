@@ -1,0 +1,2032 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+<meta name="mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-capable" content="yes"/>
+<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="theme-color" content="#6d28d9"/>
+<link rel="manifest" href="manifest.json"/>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
+<link rel="apple-touch-icon" href="icon-192.png"/>
+<title>德语口语练习</title>
+<style>
+:root{--bg:#f5f3ff;--card:#fff;--ink:#1e1b2e;--mut:#6b7280;--pri:#6d28d9;--pri-d:#5b21b6;--line:#e9e4f5;--ok:#16a34a;--warn:#d97706;--bad:#dc2626}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;font-size:15px;line-height:1.6}
+.appbar{position:sticky;top:0;z-index:10;background:var(--pri);color:#fff;padding:12px 12px;display:flex;align-items:center;gap:6px}
+.appbar h1{margin:0;font-size:17px;font-weight:700}
+.appbar p{margin:2px 0 0;font-size:12px;opacity:.85}
+.iconbtn{background:none;border:none;color:#fff;font-size:20px;padding:4px 10px;cursor:pointer}
+main{max-width:680px;margin:0 auto;padding:12px 12px 90px}
+.card{background:var(--card);border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.06)}
+.card h2{margin:0 0 10px;font-size:16px}
+.card h3{margin:14px 0 8px;font-size:14px;color:var(--mut)}
+.hint{color:var(--mut);font-size:13px}
+.hidden{display:none!important}
+.chat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chat-head h2{margin:0}
+.linkbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:13px;color:var(--pri);cursor:pointer}
+.chat-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.msg{display:flex;flex-direction:column;max-width:88%}
+.msg.user{align-self:flex-end;align-items:flex-end}
+.msg.assistant{align-self:flex-start;align-items:flex-start}
+.bubble{padding:9px 12px;border-radius:14px;white-space:pre-wrap;word-break:break-word;font-size:14px;cursor:pointer}
+.msg.user .bubble{background:var(--pri);color:#fff;border-bottom-right-radius:4px}
+.msg.assistant .bubble{background:#f1edfd;border-bottom-left-radius:4px}
+.bubble:active{opacity:.75}
+.bubble p{margin:0 0 6px}
+.bubble p:last-child{margin-bottom:0}
+.bubble ul,.bubble ol{margin:4px 0 8px;padding-left:20px;white-space:normal}
+.bubble li{margin:2px 0}
+.bubble code{background:rgba(0,0,0,.08);padding:1px 5px;border-radius:4px;font-size:12px;font-family:monospace}
+.bubble blockquote{margin:4px 0;padding:5px 10px;border-left:3px solid #c4b5fd;background:rgba(255,255,255,.45);border-radius:0 6px 6px 0}
+.bubble h1,.bubble h2,.bubble h3,.bubble h4{margin:6px 0 4px;font-size:14px}
+.bubble a{color:var(--pri-d)}
+.bubble strong{font-weight:700}
+.chat-input{display:flex;gap:8px}
+.chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;font-family:inherit}
+button{font-family:inherit;cursor:pointer}
+#sendBtn{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:14px}
+#sendBtn:active{background:var(--pri-d)}
+#sendBtn:disabled{opacity:.6}
+textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;font-family:inherit;resize:none;overflow:hidden}
+.btn-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
+.btn-row button{flex:1;min-width:100px;padding:11px 6px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--ink)}
+.btn-row button.primary{background:var(--pri);color:#fff;border:none;font-weight:700}
+.btn-row button:disabled{opacity:.55}
+.result{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:6px;background:#fbfaff}
+.retrybox p{margin:0 0 10px;font-size:14px;color:var(--ink)}
+.ver{margin-top:10px;font-size:11px;color:#9aa0a6;text-align:center}
+.bubble hr{border:none;border-top:1px solid var(--line);margin:8px 0}
+.btn-pri{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700}
+.btn-pri:disabled{opacity:.6}
+.score-row{display:flex;gap:16px;align-items:center;margin-bottom:10px}
+.ring{width:110px;height:110px;flex:none}
+.ring-bg{fill:none;stroke:#e9e4f5;stroke-width:10}
+.ring-fg{fill:none;stroke:var(--pri);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dashoffset .6s}
+.ring-num{font-size:26px;font-weight:800;fill:var(--ink);text-anchor:middle}
+.subs{flex:1;display:flex;flex-direction:column;gap:8px}
+.sub{display:grid;grid-template-columns:52px 1fr 34px;align-items:center;gap:8px;font-size:13px}
+.sub .bar{height:8px;background:#e9e4f5;border-radius:4px;overflow:hidden}
+.sub .bar i{display:block;height:100%;border-radius:4px}
+i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--bad)}
+.sub b{text-align:right}
+.heard{font-size:13px;color:var(--mut);margin:6px 0}
+.words{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.word-wrap{display:flex;flex-direction:column}
+.word{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 10px;font-size:14px;display:flex;gap:6px;align-items:baseline}
+.word small{font-size:11px;color:var(--mut)}
+.word.ok{border-color:#bbf7d0;background:#f0fdf4}
+.word.warn{border-color:#fde68a;background:#fffbeb}
+.word.bad{border-color:#fecaca;background:#fef2f2}
+.word.omit{border-color:#e5e7eb;background:#f9fafb;text-decoration:line-through;color:#9ca3af}
+.word.ins{border-color:#fed7aa;background:#fff7ed}
+.phs{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;max-width:260px}
+.ph{display:inline-flex;flex-direction:column;align-items:center;justify-content:center;min-width:44px;padding:5px 8px;border-radius:9px;background:#f3f4f6}
+.ph b{font-size:16px;line-height:1.3;font-weight:700}\n.ph b.est{border-bottom:1px dotted #9ca3af;cursor:help}
+.ph small{font-size:11px;font-weight:700;line-height:1.3}
+.ph i{font-size:10px;font-style:normal;color:#6b7280;line-height:1.3}
+.ph.ok{background:#dcfce7}.ph.ok small{color:#16a34a}
+.ph.warn{background:#fef3c7}.ph.warn small{color:#b45309}
+.ph.bad{background:#fecaca}.ph.bad small{color:#dc2626}
+.hist{display:flex;gap:10px;align-items:center;width:100%;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;margin-bottom:6px;font-size:13px}
+.hist b{font-size:16px;min-width:36px;text-align:center;flex:none}
+.hist b.ok{color:var(--ok)}.hist b.warn{color:var(--warn)}.hist b.bad{color:var(--bad)}
+.hist span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.hist small{color:var(--mut);font-size:11px;flex:none}
+.field{margin-bottom:12px}
+.field label{display:block;font-size:13px;color:var(--mut);margin-bottom:4px}
+.field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;background:#fff}
+.field textarea{resize:vertical}
+.field .desc{font-size:12px;color:var(--mut);margin:6px 0 0;line-height:1.5}
+.test-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.test-row button{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px}
+.test-msg{font-size:13px;color:var(--mut)}
+.player{display:flex;align-items:center;gap:10px;background:#f8f7ff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:2px 0 10px}
+.playbtn{width:42px;height:42px;flex:none;border-radius:50%;border:none;background:var(--pri);display:flex;align-items:center;justify-content:center;cursor:pointer}
+.playbtn:disabled{opacity:.35}
+.ic-play{width:0;height:0;border-left:15px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
+.ic-pause{width:13px;height:17px;box-sizing:border-box;border-left:5px solid #fff;border-right:5px solid #fff}
+.player input[type=range]{flex:1;accent-color:var(--pri);min-width:0}
+.time{font-size:12px;color:var(--mut);min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
+.rate-row{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
+.rate-row button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 0;font-size:12px;color:var(--ink)}
+.rate-row button.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
+.recbtn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:14px;border:none;border-radius:12px;background:#dc2626;color:#fff;font-size:16px;font-weight:700;margin:10px 0 2px}
+.recbtn .recdot{width:15px;height:15px;border-radius:50%;background:#fff;flex:none}
+.recbtn.recording{background:#991b1b}
+.recbtn.recording .recdot{animation:blink 1s infinite}
+@keyframes blink{50%{opacity:.3}}
+.recbtn:disabled{opacity:.7}
+#recStatus{margin:8px 0}
+.meter{height:4px;background:#eeeef2;border-radius:2px;overflow:hidden;margin-bottom:6px;max-width:160px}
+.meter i{display:block;height:100%;width:0;background:#b9b9c9;border-radius:2px;transition:width .12s}
+.recphase{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--mut)}
+.spinner{width:15px;height:15px;flex:none;border:2px solid #e9e4f5;border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:10;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+.tabbar button{flex:1;border:none;background:none;padding:13px;font-size:15px;color:var(--mut)}
+.tabbar button.active{color:var(--pri);font-weight:700}
+.drawer{position:fixed;top:0;left:0;bottom:0;width:290px;max-width:82vw;background:#fff;z-index:40;transform:translateX(-105%);transition:transform .25s;box-shadow:2px 0 12px rgba(0,0,0,.15);display:flex;flex-direction:column;padding:14px}
+.drawer.open{transform:none}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:30}
+.drawer-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.drawer-head b{font-size:16px}
+.drawer-head button{border:none;background:none;font-size:18px;color:var(--mut)}
+#exportAllBtn{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:10px;font-size:14px;font-weight:700}
+#convList{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.search-row{margin:8px 0 12px}
+.search-row input{width:100%;border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;font-family:inherit;background:#f7f7f8}
+.search-row input:focus{outline:none;border-color:var(--pri);background:#fff}
+.conv .tt .hit-snip{color:var(--mut);font-size:12px}
+.stat-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
+.stat-row:last-of-type{border-bottom:none}
+.stat-row b{font-weight:600;font-variant-numeric:tabular-nums}
+.link-btn{border:none;background:none;color:var(--pri);font-size:13px;padding:0;cursor:pointer;font-family:inherit}
+.dlg-ov{position:fixed;inset:0;background:rgba(30,27,46,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;animation:dlgIn .18s ease-out}
+.dlg-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.28)}
+.dlg-title{font-size:16px;font-weight:700;margin:0 0 8px;color:var(--ink)}
+.dlg-msg{font-size:15px;line-height:1.65;color:var(--ink);margin:0 0 18px}
+.dlg-btns{display:flex;gap:10px;justify-content:flex-end}
+.dlg-btns button{border-radius:10px;padding:9px 20px;font-size:14px;font-family:inherit;cursor:pointer}
+.dlg-cancel{background:#fff;border:1px solid var(--line);color:var(--ink)}
+.dlg-ok{background:var(--bad);border:none;color:#fff;font-weight:600}
+.dlg-ok.pri{background:var(--pri)}
+@keyframes dlgIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.row-head{display:flex;justify-content:space-between;align-items:center}
+.card .foot{font-size:12px;color:var(--mut);margin:10px 0 0;line-height:1.5}
+.conv .hit-date{flex:none;color:var(--mut);font-size:11px}
+mark{background:#fff3b0;border-radius:2px;padding:0 1px}
+.conv{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:#fff;font-size:13px;width:100%;text-align:left}
+.conv.active{border-color:var(--pri);background:#f5f0ff}
+.conv .tt{flex:1;min-width:0}
+.conv .tt span{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.conv .tt small{color:var(--mut);font-size:11px}
+.conv .x{border:none;background:none;color:var(--mut);font-size:15px;flex:none}
+.conv .exp{border:none;background:none;color:var(--pri);font-size:15px;flex:none;padding:2px 2px;cursor:pointer}
+.ic-dl{vertical-align:-2px}
+.conv .exp:active{opacity:.6}
+.danger{background:#fef2f2;color:var(--bad);border:1px solid #fecaca;border-radius:10px;padding:10px;font-size:14px}
+.drawer-btns{display:flex;flex-direction:column;gap:10px}
+</style>
+</head>
+<body>
+<header class="appbar">
+  <button id="menuBtn" class="iconbtn" aria-label="对话列表">☰</button>
+  <div><h1>德语口语练习</h1><p>聊天 → 点句听原声 → 录音纠音</p></div>
+</header>
+
+<aside id="drawer" class="drawer">
+  <div class="drawer-head"><b>对话列表</b><button id="closeDrawer">✕</button></div>
+  <div class="search-row"><input id="convSearch" type="search" placeholder="搜索对话" autocomplete="off"/></div>
+  <button id="exportAllBtn"><svg class="ic-dl" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg> 导出所有对话</button>
+  <div id="convList"></div>
+  <div class="drawer-btns">
+    <button id="delOldBtn" class="danger">删除 10 天前的对话</button>
+    <button id="delOld30Btn" class="danger">删除 30 天前的对话</button>
+    <button id="delAllBtn" class="danger">删除所有对话</button>
+  </div>
+</aside>
+<div id="scrim" class="scrim hidden"></div>
+
+<main>
+  <section id="view-practice">
+    <div class="card">
+      <div class="chat-head"><h2>和 AI 用德语聊天</h2><button id="newChatBtn2" class="linkbtn">＋ 新对话</button></div>
+      <div id="chatList" class="chat-list"></div>
+      <div class="chat-input">
+        <textarea id="chatInput" rows="2" placeholder="用德语说点什么…（可用 Gboard 语音输入）"></textarea>
+        <button id="sendBtn">发送</button>
+      </div>
+
+    </div>
+
+    <div class="card" id="sentenceCard">
+      <h2>原声跟读</h2>
+      <textarea id="sentenceText" rows="2" placeholder="点击上方对话中的一句话，这里会自动填入"></textarea>
+      <div class="btn-row">
+        <button id="genBtn" class="primary">生成原声</button>
+        <button id="dlRefBtn">下载原声</button>
+      </div>
+      <div class="player">
+        <button id="refPlayBtn" class="playbtn" disabled><span class="ic-play"></span></button>
+        <span class="time" id="refCur">0:00</span>
+        <input type="range" id="refSeek" min="0" max="1000" value="0" disabled/>
+        <span class="time" id="refDur">0:00</span>
+      </div>
+      <div class="rate-row" id="refRateRow">
+        <button data-rate="0.5">0.5x</button>
+        <button data-rate="0.75">0.75x</button>
+        <button data-rate="1">1x</button>
+        <button data-rate="1.25">1.25x</button>
+        <button data-rate="1.5">1.5x</button>
+      </div>
+
+    </div>
+
+    <div class="card" id="recordCard">
+      <h2>录音打分</h2>
+      <button id="recBtn" class="recbtn"><span class="recdot"></span><span id="recLabel">开始录音</span></button>
+      <div id="recStatus" class="hidden">
+        <div class="meter"><i id="meterFill"></i></div>
+        <div class="recphase"><span id="recSpin" class="spinner hidden"></span><span id="recPhase"></span></div>
+      </div>
+      <div class="player" style="margin-top:10px">
+        <button id="myPlayBtn" class="playbtn" disabled><span class="ic-play"></span></button>
+        <span class="time" id="myCur">0:00</span>
+        <input type="range" id="mySeek" min="0" max="1000" value="0" disabled/>
+        <span class="time" id="myDur">0:00</span>
+      </div>
+      <div id="recHint" class="hint"></div>
+      <div id="resultCard" class="result hidden"></div>
+      <h3>练习历史（本对话）</h3>
+
+      <div id="historyList"></div>
+    </div>
+  </section>
+
+  <section id="view-settings" class="hidden">
+    <div class="card">
+      <h2>聊天接口（OpenAI 兼容）</h2>
+      <div class="field">
+        <label>Base URL（Endpoint）</label>
+        <input id="setBaseUrl" type="text" placeholder="https://openrouter.ai/api/v1"/>
+      </div>
+      <div class="field">
+        <label>模型</label>
+        <input id="setModel" type="text" placeholder="例如 openai/gpt-4o-mini"/>
+      </div>
+      <div class="field">
+        <label>API Key</label>
+        <input id="setKey" type="password" autocomplete="off" placeholder="sk-..."/>
+      </div>
+      <div class="field">
+        <label>系统提示词（AI 的角色设定）</label>
+        <textarea id="setPrompt" rows="6"></textarea>
+      </div>
+      <div class="test-row">
+        <button id="testChatBtn">测试连接</button>
+        <span id="chatTestMsg" class="test-msg"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Azure Speech（发音评估 + 原声 TTS）</h2>
+      <div class="field">
+        <label>Speech Key</label>
+        <input id="setAzKey" type="password" autocomplete="off" placeholder="Azure Speech Key 1"/>
+      </div>
+      <div class="field">
+        <label>Region</label>
+        <select id="setRegion"></select>
+      </div>
+      <div class="field">
+        <label>德语原声声音</label>
+        <select id="setVoice"></select>
+      </div>
+      <div class="test-row">
+        <button id="testTtsBtn">测试 TTS</button>
+        <span id="ttsTestMsg" class="test-msg"></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>本地存储</h2>
+      <div class="field">
+        <label>聊天记录保留条数（1–200）</label>
+        <input id="setChatLimit" type="number" min="1" max="200" step="1"/>
+        <p class="desc">发给 AI 的消息条数，含你当前这句。设为 1 则 AI 不看历史。改小立即生效，删掉的消息找不回来。</p>
+      </div>
+      <div class="field">
+        <label>练习记录保留条数（1–200）</label>
+        <input id="setRecLimit" type="number" min="1" max="200" step="1"/>
+        <p class="desc">每个对话保留最近 N 条练习，超出的连录音一起删。改小立即生效。</p>
+      </div>
+      <div class="field">
+        <label>原声缓存条数（0–500，0 = 关闭）</label>
+        <input id="setTtsLimit" type="number" min="0" max="500" step="1"/>
+        <p class="desc">同一句话 + 同一声音只生成一次，之后读本地。设为 0 关闭缓存。</p>
+      </div>
+      <div class="field">
+        <label>对话保留个数（10–1000）</label>
+        <input id="setConvLimit" type="number" min="10" max="1000" step="1"/>
+        <p class="desc">只保留最近 N 个对话，超出的连记录和录音一起删。改小立即生效。</p>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 class="row-head">存储占用<button id="statRefresh" class="link-btn" type="button">刷新</button></h2>
+      <div class="stat-row"><span>本地已用空间</span><b id="statUsage">…</b></div>
+      <div class="stat-row"><span>对话个数</span><b id="statConvs">…</b></div>
+      <div class="stat-row"><span>原声缓存个数</span><b id="statTts">…</b></div>
+      <p class="foot">放心用：所有数据只存在你的手机/浏览器里，不会上传。</p>
+    </div>
+    <div class="ver">版本 v20261003-24</div>
+  </section>
+</main>
+<nav class="tabbar">
+  <button data-tab="practice" class="active">练习</button>
+  <button data-tab="settings">设置</button>
+</nav>
+<script>
+'use strict';
+/* ================= 工具 ================= */
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const escapeXml = s => String(s == null ? '' : s).replace(/[<>&'"]/g, c => ({'<':'&lt;','>':'&gt;','&':'&amp;',"'":'&apos;','"':'&quot;'}[c]));
+
+/* ================= 设置 ================= */
+const LS_SETTINGS = 'deutsch.settings.v1';
+const LS_HISTORY  = 'deutsch.history.v1';
+const LS_CONVS    = 'deutsch.convs.v1';
+const LS_ACTIVE   = 'deutsch.activeConv.v1';
+
+const DEFAULT_SYSTEM_PROMPT =
+'你是一位耐心的德语口语陪练，陪伴一位中文母语的德语初学者练习口语。\n' +
+'规则：\n' +
+'- 主要用德语和用户对话，话题日常轻松（自我介绍、爱好、天气、食物、旅行等）。\n' +
+'- 你的德语要简单：短句为主，少用从句，生词控制在初学水平。\n' +
+'- 每条回复末尾加一行简体中文：简短翻译或提示，帮助理解。\n' +
+'- 用户德语说错时，用中文温和指出错误并给出正确说法，再继续对话。\n' +
+'- 一次只问一个跟进问题，保持对话流动。';
+
+const DEFAULTS = {
+  chatBaseUrl: 'https://openrouter.ai/api/v1',
+  chatModel: '',
+  chatKey: '',
+  systemPrompt: DEFAULT_SYSTEM_PROMPT,
+  azureKey: '',
+  azureRegion: 'westus2',
+  voice: 'de-DE-KatjaNeural',
+  chatHistoryLimit: 30, // 聊天记录保留条数
+  practiceHistoryLimit: 30, // 练习记录保留条数
+  convLimit: 200, // 对话保留个数
+  ttsCacheLimit: 100 // TTS 缓存条数，0 = 关闭
+};
+
+const REGIONS = [
+  ['westus2', '美国西部 2'],
+  ['southeastasia', '东南亚（新加坡）'],
+  ['eastasia', '东亚（香港）'],
+  ['japaneast', '日本东'],
+  ['koreacentral', '韩国中部'],
+  ['westeurope', '西欧'],
+  ['northeurope', '北欧'],
+  ['eastus', '美国东部'],
+  ['westus', '美国西部'],
+  ['australiaeast', '澳大利亚东']
+];
+
+const VOICES = [
+  ['de-DE-KatjaNeural', 'Katja（女声）'],
+  ['de-DE-ConradNeural', 'Conrad（男声）'],
+  ['de-DE-AmalaNeural', 'Amala（女声）'],
+  ['de-DE-KillianNeural', 'Killian（男声）']
+];
+
+function clampInt(v, lo, hi, fb) {
+  v = parseInt(v, 10);
+  if (isNaN(v)) return fb;
+  return Math.min(hi, Math.max(lo, v));
+}
+function getSettings() {
+  try {
+    const s = Object.assign({}, DEFAULTS, JSON.parse(localStorage.getItem(LS_SETTINGS) || '{}'));
+    s.chatHistoryLimit = clampInt(s.chatHistoryLimit, 1, 200, 30);
+    s.practiceHistoryLimit = clampInt(s.practiceHistoryLimit, 1, 200, 30);
+    s.convLimit = clampInt(s.convLimit, 10, 1000, 200);
+    s.ttsCacheLimit = clampInt(s.ttsCacheLimit, 0, 500, 100);
+    return s;
+  }
+  catch (e) { return Object.assign({}, DEFAULTS); }
+}
+function saveSettings(s) { localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); }
+function collectSettings() {
+  saveSettings({
+    chatBaseUrl: $('setBaseUrl').value.trim(),
+    chatModel: $('setModel').value.trim(),
+    chatKey: $('setKey').value.trim(),
+    systemPrompt: $('setPrompt').value,
+    azureKey: $('setAzKey').value.trim(),
+    azureRegion: $('setRegion').value,
+    voice: $('setVoice').value,
+    chatHistoryLimit: clampInt($('setChatLimit').value, 1, 200, 30),
+    practiceHistoryLimit: clampInt($('setRecLimit').value, 1, 200, 30),
+    convLimit: clampInt($('setConvLimit').value, 10, 1000, 200),
+    ttsCacheLimit: clampInt($('setTtsLimit').value, 0, 500, 100)
+  });
+  applyHistoryLimits(); // 条数变化立即对现有数据生效
+}
+/* 设置里的保留条数变化后，立即裁剪现有数据（超出的聊天/练习记录删掉，录音同步清） */
+function applyHistoryLimits() {
+  const s = getSettings();
+  let convs = getConvs();
+  let changed = false;
+  convs.forEach(c => {
+    const keepChat = s.chatHistoryLimit + 1; // N 条发给 API（含当前问题）+ AI 回复占位
+    if ((c.messages || []).length > keepChat) {
+      c.messages = c.messages.slice(-keepChat);
+      changed = true;
+    }
+    if ((c.records || []).length > s.practiceHistoryLimit) {
+      c.records.slice(s.practiceHistoryLimit).forEach(r => {
+        idbDel('my:' + r.id).catch(function(){});
+        idbDel('ref:' + r.id).catch(function(){});
+      });
+      c.records = c.records.slice(0, s.practiceHistoryLimit);
+      changed = true;
+    }
+  });
+  const before = convs.length;
+  convs = trimConvsToLimit(convs, s.convLimit);
+  if (convs.length !== before) changed = true;
+  if (changed) {
+    // 当前看的对话要是被裁掉了，切到剩下的第一个；全没了就新建一个
+    if (!convs.some(c => c.id === getActiveId())) {
+      setActiveId(convs.length ? convs[0].id : '');
+      if (!convs.length) { saveConvs(convs); newConversation(); return; }
+    }
+    saveConvs(convs); renderConvList(); renderChat(); renderHistory();
+  }
+  trimTtsCache(s.ttsCacheLimit).catch(function(){});
+}
+function initSettings() {
+  const s = getSettings();
+  $('setBaseUrl').value = s.chatBaseUrl;
+  $('setModel').value = s.chatModel;
+  $('setKey').value = s.chatKey;
+  $('setPrompt').value = s.systemPrompt;
+  $('setAzKey').value = s.azureKey;
+  REGIONS.forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = l + ' (' + v + ')';
+    $('setRegion').appendChild(o);
+  });
+  $('setRegion').value = s.azureRegion;
+  VOICES.forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v + ' · ' + l;
+    $('setVoice').appendChild(o);
+  });
+  $('setVoice').value = s.voice;
+  $('setChatLimit').value = s.chatHistoryLimit;
+  $('setRecLimit').value = s.practiceHistoryLimit;
+  $('setConvLimit').value = s.convLimit;
+  $('setTtsLimit').value = s.ttsCacheLimit;
+  ['setBaseUrl','setModel','setKey','setPrompt','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
+    $(id).addEventListener('change', collectSettings);
+  });
+}
+
+/* ================= 对话管理 ================= */
+// 对话数据放 IndexedDB（地方大，GB 级）；内存缓存 + 写透，读写接口保持同步，调用方不用改
+const IDB_CONVS_KEY = 'json:convs';
+let convsCache = null;
+let convsSaveWarned = false;
+
+async function initConvsStore() {
+  let raw = null;
+  try { raw = await idbGet(IDB_CONVS_KEY); } catch (e) {}
+  if (typeof raw === 'string' && raw) {
+    try { convsCache = JSON.parse(raw); } catch (e) { convsCache = []; }
+    if (!Array.isArray(convsCache)) convsCache = [];
+    try { localStorage.removeItem(LS_CONVS); } catch (e) {} // 老地方已无用，清掉
+    return;
+  }
+  // IndexedDB 里没有：从 localStorage 迁移老数据
+  try { convsCache = JSON.parse(localStorage.getItem(LS_CONVS) || '[]'); }
+  catch (e) { convsCache = []; }
+  if (!Array.isArray(convsCache)) convsCache = [];
+  if (convsCache.length) {
+    try {
+      await idbSet(IDB_CONVS_KEY, JSON.stringify(convsCache));
+      localStorage.removeItem(LS_CONVS); // 迁移成功，清掉旧地方
+    } catch (e) { /* 迁移失败就留着，下次启动再试 */ }
+  }
+}
+function getConvs() { return convsCache || []; }
+function saveConvs(c) {
+  convsCache = c;
+  idbSet(IDB_CONVS_KEY, JSON.stringify(c)).catch(e => {
+    // 存满了：不自动删用户数据，只提示一次（内存里的数据本次还能用）
+    if (!convsSaveWarned) {
+      convsSaveWarned = true;
+      alertDlg('手机本地存满了，这次的内容可能没保存上。删掉一些不用的旧对话，就能继续存了。');
+    }
+  });
+}
+// 页面隐藏/关闭前尽量把最后一次写入落盘
+window.addEventListener('pagehide', () => {
+  if (convsCache) idbSet(IDB_CONVS_KEY, JSON.stringify(convsCache)).catch(() => {});
+});
+// 把内存中的对话写回存储（替换同 id 的旧版本）
+function persistConv(c) {
+  const convs = getConvs();
+  const i = convs.findIndex(x => x.id === c.id);
+  if (i >= 0) convs[i] = c; else convs.unshift(c);
+  saveConvs(convs);
+}
+function getActiveId() { return localStorage.getItem(LS_ACTIVE) || null; }
+function setActiveId(id) { localStorage.setItem(LS_ACTIVE, id); }
+function activeConv() {
+  const convs = getConvs();
+  let c = convs.find(x => x.id === getActiveId());
+  if (!c && convs.length) { c = convs[0]; setActiveId(c.id); }
+  return c;
+}
+function newConversation() {
+  const c = { id: 'c' + Date.now(), title: '新对话', createdAt: Date.now(), messages: [], records: [] };
+  const convs = getConvs();
+  convs.unshift(c);
+  saveConvs(trimConvsToLimit(convs, getSettings().convLimit));
+  setActiveId(c.id);
+  renderConvList(); renderChat(); renderHistory();
+}
+/* 对话个数裁剪：只留最近 N 个，最老的连练习录音一起删 */
+function trimConvsToLimit(convs, limit) {
+  if (convs.length <= limit) return convs;
+  const sorted = [...convs].sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+  sorted.slice(limit).forEach(deleteConvAudios);
+  return sorted.slice(0, limit);
+}
+function deleteConv(id) {
+  const doomed = getConvs().find(x => x.id === id);
+  if (doomed) deleteConvAudios(doomed);
+  let convs = getConvs().filter(x => x.id !== id);
+  saveConvs(convs);
+  if (getActiveId() === id) setActiveId(convs.length ? convs[0].id : '');
+  if (!convs.length) newConversation(); else { renderConvList(); renderChat(); renderHistory(); }
+}
+
+/* 单个对话 → Markdown 文本（防御性：跳过异常条目，避免导出整体失败） */
+function convToMarkdown(c) {
+  if (!c || typeof c !== 'object') return '';
+  const L = [];
+  L.push('# ' + (c.title || '德语对话'));
+  L.push('');
+  L.push('导出时间：' + new Date().toLocaleString());
+  L.push('');
+  const msgs = Array.isArray(c.messages) ? c.messages.filter(Boolean) : [];
+  msgs.forEach(m => {
+    L.push(m.role === 'user' ? '## 你' : '## AI');
+    L.push('');
+    L.push(m.content != null ? String(m.content) : '');
+    L.push('');
+  });
+  const recs = Array.isArray(c.records) ? c.records.filter(Boolean) : [];
+  if (recs.length) {
+    L.push('---');
+    L.push('');
+    L.push('## 练习记录');
+    L.push('');
+    recs.forEach(r => {
+      let when = '';
+      try { when = new Date(r.t).toLocaleString(); } catch (e) {}
+      L.push('- ' + when + '　**' + (r.score || 0) + '分**（准确度' +
+        (r.accuracy || 0) + ' / 流利度' + (r.fluency || 0) + ' / 完整度' + (r.completeness || 0) + '）　' + (r.text || ''));
+    });
+    L.push('');
+  }
+  return L.join('\n');
+}
+
+function downloadMd(filename, text) {
+  const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+
+/* 导出单个对话为 Markdown（含练习记录摘要），供 AI 分析或查阅 */
+function exportConv(id) {
+  try {
+    const c = getConvs().find(x => x.id === id);
+    if (!c) return;
+    const safeTitle = String(c.title || '未命名').replace(/[\\/:*?"<>|]/g, '_').slice(0, 30) || '未命名';
+    downloadMd('德语对话-' + safeTitle + '.md', convToMarkdown(c));
+  } catch (e) {
+    dlg({ title: '导出失败', message: String((e && e.message) || e) });
+  }
+}
+
+/* 导出所有对话为一个 Markdown 合集 */
+function exportAllConvs() {
+  try {
+  const convs = getConvs().filter(c => c && typeof c === 'object');
+  if (!convs.length) { alertDlg('暂无对话可导出'); return; }
+  const d = new Date();
+  const stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') +
+    '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
+  const head = '# 德语对话合集（共 ' + convs.length + ' 个对话）\n\n导出时间：' + d.toLocaleString() + '\n';
+  downloadMd('德语对话-全部-' + stamp + '.md', head + '\n---\n\n' + convs.map(convToMarkdown).join('\n\n---\n\n'));
+  } catch (e) {
+    dlg({ title: '导出失败', message: String((e && e.message) || e) });
+  }
+}
+
+function renderConvList() {
+  const q = ($('convSearch') && $('convSearch').value.trim()) || '';
+  if (q) { renderSearchHits(q); return; }
+  const list = $('convList');
+  const convs = getConvs();
+  const aid = getActiveId();
+  list.innerHTML = '';
+  if (!convs.length) list.innerHTML = '<div class="hint">暂无对话</div>';
+  convs.forEach(c => {
+    const b = document.createElement('button');
+    b.className = 'conv' + (c.id === aid ? ' active' : '');
+    const tt = document.createElement('span'); tt.className = 'tt';
+    const t1 = document.createElement('span'); t1.textContent = c.title || '新对话';
+    const t2 = document.createElement('small'); t2.textContent = new Date(c.createdAt).toLocaleString();
+    tt.appendChild(t1); tt.appendChild(t2);
+    const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '删除';
+    x.onclick = async e => {
+      e.stopPropagation();
+      if (await confirmDlg('确定删除这个对话吗？相关的练习记录和音频也会一并清除。')) deleteConv(c.id);
+    };
+    const exp = document.createElement('span'); exp.className = 'exp'; exp.title = '导出为 Markdown';
+    exp.innerHTML = '<svg class="ic-dl" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg>';
+    exp.onclick = e => { e.stopPropagation(); exportConv(c.id); };
+    b.appendChild(exp); b.appendChild(tt); b.appendChild(x);
+    b.onclick = () => { setActiveId(c.id); renderConvList(); renderChat(); renderHistory(); closeDrawer(); };
+    list.appendChild(b);
+  });
+}
+
+/* ================= 对话搜索 ================= */
+function fmtDay(ts) {
+  const d = new Date(ts || Date.now());
+  return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+}
+/* 关键词高亮：先转义再匹配，避免 HTML 注入 */
+function highlightHtml(text, q) {
+  const esc = escapeHtml(text);
+  const eq = escapeHtml(q).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  if (!eq) return esc;
+  return esc.replace(new RegExp('(' + eq + ')', 'gi'), '<mark>$1</mark>');
+}
+/* 取命中关键词附近的片段 */
+function matchSnippet(content, q) {
+  const lc = String(content).toLowerCase(), lq = String(q).toLowerCase();
+  const i = lc.indexOf(lq);
+  if (i < 0) return '';
+  const s = Math.max(0, i - 14), e = Math.min(content.length, i + lq.length + 30);
+  return (s > 0 ? '…' : '') + content.slice(s, e) + (e < content.length ? '…' : '');
+}
+function renderSearchHits(q) {
+  const list = $('convList');
+  const lq = q.toLowerCase();
+  list.innerHTML = '';
+  let n = 0;
+  getConvs().forEach(c => {
+    const title = c.title || '新对话';
+    const titleHit = title.toLowerCase().includes(lq);
+    let hitMsg = null;
+    for (const m of (c.messages || [])) {
+      if ((m.content || '').toLowerCase().includes(lq)) { hitMsg = m; break; }
+    }
+    if (!titleHit && !hitMsg) return;
+    n++;
+    const b = document.createElement('button');
+    b.className = 'conv' + (c.id === getActiveId() ? ' active' : '');
+    const tt = document.createElement('span'); tt.className = 'tt';
+    const t1 = document.createElement('span'); t1.innerHTML = highlightHtml(title, q);
+    const snip = document.createElement('span'); snip.className = 'hit-snip';
+    const snipText = hitMsg ? matchSnippet(stripMarkdown(hitMsg.content), q)
+      : String((c.messages && c.messages[0] && c.messages[0].content) || '').slice(0, 44);
+    snip.innerHTML = highlightHtml(snipText, q);
+    const dt = document.createElement('span'); dt.className = 'hit-date'; dt.textContent = fmtDay(c.createdAt);
+    tt.appendChild(t1); tt.appendChild(snip);
+    b.appendChild(tt); b.appendChild(dt);
+    b.onclick = () => { setActiveId(c.id); renderChat(); renderHistory(); renderConvList(); closeDrawer(); };
+    list.appendChild(b);
+  });
+  if (!n) list.innerHTML = '<div class="hint">没有匹配的对话</div>';
+}
+
+/* ================= 抽屉 ================= */
+function openDrawer() {
+  $('drawer').classList.add('open'); $('scrim').classList.remove('hidden');
+  revealActiveConv(false); // 打开就定位到当前选中的对话
+}
+function closeDrawer() { $('drawer').classList.remove('open'); $('scrim').classList.add('hidden'); }
+/* 把当前选中的对话滚到列表可见区（已在可视区内则不动） */
+function revealActiveConv(smooth) {
+  const el = document.querySelector('#convList .conv.active');
+  if (el && el.scrollIntoView) el.scrollIntoView({ block: 'nearest', behavior: smooth ? 'smooth' : 'auto' });
+}
+/* ================= 统一弹窗 =================
+   App 内所有弹窗都走这里（替代原生 alert / confirm），样式统一。
+   dlg({ title?, message, okText?, cancel?:bool, cancelText?, danger?:bool }) -> Promise<boolean>
+     点"确定"返回 true；点取消 / 点遮罩 / 按 Esc 返回 false。
+   以后要加新弹窗，直接调 dlg 传参就行，不用再手写 DOM。
+   快捷写法：
+     alertDlg(message, okText?)    信息提示（紫色按钮，如"知道了"）
+     confirmDlg(message, okText?) 删除确认（红色按钮 + 取消按钮） */
+function dlg(o) {
+  o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false }, o);
+  return new Promise(resolve => {
+    const ov = document.createElement('div');
+    ov.className = 'dlg-ov';
+    const card = document.createElement('div');
+    card.className = 'dlg-card';
+    card.setAttribute('role', 'alertdialog');
+    if (o.title) {
+      const t = document.createElement('div');
+      t.className = 'dlg-title';
+      t.textContent = o.title;
+      card.appendChild(t);
+    }
+    const msg = document.createElement('p');
+    msg.className = 'dlg-msg';
+    msg.textContent = o.message;
+    card.appendChild(msg);
+    const btns = document.createElement('div');
+    btns.className = 'dlg-btns';
+    const done = v => {
+      document.removeEventListener('keydown', onKey);
+      if (ov.parentNode) ov.parentNode.removeChild(ov);
+      resolve(v);
+    };
+    let focusBtn;
+    if (o.cancel) {
+      const cancel = document.createElement('button');
+      cancel.type = 'button'; cancel.className = 'dlg-cancel'; cancel.textContent = o.cancelText;
+      cancel.onclick = () => done(false);
+      btns.appendChild(cancel);
+      focusBtn = cancel; // 危险操作默认聚焦"取消"，防手滑
+    }
+    const ok = document.createElement('button');
+    ok.type = 'button';
+    ok.className = 'dlg-ok' + (o.danger ? '' : ' pri');
+    ok.textContent = o.okText || (o.cancel ? '确定' : '知道了');
+    ok.onclick = () => done(true);
+    btns.appendChild(ok);
+    if (!focusBtn) focusBtn = ok;
+    card.appendChild(btns);
+    ov.addEventListener('click', e => { if (e.target === ov) done(false); }); // 点遮罩=取消
+    const onKey = e => { if (e.key === 'Escape') done(false); };
+    document.addEventListener('keydown', onKey);
+    ov.appendChild(card);
+    document.body.appendChild(ov);
+    focusBtn.focus();
+  });
+}
+function alertDlg(message, okText) { return dlg({ message: message, okText: okText || '知道了' }); }
+function confirmDlg(message, okText) { return dlg({ message: message, okText: okText || '删除', cancel: true, danger: true }); }
+
+/* ================= Tab 切换 ================= */
+function initTabs() {
+  document.querySelectorAll('.tabbar button').forEach(b => b.addEventListener('click', () => {
+    document.querySelectorAll('.tabbar button').forEach(x => x.classList.toggle('active', x === b));
+    $('view-practice').classList.toggle('hidden', b.dataset.tab !== 'practice');
+    $('view-settings').classList.toggle('hidden', b.dataset.tab !== 'settings');
+    if (b.dataset.tab === 'settings') refreshStorageStats(); // 每次打开设置页刷新占用统计
+    window.scrollTo(0, 0);
+  }));
+}
+
+/* ================= 聊天（OpenAI 兼容） ================= */
+// 去掉 emoji：避免进入跟读文本框和 TTS（Azure 会把 emoji 读得很怪）
+function stripEmoji(s) {
+  return String(s || '')
+    .replace(/\p{Extended_Pictographic}/gu, '')
+    .replace(/[\uFE00-\uFE0F\u200D]/g, '');
+}
+
+// 去掉 markdown 格式：TTS/跟读只读纯文本
+function stripMarkdown(s) {
+  return String(s || '')
+    .replace(/```[\s\S]*?```/g, ' ')
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/(^|[\s])\*([^*\n]+)\*/g, '$1$2')
+    .replace(/(^|[\s])_([^_\n]+)_/g, '$1$2')
+    .replace(/~~([^~]+)~~/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .replace(/^#{1,6}\s*/gm, '')
+    .replace(/^>\s?/gm, '')
+    .replace(/^\s*[-*+]\s+/gm, '')
+    .replace(/^\s*\d+[.)]\s+/gm, '')
+    .replace(/^\s*([-*_])(\s*\1){2,}\s*$/gm, ''); // 分隔线 --- *** ___
+}
+
+// 清洗出跟读/TTS 用的纯文本：去 markdown → 只留德语行（去掉中文讲解行）→ 去 emoji
+function germanOnly(text) {
+  const clean = stripMarkdown(text);
+  const lines = String(clean).split('\n').filter(l => l.trim() && !/[\u4e00-\u9fff]/.test(l));
+  const t = stripEmoji(lines.join('\n')).replace(/[ \t]{2,}/g, ' ').trim();
+  return t || stripEmoji(stripMarkdown(String(text))).trim();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+// 行内 markdown：`代码`、**加粗**、*斜体*、~~删除线~~、[链接](url)
+function mdInline(s) {
+  let h = escapeHtml(s);
+  h = h.replace(/`([^`]+)`/g, '<code>$1</code>');
+  h = h.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  h = h.replace(/__([^_]+)__/g, '<strong>$1</strong>');
+  h = h.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+  h = h.replace(/_([^_]+)_/g, '<em>$1</em>');
+  h = h.replace(/~~([^~]+)~~/g, '<del>$1</del>');
+  h = h.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+  return h;
+}
+
+// 块级 markdown：标题、引用、列表、段落（先转义 HTML，安全）
+function mdBlock(text) {
+  const lines = String(text || '').split('\n');
+  let html = '', inList = false, listTag = '';
+  const closeList = () => { if (inList) { html += listTag === 'ul' ? '</ul>' : '</ol>'; inList = false; listTag = ''; } };
+  for (const raw of lines) {
+    const line = raw.trim();
+    if (!line) { closeList(); continue; }
+    const hMatch = line.match(/^(#{1,4})\s+(.*)/);
+    if (hMatch) {
+      closeList();
+      const lv = hMatch[1].length;
+      html += '<h' + lv + '>' + mdInline(hMatch[2]) + '</h' + lv + '>';
+    } else if (/^>\s?/.test(line)) {
+      closeList();
+      html += '<blockquote>' + mdInline(line.replace(/^>\s?/, '')) + '</blockquote>';
+    } else if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) {
+      closeList();
+      html += '<hr/>';
+    } else if (/^[-*+]\s+/.test(line)) {
+      if (!inList || listTag !== 'ul') { closeList(); html += '<ul>'; inList = true; listTag = 'ul'; }
+      html += '<li>' + mdInline(line.replace(/^[-*+]\s+/, '')) + '</li>';
+    } else if (/^\d+[.)]\s+/.test(line)) {
+      if (!inList || listTag !== 'ol') { closeList(); html += '<ol>'; inList = true; listTag = 'ol'; }
+      html += '<li>' + mdInline(line.replace(/^\d+[.)]\s+/, '')) + '</li>';
+    } else {
+      closeList();
+      html += '<p>' + mdInline(raw) + '</p>';
+    }
+  }
+  closeList();
+  return html;
+}
+
+function renderChat() {
+  const list = $('chatList');
+  const c = activeConv();
+  const msgs = c ? c.messages : [];
+  list.innerHTML = '';
+  if (!msgs.length) {
+    list.innerHTML = '<div class="hint">还没有对话，在下面用德语和 AI 聊起来吧。先去「设置」填好接口 Key。</div>';
+  }
+  msgs.forEach(m => {
+    const div = document.createElement('div');
+    div.className = 'msg ' + m.role;
+    const body = document.createElement('div');
+    body.className = 'bubble';
+    if (m.role === 'assistant') {
+      body.innerHTML = mdBlock(m.content); // AI 消息渲染 markdown
+    } else {
+      body.textContent = m.content; // 用户消息保持纯文本
+    }
+    body.title = '点击生成这句的原声';
+    bindBubbleClick(body, m);
+    div.appendChild(body);
+    list.appendChild(div);
+  });
+  list.scrollTop = list.scrollHeight;
+}
+
+/* 流式输出时直接更新最后一个气泡，避免整列表重渲染 */
+function lastBubble() {
+  const bubbles = document.querySelectorAll('#chatList .bubble');
+  return bubbles[bubbles.length - 1] || null;
+}
+
+/* 给气泡绑定"点击 → 填入跟读"；内容为空时解绑 */
+function bindBubbleClick(el, m) {
+  if (m.content && m.content !== '…') {
+    el.onclick = () => selectSentence(germanOnly(m.content));
+  } else {
+    el.onclick = null;
+  }
+}
+
+function chatHeaders(key) {
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': 'Bearer ' + key,
+    'HTTP-Referer': location.href,
+    'X-Title': 'Deutsch Practice'
+  };
+}
+
+function updateConvTitle(c) {
+  if (c.title && c.title !== '新对话') return;
+  const firstUser = c.messages.find(m => m.role === 'user');
+  if (firstUser) {
+    c.title = firstUser.content.slice(0, 20) + (firstUser.content.length > 20 ? '…' : '');
+  }
+}
+
+async function sendChat() {
+  const s = getSettings();
+  const input = $('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  if (!s.chatBaseUrl || !s.chatModel || !s.chatKey) {
+    await alertDlg('请先在「设置」里填写聊天接口的 Base URL、模型和 Key');
+    return;
+  }
+  let c = activeConv();
+  if (!c) { newConversation(); c = activeConv(); }
+  const sendBtn = $('sendBtn');
+  if (sendBtn.disabled) return; // 流式输出中，不重复发送
+  sendBtn.disabled = true;
+  const convId = c.id;
+  try {
+    c.messages.push({ role: 'user', content: text });
+    const aiMsg = { role: 'assistant', content: '' };
+    c.messages.push(aiMsg);
+    // N = 发给 API 的消息条数（含当前问题，不含 AI 回复占位）：保留最近 N+1 条，窗口最多显示 N+1 条
+    // N≥1 → N+1≥2，slice(-(N+1)) 安全（没有 slice(-0) 陷阱）
+    const keepChat = s.chatHistoryLimit + 1;
+    if (c.messages.length > keepChat) c.messages = c.messages.slice(-keepChat);
+    updateConvTitle(c);
+    persistConv(c);
+    renderConvList(); renderChat();
+    input.value = '';
+
+    const base = s.chatBaseUrl.replace(/\/+$/, '');
+    const apiMsgs = [{ role: 'system', content: s.systemPrompt }]
+      .concat(c.messages.filter(m => m.content && m.content !== '…').map(m => ({ role: m.role, content: m.content })));
+    // 流式请求（SSE）：OpenAI 兼容接口通用
+    const res = await fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: chatHeaders(s.chatKey),
+      body: JSON.stringify({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs })
+    });
+    if (!res.ok || !res.body) {
+      const t = await res.text().catch(() => '');
+      let em = '请求失败';
+      try { const j = JSON.parse(t); em = j.error ? (j.error.message || JSON.stringify(j.error)) : t; }
+      catch (e) { if (t) em = t; }
+      throw new Error('HTTP ' + res.status + '：' + String(em).slice(0, 200));
+    }
+    const reader = res.body.getReader();
+    const decoder = new TextDecoder();
+    let buf = '', finished = false;
+    const uiAlive = () => getActiveId() === convId;
+    const paint = () => {
+      if (!uiAlive()) return;
+      const b = lastBubble();
+      if (b) b.textContent = aiMsg.content; // 流式中先显示纯文本
+      const list = $('chatList');
+      list.scrollTop = list.scrollHeight;
+    };
+    while (!finished) {
+      const step = await reader.read();
+      if (step.done) break;
+      buf += decoder.decode(step.value, { stream: true });
+      const lines = buf.split('\n');
+      buf = lines.pop();
+      for (const line of lines) {
+        const t = line.trim();
+        if (!t.startsWith('data:')) continue;
+        const data = t.slice(5).trim();
+        if (data === '[DONE]') { finished = true; break; }
+        try {
+          const j = JSON.parse(data);
+          const ch = j.choices && j.choices[0];
+          const delta = ch && ch.delta && ch.delta.content;
+          if (delta) { aiMsg.content += delta; paint(); }
+        } catch (e) {}
+      }
+    }
+    try { reader.cancel(); } catch (e) {}
+    if (!aiMsg.content) throw new Error('接口返回为空');
+    persistConv(c);
+    if (uiAlive()) {
+      const b = lastBubble();
+      if (b) {
+        b.innerHTML = mdBlock(aiMsg.content); // 流式结束，渲染 markdown
+        bindBubbleClick(b, aiMsg); // 补上点击事件（流式开始时内容为空，还没绑）
+      }
+      renderConvList();
+    }
+  } catch (e) {
+    c.messages[c.messages.length - 1] = { role: 'assistant', content: '出错了：' + e.message + '（请检查设置里的 Base URL / 模型 / Key）' };
+    persistConv(c); renderChat();
+  } finally {
+    sendBtn.disabled = false;
+  }
+}
+
+async function testChat() {
+  const s = getSettings();
+  const msg = $('chatTestMsg');
+  msg.textContent = '测试中…';
+  try {
+    if (!s.chatBaseUrl || !s.chatModel || !s.chatKey) throw new Error('请先填写 Base URL、模型和 Key');
+    const base = s.chatBaseUrl.replace(/\/+$/, '');
+    const res = await fetch(base + '/chat/completions', {
+      method: 'POST',
+      headers: chatHeaders(s.chatKey),
+      body: JSON.stringify({ model: s.chatModel, messages: [{ role: 'user', content: '请只回复 OK' }], max_tokens: 10 })
+    });
+    const data = await res.json().catch(() => null);
+    if (!res.ok) throw new Error('HTTP ' + res.status + '：' + JSON.stringify(data && data.error || data).slice(0, 160));
+    const r = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+    if (r) msg.textContent = '连接成功，模型回复：' + String(r).slice(0, 60);
+    else msg.textContent = '连接成功（测试时限制了长度所以模型返回为空，不影响正常聊天）';
+  } catch (e) {
+    msg.textContent = '失败：' + e.message;
+  }
+}
+
+/* ================= 选中句子 → 自动生成原声 ================= */
+/* 文本框随内容自动增高，不出现滚动条 */
+function autoGrowTextarea(el) {
+  el.style.height = 'auto';
+  el.style.height = el.scrollHeight + 'px';
+}
+function selectSentence(text) {
+  const t = String(text || '').trim();
+  if (!t) return;
+  const box = $('sentenceText');
+  box.value = t;
+  autoGrowTextarea(box);
+  genRefAudio(t, true); // 自动生成并播放
+  $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ================= 通用音频播放器：播放/暂停 + 可拖动进度条 + 时间 ================= */
+function createPlayer(ns, getRate) {
+  const audio = new Audio();
+  audio.preload = 'metadata';
+  const playBtn = $(ns + 'PlayBtn'), seek = $(ns + 'Seek'),
+        cur = $(ns + 'Cur'), durEl = $(ns + 'Dur');
+  const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
+  const setIcon = playing => { playBtn.innerHTML = playing ? '<span class="ic-pause"></span>' : '<span class="ic-play"></span>'; };
+  playBtn.onclick = () => {
+    if (!audio.src) return;
+    if (getRate) audio.playbackRate = getRate(); // 每次播放都按当前语速配置来
+    if (audio.paused) audio.play().catch(e => dlg({ title: '播放失败', message: e.message }));
+    else audio.pause();
+  };
+  audio.addEventListener('play', () => setIcon(true));
+  audio.addEventListener('pause', () => setIcon(false));
+  audio.addEventListener('loadedmetadata', () => {
+    durEl.textContent = fmt(audio.duration);
+    seek.disabled = false; playBtn.disabled = false;
+  });
+  audio.addEventListener('timeupdate', () => {
+    if (audio.duration) seek.value = Math.round(audio.currentTime / audio.duration * 1000);
+    cur.textContent = fmt(audio.currentTime);
+  });
+  audio.addEventListener('ended', () => { setIcon(false); seek.value = 0; cur.textContent = '0:00'; });
+  seek.addEventListener('input', () => {
+    if (audio.duration) audio.currentTime = seek.value / 1000 * audio.duration;
+  });
+  return {
+    load(url, autoplay) {
+      audio.src = url;
+      if (getRate) audio.playbackRate = getRate(); // 换音频后重新应用语速（浏览器换 src 会重置语速）
+      setIcon(false); seek.value = 0; cur.textContent = '0:00';
+      if (autoplay) audio.play().catch(() => {});
+    },
+    setRate(r) { audio.playbackRate = r; }
+  };
+}
+const refPlayer = createPlayer('ref', getRefRate);
+const myPlayer = createPlayer('my');
+
+/* 原声音速预设（0.5x–1.5x），存浏览器，下次打开还在 */
+const LS_RATE = 'deutsch.refRate.v1';
+const RATE_PRESETS = [0.5, 0.75, 1, 1.25, 1.5];
+function getRefRate() {
+  const r = parseFloat(localStorage.getItem(LS_RATE));
+  return RATE_PRESETS.includes(r) ? r : 1;
+}
+function applyRefRate() {
+  const r = getRefRate();
+  refPlayer.setRate(r);
+  document.querySelectorAll('#refRateRow button').forEach(b => {
+    b.classList.toggle('on', parseFloat(b.dataset.rate) === r);
+  });
+}
+function initRefRate() {
+  document.querySelectorAll('#refRateRow button').forEach(b => {
+    b.onclick = () => {
+      localStorage.setItem(LS_RATE, b.dataset.rate);
+      applyRefRate();
+    };
+  });
+  applyRefRate();
+}
+
+/* ================= Azure TTS（原声） ================= */
+let lastRefBlob = null, lastRefUrl = null;
+
+async function ttsBlob(text) {
+  const s = getSettings();
+  if (!s.azureKey || !s.azureRegion) throw new Error('请先在「设置」里填写 Azure Speech Key 和 Region');
+  const t = String(text || '').trim();
+  if (!t) throw new Error('没有可朗读的文本');
+  const url = 'https://' + s.azureRegion + '.tts.speech.microsoft.com/cognitiveservices/v1';
+  const ssml = "<speak version='1.0' xml:lang='de-DE'><voice xml:lang='de-DE' name='" +
+    esc(s.voice) + "'>" + escapeXml(t) + "</voice></speak>";
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Ocp-Apim-Subscription-Key': s.azureKey,
+      'Content-Type': 'application/ssml+xml',
+      'X-Microsoft-OutputFormat': 'audio-24khz-48kbitrate-mono-mp3'
+    },
+    body: ssml
+  });
+  if (!res.ok) {
+    const et = await res.text().catch(() => '');
+    throw new Error('TTS 失败（' + res.status + '）：' + et.slice(0, 180));
+  }
+  return await res.blob();
+}
+
+/* 短字符串 hash（djb2）：TTS 缓存 key 用 */
+function hashStr(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+/* TTS 带本地缓存：同一句话 + 同一声音只调一次 API，音频存 IndexedDB（最多保留 100 条） */
+async function ttsCached(rawText, voice) {
+  const t = germanOnly(rawText); // 统一过滤：去中文行、去 emoji
+  if (!t) throw new Error('文本框是空的，点击对话中的一句话可自动填入');
+  const v = voice || getSettings().voice;
+  const key = 'tts:' + v + ':' + hashStr(t);
+  const hit = await idbGet(key).catch(() => null);
+  if (hit && hit.blob && hit.text === t) return { blob: hit.blob, text: t, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段视为未命中，重新生成一次即自愈
+  const blob = await ttsBlob(t);
+  const lim = getSettings().ttsCacheLimit; // 已钳制 0–500；0 = 关闭缓存
+  if (lim > 0) {
+    idbSet(key, { blob: blob, t: Date.now(), text: t }).catch(() => {});
+    trimTtsCache(lim).catch(() => {});
+  }
+  return { blob: blob, text: t, cached: false };
+}
+/* TTS 缓存淘汰：只保留最新的 limit 条 */
+async function trimTtsCache(limit) {
+  const db = await idb();
+  const items = await new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readonly');
+    const out = [];
+    const rq = tx.objectStore('audios').openCursor();
+    rq.onsuccess = e => {
+      const cur = e.target.result;
+      if (cur) { out.push({ key: cur.key, val: cur.value }); cur.continue(); }
+      else resolve(out);
+    };
+    rq.onerror = () => reject(rq.error);
+  });
+  const tts = items.filter(x => typeof x.key === 'string' && x.key.indexOf('tts:') === 0 && x.val && typeof x.val.t === 'number');
+  if (tts.length <= limit) return;
+  tts.sort((a, b) => a.val.t - b.val.t);
+  await new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readwrite');
+    tts.slice(0, tts.length - limit).forEach(x => tx.objectStore('audios').delete(x.key));
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function genRefAudio(text, autoplay) {
+  try {
+    const r = await ttsCached(text);
+    lastRefBlob = r.blob;
+    lastRefText = r.text;
+    if (lastRefUrl) URL.revokeObjectURL(lastRefUrl);
+    lastRefUrl = URL.createObjectURL(r.blob);
+    refPlayer.load(lastRefUrl, autoplay !== false);
+    return true;
+  } catch (e) { dlg({ title: '原声生成失败', message: e.message }); return false; }
+}
+
+async function downloadRefAudio() {
+  try {
+    let blob = lastRefBlob;
+    if (!blob) {
+      const r = await ttsCached($('sentenceText').value);
+      blob = r.blob;
+      lastRefBlob = blob;
+      lastRefText = r.text;
+      if (lastRefUrl) URL.revokeObjectURL(lastRefUrl);
+      lastRefUrl = URL.createObjectURL(blob);
+      refPlayer.load(lastRefUrl, false);
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'deutsch-' + Date.now() + '.mp3';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  } catch (e) { dlg({ title: '下载失败', message: e.message }); }
+}
+
+async function testTts() {
+  const msg = $('ttsTestMsg');
+  msg.textContent = '合成中…';
+  try {
+    const blob = await ttsBlob('Guten Tag! Wie geht es dir?');
+    await new Audio(URL.createObjectURL(blob)).play();
+    msg.textContent = 'TTS 正常，已播放测试语音';
+  } catch (e) { msg.textContent = '失败：' + e.message; }
+}
+
+/* ================= 发音评估（跟读打分）+ 同步录下用户音频 ================= */
+/* REST 直调 Azure 发音评估：不需要 SDK（tuner 同款方案），16kHz PCM 加 WAV 头直接 POST */
+/* Int16 PCM(16kHz单声道) → WAV Blob：REST 接口要求 44 字节 WAV 头 */
+function pcm16ToWavBlob(pcm16) {
+  const n = pcm16.length;
+  const buf = new ArrayBuffer(44 + n * 2);
+  const v = new DataView(buf);
+  const wstr = (o, s) => { for (let i = 0; i < s.length; i++) v.setUint8(o + i, s.charCodeAt(i)); };
+  wstr(0, 'RIFF'); v.setUint32(4, 36 + n * 2, true); wstr(8, 'WAVE');
+  wstr(12, 'fmt '); v.setUint32(16, 16, true); v.setUint16(20, 1, true); v.setUint16(22, 1, true);
+  v.setUint32(24, 16000, true); v.setUint32(28, 16000 * 2, true); v.setUint16(32, 2, true); v.setUint16(34, 16, true);
+  wstr(36, 'data'); v.setUint32(40, n * 2, true);
+  new Int16Array(buf, 44).set(pcm16);
+  return new Blob([buf], { type: 'audio/wav' });
+}
+/* UTF-8 → base64：德语变音字符进 Header 前必须编码 */
+function toBase64Utf8(text) {
+  const bytes = new TextEncoder().encode(String(text));
+  let bin = '';
+  for (const b of bytes) bin += String.fromCharCode(b);
+  return btoa(bin);
+}
+
+function setRecHint(t) { $('recHint').textContent = t || ''; }
+
+let myRecordingUrl = null;
+let pendingRetry = null; // 打分失败但录音保留时：{ blob, text }，供"重新打分"用
+
+/* 录音按钮四态：idle（开始录音）/ starting（准备中）/ recording（■ 停止）/ scoring（打分中） */
+function setRecUI(state) {
+  const btn = $('recBtn');
+  if (state === 'recording') {
+    btn.classList.add('recording');
+    $('recLabel').textContent = '■ 停止';
+    btn.disabled = false;
+    $('recStatus').classList.remove('hidden');
+    $('recSpin').classList.add('hidden');
+    $('recPhase').textContent = '录音中…说完点击「停止」';
+  } else if (state === 'scoring') {
+    btn.classList.remove('recording');
+    $('recLabel').textContent = '打分中…';
+    btn.disabled = true;
+    $('recSpin').classList.remove('hidden');
+    $('recPhase').textContent = '正在打分，请稍候…';
+    stopMeter();
+  } else if (state === 'starting') {
+    btn.classList.remove('recording');
+    $('recLabel').textContent = '准备中…';
+    btn.disabled = true;
+    $('recStatus').classList.add('hidden');
+  } else {
+    btn.classList.remove('recording');
+    $('recLabel').textContent = '开始录音';
+    btn.disabled = false;
+    $('recStatus').classList.add('hidden');
+    stopMeter();
+  }
+}
+
+/* 麦克风实时音量条 */
+let meterRAF = null, meterCtx = null;
+function startMeter(stream) {
+  stopMeter();
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    meterCtx = new AC();
+    const src = meterCtx.createMediaStreamSource(stream);
+    const analyser = meterCtx.createAnalyser();
+    analyser.fftSize = 512;
+    src.connect(analyser);
+    const buf = new Uint8Array(analyser.frequencyBinCount);
+    const fill = $('meterFill');
+    let shown = 0, lastPaint = 0;
+    const loop = () => {
+      analyser.getByteTimeDomainData(buf);
+      let sum = 0;
+      for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
+      const target = Math.min(100, Math.round(Math.sqrt(sum / buf.length) * 320));
+      const now = performance.now();
+      if (now - lastPaint > 120) { // 约每秒 8 次更新，快升慢降，取整到 5%
+        lastPaint = now;
+        shown = target > shown ? target : shown * 0.7;
+        if (shown < 2) shown = 0;
+        if (fill) fill.style.width = (Math.round(shown / 5) * 5) + '%';
+      }
+      meterRAF = requestAnimationFrame(loop);
+    };
+    loop();
+  } catch (e) {}
+}
+function stopMeter() {
+  if (meterRAF) { cancelAnimationFrame(meterRAF); meterRAF = null; }
+  if (meterCtx) { try { meterCtx.close(); } catch (e) {} meterCtx = null; }
+  const fill = $('meterFill');
+  if (fill) fill.style.width = '0%';
+}
+
+let recSession = null;
+let recBusy = false;
+
+async function onRecBtn() {
+  if (recBusy) return;
+  recBusy = true;
+  try {
+    if (recSession) await stopRecording();
+    else await startRecording();
+  } finally { recBusy = false; }
+}
+
+/* 开始：只录音（MediaRecorder）；点停止后转 PCM，经 REST 发去打分 */
+async function startRecording() {
+  const text = $('sentenceText').value.trim();
+  if (!text) { alertDlg('请先点击对话中的一句话，或在文本框输入要练习的德语句子'); return; }
+  const s = getSettings();
+  if (!s.azureKey || !s.azureRegion) { alertDlg('请先在「设置」里填写 Azure Speech Key 和 Region'); return; }
+  setRecUI('starting');
+  setRecHint('');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const chunks = [];
+    const recorder = new MediaRecorder(stream);
+    recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
+    recorder.start();
+    startMeter(stream);
+    recSession = { recorder: recorder, stream: stream, chunks: chunks, text: text };
+    setRecUI('recording');
+  } catch (e) {
+    recSession = null;
+    setRecUI('idle');
+    dlg({ title: '无法开始录音', message: String((e && e.message) || e) });
+  }
+}
+
+async function stopRecording() {
+  const rs = recSession;
+  recSession = null;
+  if (!rs) { setRecUI('idle'); return; }
+  setRecUI('scoring');
+  let blob = null;
+  try {
+    if (rs.recorder.state !== 'inactive') {
+      await new Promise(res => { rs.recorder.onstop = res; rs.recorder.stop(); });
+    }
+    if (!rs.chunks.length) throw new Error('没有录到声音，请检查麦克风后重试');
+    blob = new Blob(rs.chunks, { type: rs.recorder.mimeType || 'audio/webm' });
+    // 回放：停止后自动播放我的录音
+    if (myRecordingUrl) URL.revokeObjectURL(myRecordingUrl);
+    myRecordingUrl = URL.createObjectURL(blob);
+    myPlayer.load(myRecordingUrl, true);
+    // 解码为 16kHz 单声道 PCM，用单次识别做发音评估（已验证过的路径）
+    const pcm16 = await decodeToPcm16k(blob);
+    const r = await assessPcm(pcm16, rs.text);
+    pendingRetry = null;
+    renderResult(r.pa, r.recognized);
+    savePracticeRecord(rs.text, r.pa, r.recognized, blob);
+  } catch (e) {
+    const msg = String((e && e.message) || e);
+    if (blob && /网络|超时/.test(msg)) {
+      // 网络问题：录音保留，给"重新打分"按钮，不用重录
+      pendingRetry = { blob: blob, text: rs.text };
+      showRetryCard(msg);
+    } else {
+      dlg({ title: '打分失败', message: msg });
+    }
+  } finally {
+    try { rs.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
+    stopMeter();
+    setRecUI('idle');
+    setRecHint('');
+  }
+}
+
+/* 打分因语音组件网络问题失败时：录音已保留，点"重新打分"直接重评，无需重录 */
+function showRetryCard(msg) {
+  const card = $('resultCard');
+  card.classList.remove('hidden');
+  card.innerHTML = '<div class="retrybox"><p>' + msg + '。你的录音已保留，网络恢复后可直接重新打分，无需重录。</p>'
+    + '<button id="retryScoreBtn" class="btn-pri">重新打分</button></div>';
+  $('retryScoreBtn').onclick = retryScoring;
+}
+async function retryScoring() {
+  const pr = pendingRetry;
+  if (!pr) return;
+  const btn = $('retryScoreBtn');
+  btn.disabled = true;
+  btn.textContent = '打分中…';
+  try {
+    const pcm16 = await decodeToPcm16k(pr.blob);
+    const r = await assessPcm(pcm16, pr.text);
+    pendingRetry = null;
+    renderResult(r.pa, r.recognized);
+    savePracticeRecord(pr.text, r.pa, r.recognized, pr.blob);
+  } catch (e) {
+    btn.disabled = false;
+    btn.textContent = '重新打分';
+    dlg({ title: '打分失败', message: String((e && e.message) || e) });
+  }
+}
+
+/* 音频解码并重采样为 16kHz 单声道 16-bit PCM（供 REST 发音评估） */
+async function decodeToPcm16k(blob) {
+  const arrayBuffer = await blob.arrayBuffer();
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const actx = new AC();
+  try {
+    const audioBuf = await actx.decodeAudioData(arrayBuffer);
+    const targetRate = 16000;
+    const offline = new OfflineAudioContext(1, Math.max(1, Math.ceil(audioBuf.duration * targetRate)), targetRate);
+    const src = offline.createBufferSource();
+    src.buffer = audioBuf;
+    src.connect(offline.destination);
+    src.start(0);
+    const rendered = await offline.startRendering();
+    const data = rendered.getChannelData(0);
+    const out = new Int16Array(data.length);
+    for (let i = 0; i < data.length; i++) {
+      const v = Math.max(-1, Math.min(1, data[i]));
+      out[i] = v < 0 ? v * 0x8000 : v * 0x7FFF;
+    }
+    return out;
+  } finally {
+    try { actx.close(); } catch (e) {}
+  }
+}
+
+/* REST 发音评估：POST 16kHz WAV 到 Azure，不再依赖 SDK */
+async function assessPcm(pcm16, referenceText) {
+  const s = getSettings();
+  if (!s.azureKey || !s.azureRegion) throw new Error('请先在「设置」里填写 Azure Speech Key 和 Region');
+  const config = {
+    ReferenceText: referenceText,
+    GradingSystem: 'HundredMark',
+    Granularity: 'Phoneme',
+    Dimension: 'Comprehensive',
+    EnableMiscue: true,
+    PhonemeAlphabet: 'IPA',
+    nbestPhonemeCount: 3
+  };
+  const url = 'https://' + s.azureRegion + '.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1'
+    + '?language=de-DE&format=detailed';
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 60000);
+  let res;
+  try {
+    res = await fetch(url, {
+      method: 'POST',
+      signal: ctrl.signal,
+      headers: {
+        'Ocp-Apim-Subscription-Key': s.azureKey,
+        'Content-Type': 'audio/wav; codecs=audio/pcm; samplerate=16000',
+        'Pronunciation-Assessment': toBase64Utf8(JSON.stringify(config)),
+        'Accept': 'application/json'
+      },
+      body: pcm16ToWavBlob(pcm16)
+    });
+  } catch (e) {
+    throw new Error((e && e.name === 'AbortError') ? '打分请求超时，请检查网络后重试' : '网络连接失败，请检查网络后重试');
+  } finally {
+    clearTimeout(timer);
+  }
+  if (res.status === 401 || res.status === 403) throw new Error('Azure Key 或 Region 不正确，请去「设置」检查');
+  if (res.status === 429) throw new Error('请求太频繁或配额用完，稍后再试');
+  if (!res.ok) {
+    const t = await res.text().catch(() => '');
+    throw new Error('打分服务异常（' + res.status + '）' + (t ? '：' + t.slice(0, 120) : ''));
+  }
+  let json;
+  try { json = await res.json(); }
+  catch (e) { throw new Error('打分服务返回异常，请重试'); }
+  if (!json || json.RecognitionStatus !== 'Success')
+    throw new Error('没有识别到语音，请靠近麦克风、完整读一遍再试');
+  const best = json.NBest && json.NBest[0];
+  if (!best) throw new Error('打分服务没有返回结果，请重试');
+  // 适配成 renderResult 原来的字段形态：总分/子分 + Words（含单词与音素明细）
+  // REST 的分数可能是平铺的（best.AccuracyScore），也可能嵌套在 PronunciationAssessment 下——两种都兼容
+  const a = best.PronunciationAssessment || {};
+  const pick = (...vs) => { for (const v of vs) if (typeof v === 'number' && !isNaN(v)) return v; return 0; };
+  const hasScore = (...vs) => vs.some(v => typeof v === 'number' && !isNaN(v));
+  // 防御：有转写但无评估 = 配置没被接受，抛错而不是渲染误导人的 0 分
+  if (!hasScore(a.AccuracyScore, best.AccuracyScore))
+    throw new Error('打分服务未返回发音评估（只返回了转写），请重试');
+  const normPhoneme = p => {
+    const ppa = p.PronunciationAssessment || {};
+    return {
+      Phoneme: p.Phoneme || p.phoneme || '',
+      Offset: p.Offset, Duration: p.Duration,
+      PronunciationAssessment: {
+        AccuracyScore: pick(ppa.AccuracyScore, p.AccuracyScore),
+        NBestPhonemes: ppa.NBestPhonemes || p.NBestPhonemes || []
+      }
+    };
+  };
+  const normWord = w => {
+    const wpa = w.PronunciationAssessment || {};
+    return {
+      Word: w.Word || '',
+      Offset: w.Offset, Duration: w.Duration,
+      PronunciationAssessment: {
+        AccuracyScore: pick(wpa.AccuracyScore, w.AccuracyScore),
+        ErrorType: wpa.ErrorType || w.ErrorType || 'None'
+      },
+      Phonemes: (w.Phonemes || []).map(normPhoneme)
+    };
+  };
+  return {
+    pa: {
+      pronunciationScore: pick(a.PronScore, best.PronScore),
+      accuracyScore: pick(a.AccuracyScore, best.AccuracyScore),
+      fluencyScore: pick(a.FluencyScore, best.FluencyScore),
+      completenessScore: pick(a.CompletenessScore, best.CompletenessScore),
+      detailResult: { Words: (best.Words || []).map(normWord) }
+    },
+    recognized: best.Display || best.Lexical || json.DisplayText || ''
+  };
+}
+
+function subBar(label, v) {
+  const c = v >= 80 ? 'ok' : v >= 60 ? 'warn' : 'bad';
+  return '<div class="sub"><span>' + label + '</span><div class="bar"><i class="' + c +
+    '" style="width:' + v + '%"></i></div><b>' + v + '</b></div>';
+}
+
+/* 德语发音规则 → 预估 IPA 音标数组
+   背景：Azure 发音评估不对 de-DE 返回音素名称（只有分数），按拼读规则估算。
+   调用方必须用 Azure 实际音素数量校验，数量对不上则弃用。 */
+function germanG2P(word) {
+  const w = String(word || '').toLowerCase().replace(/[^a-zäöüß]/g, '');
+  const N = w.length;
+  if (!N) return null;
+  // 高频词例外（词尾单辅音的长短音是词汇性的，规则猜不准）
+  const EXC = {
+    mit: ['m','ɪ','t'], in: ['ɪ','n'], an: ['a','n'], von: ['f','ɔ','n'],
+    ob: ['ɔ','p'], das: ['d','a','s'], hat: ['h','a','t'], man: ['m','a','n'],
+    es: ['ɛ','s'], bin: ['b','ɪ','n'], stadt: ['ʃ','t','a','t']
+  };
+  if (EXC[w]) return EXC[w];
+  const out = [];
+  const isV = c => c && 'aeiouäöüy'.includes(c);
+  const isC = c => c && !isV(c);
+  let prevLongV = false;
+  let i = 0;
+  function vowelSym(c, pos) {
+    const n1 = w[pos + 1] || '', n2 = w[pos + 2] || '';
+    const um = c === 'ä' || c === 'ö' || c === 'ü';
+    const SH = um ? { ä: 'ɛ', ö: 'œ', ü: 'ʏ' } : { a: 'a', e: 'ɛ', i: 'ɪ', o: 'ɔ', u: 'ʊ' };
+    const LO = um ? { ä: 'ɛː', ö: 'øː', ü: 'yː' } : { a: 'aː', e: 'eː', i: 'iː', o: 'oː', u: 'uː' };
+    if (n1 === 'h') return [LO[c], 2];
+    if (n1 === c) return [LO[c], 2];
+    if (isC(n1)) {
+      if (n2 === n1) return [SH[c], 1];
+      if (!n2 || isV(n2)) return [LO[c], 1];
+      if ('bdg'.includes(n1)) return [LO[c], 1]; // sagt, liebt → 长音
+      return [SH[c], 1];
+    }
+    if (!n1) return [LO[c], 1];
+    return [SH[c], 1];
+  }
+  const DBL = { b: 'b', d: 'd', f: 'f', g: 'g', l: 'l', m: 'm', n: 'n', p: 'p', r: 'ʁ', s: 's', t: 't' };
+  while (i < N) {
+    const c = w[i], n1 = w[i + 1] || '';
+    prevLongV = false;
+    if (c === 'e' && n1 === 'r' && i + 2 === N) {
+      const hasV = /[aeiouäöüy]/.test(w.slice(0, i));
+      out.push.apply(out, hasV ? ['ɐ'] : ['eː', 'ɐ']);
+      i += 2; continue;
+    }
+    if (c === 'e' && n1 === 'n' && i + 2 === N) { out.push('ə'); i += 1; continue; }
+    if (c === 'e' && i + 1 === N) { out.push('ə'); i += 1; continue; }
+    if (w.startsWith('sch', i)) { out.push('ʃ'); i += 3; continue; }
+    if (w.startsWith('dsch', i)) { out.push('dʒ'); i += 4; continue; }
+    if (w.startsWith('tsch', i)) { out.push('tʃ'); i += 4; continue; }
+    if (w.startsWith('chs', i)) { out.push('k', 's'); i += 3; continue; }
+    if (w.startsWith('tz', i)) { out.push('ts'); i += 2; continue; }
+    if (w.startsWith('dt', i)) { out.push('t'); i += 2; continue; }
+    if (w.startsWith('ei', i)) { out.push('aɪ'); i += 2; prevLongV = true; continue; }
+    if (w.startsWith('au', i)) { out.push('aʊ'); i += 2; prevLongV = true; continue; }
+    if (w.startsWith('eu', i) || w.startsWith('äu', i)) { out.push('ɔʏ'); i += 2; prevLongV = true; continue; }
+    if (w.startsWith('ie', i)) { out.push('iː'); i += 2; prevLongV = true; continue; }
+    if (w.startsWith('ch', i)) { out.push('aou'.includes(w[i - 1] || '') ? 'x' : 'ç'); i += 2; continue; }
+    if (w.startsWith('ck', i)) { out.push('k'); i += 2; continue; }
+    if (w.startsWith('ng', i)) { out.push('ŋ'); i += 2; continue; }
+    if (w.startsWith('nk', i)) { out.push('ŋ', 'k'); i += 2; continue; }
+    if (w.startsWith('qu', i)) { out.push('k', 'v'); i += 2; continue; }
+    if (w.startsWith('ph', i)) { out.push('f'); i += 2; continue; }
+    if (w.startsWith('ig', i) && i + 2 === N) { out.push('ɪ', 'ç'); i += 2; continue; }
+    if (n1 === c && DBL[c]) { out.push(DBL[c]); i += 2; continue; }
+    if (c === 's' && (n1 === 'p' || n1 === 't') && (i === 0 || isC(w[i - 1]))) { out.push('ʃ', n1); i += 2; continue; }
+    if ('aeiouäöü'.includes(c)) {
+      const vs = vowelSym(c, i);
+      out.push(vs[0]);
+      if (vs[0].includes('ː')) prevLongV = true;
+      i += vs[1];
+      continue;
+    }
+    switch (c) {
+      case 'b': out.push((!n1 || 'tds'.includes(n1)) ? 'p' : 'b'); break;
+      case 'd': out.push((!n1 || 'ts'.includes(n1)) ? 't' : 'd'); break;
+      case 'g': out.push((!n1 || 'tds'.includes(n1)) ? 'k' : 'g'); break;
+      case 'r': out.push(((!n1 || isC(n1)) && prevLongV) ? 'ɐ' : 'ʁ'); break;
+      case 's': out.push(((i === 0 && isV(n1)) || (isV(w[i - 1]) && isV(n1))) ? 'z' : 's'); break;
+      case 'ß': out.push('s'); break;
+      case 'z': out.push('ts'); break;
+      case 'x': out.push('k', 's'); break;
+      case 'c': out.push('eiä'.includes(n1) ? 'ts' : 'k'); break;
+      case 'v': out.push('f'); break;
+      case 'w': out.push('v'); break;
+      case 'j': out.push('j'); break;
+      case 'y': out.push('ʏ'); break;
+      case 'h': out.push('h'); break;
+      default: out.push(c);
+    }
+    i += 1;
+  }
+  return out;
+}
+
+/* 音素符号：防御性读取（不同接口版本字段形态有差异） */
+function phonemeSym(p) {
+  return (p && (p.Phoneme || p.phoneme)) || '';
+}
+/* Azure 实际听到的音（开了 nbestPhonemeCount 才有），用于纠音提示 */
+function phonemeHeard(p) {
+  try {
+    const pa = p && p.PronunciationAssessment;
+    const nb = pa && (pa.NBestPhonemes || pa.nBestPhonemes);
+    if (nb && nb.length) return nb[0].Phoneme || nb[0].phoneme || '';
+  } catch (e) {}
+  return '';
+}
+
+function renderResult(pa, recognized) {
+  const card = $('resultCard');
+  card.classList.remove('hidden');
+  const overall = Math.round(pa.pronunciationScore || 0);
+  const acc = Math.round(pa.accuracyScore || 0);
+  const flu = Math.round(pa.fluencyScore || 0);
+  const com = Math.round(pa.completenessScore || 0);
+  const C = 2 * Math.PI * 54;
+  let wordsHtml = '';
+  const words = (pa.detailResult && pa.detailResult.Words) || [];
+  words.forEach((w, i) => {
+    const winfo = w.PronunciationAssessment || {};
+    const score = Math.round(winfo.AccuracyScore || 0);
+    const err = winfo.ErrorType || 'None';
+    const cls = err === 'None' ? 'ok'
+      : err === 'Mispronunciation' ? 'bad'
+      : err === 'Omission' ? 'omit'
+      : err === 'Insertion' ? 'ins' : 'warn';
+    let ph = '';
+    const phList = w.Phonemes || [];
+    // Azure 不给德语音标 → 用发音规则估算（数量对得上才用，否则只显示分数）
+    let est = null;
+    if (phList.length && !phList.some(phonemeSym)) {
+      const g = germanG2P(w.Word);
+      if (g && g.length === phList.length) est = g;
+    }
+    phList.forEach((p, pi) => {
+      const ps = Math.round((p.PronunciationAssessment && p.PronunciationAssessment.AccuracyScore) || 0);
+      const pc = phonemeSym(p) || (est ? est[pi] : '');
+      const isEst = !phonemeSym(p) && !!est;
+      const pcls = ps >= 80 ? 'ok' : ps >= 60 ? 'warn' : 'bad';
+      const heard = phonemeHeard(p);
+      const showHeard = heard && heard !== pc && ps < 80;
+      ph += '<span class="ph ' + pcls + '">' +
+        (pc ? '<b' + (isEst ? ' class="est" title="按德语发音规则估算"' : '') + '>' + esc(pc) + '</b>' : '') +
+        '<small>' + ps + '</small>' +
+        (showHeard ? '<i>读成' + esc(heard) + '</i>' : '') +
+        '</span>';
+    });
+    wordsHtml += '<div class="word-wrap"><button class="word ' + cls + '" data-i="' + i + '">' +
+      esc(w.Word || '') + '<small>' + score + '</small></button>' +
+      '<div class="phs hidden" id="phs-' + i + '">' + (ph || '<span class="hint">无音素明细</span>') + '</div></div>';
+  });
+  card.innerHTML =
+    '<div class="score-row">' +
+    '<svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="ring-bg"/>' +
+    '<circle cx="60" cy="60" r="54" class="ring-fg" stroke-dasharray="' + C.toFixed(1) +
+    '" stroke-dashoffset="' + (C * (1 - overall / 100)).toFixed(1) + '"/>' +
+    '<text x="60" y="69" class="ring-num">' + overall + '</text></svg>' +
+    '<div class="subs">' + subBar('准确度', acc) + subBar('流利度', flu) + subBar('完整度', com) + '</div></div>' +
+    '<div class="heard">系统听到：' + esc(recognized || '（无）') + '</div>' +
+    '<div class="words">' + (wordsHtml || '<span class="hint">无单词明细</span>') + '</div>' +
+    '<div class="hint">点单词看音素得分（音标为估算值）。单词：红=读错，灰=漏读，橙=多读。</div>';
+  card.querySelectorAll('.word').forEach(b => b.addEventListener('click', () => {
+    $('phs-' + b.dataset.i).classList.toggle('hidden');
+  }));
+  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+/* ================= IndexedDB：存音频 blob（原声 / 我的录音） ================= */
+let idbPromise = null;
+function idbOpen() {
+  return new Promise((resolve, reject) => {
+    try {
+      const req = indexedDB.open('deutsch-audio', 1);
+      req.onupgradeneeded = () => { req.result.createObjectStore('audios'); };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error || new Error('IndexedDB 打开失败'));
+    } catch (e) { reject(e); }
+  });
+}
+function idb() { if (!idbPromise) idbPromise = idbOpen(); return idbPromise; }
+async function idbSet(key, blob) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readwrite');
+    tx.objectStore('audios').put(blob, key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+async function idbGet(key) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readonly');
+    const rq = tx.objectStore('audios').get(key);
+    rq.onsuccess = () => resolve(rq.result || null);
+    rq.onerror = () => reject(rq.error);
+  });
+}
+async function idbDel(key) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readwrite');
+    tx.objectStore('audios').delete(key);
+    tx.oncomplete = () => resolve();
+    tx.onerror = () => reject(tx.error);
+  });
+}
+/* 按 key 前缀计数（只读 key 不读值，很轻） */
+async function idbCount(prefix) {
+  const db = await idb();
+  return new Promise((resolve, reject) => {
+    const tx = db.transaction('audios', 'readonly');
+    const rq = tx.objectStore('audios').getAllKeys();
+    rq.onsuccess = () => resolve(rq.result.filter(k => typeof k === 'string' && k.indexOf(prefix) === 0).length);
+    rq.onerror = () => reject(rq.error);
+  });
+}
+
+/* ================= 练习记录（跟对话走） ================= */
+let lastRefText = '';
+
+function simplifyWords(pa) {
+  return ((pa.detailResult && pa.detailResult.Words) || []).map(w => ({
+    w: w.Word || '',
+    score: Math.round((w.PronunciationAssessment && w.PronunciationAssessment.AccuracyScore) || 0),
+    err: (w.PronunciationAssessment && w.PronunciationAssessment.ErrorType) || 'None',
+    phonemes: (w.Phonemes || []).map(p => ({
+      p: phonemeSym(p),
+      s: Math.round((p.PronunciationAssessment && p.PronunciationAssessment.AccuracyScore) || 0),
+      h: phonemeHeard(p)
+    }))
+  }));
+}
+
+function savePracticeRecord(text, pa, recognizedText, myBlob) {
+  const conv = activeConv();
+  if (!conv) return null;
+  const recId = 'r' + Date.now();
+  const rec = {
+    id: recId, t: Date.now(), text: text,
+    voice: getSettings().voice, // 原声即 TTS：记下当时用的声音，还原时保持一致
+    score: Math.round(pa.pronunciationScore || 0),
+    accuracy: Math.round(pa.accuracyScore || 0),
+    fluency: Math.round(pa.fluencyScore || 0),
+    completeness: Math.round(pa.completenessScore || 0),
+    recognizedText: recognizedText || '',
+    words: simplifyWords(pa)
+  };
+  conv.records = conv.records || [];
+  conv.records.unshift(rec);
+  const keepR = getSettings().practiceHistoryLimit; // 已钳制 1–200
+  if (conv.records.length > keepR) {
+    // 被挤掉的旧记录：同步删掉它的录音（my:），不留孤儿；ref: 顺带清老版本残留
+    conv.records.slice(keepR).forEach(r => {
+      idbDel('my:' + r.id).catch(function(){});
+      idbDel('ref:' + r.id).catch(function(){});
+    });
+    conv.records = conv.records.slice(0, keepR);
+  }
+  persistConv(conv);
+  renderHistory();
+  if (myBlob) idbSet('my:' + recId, myBlob).catch(function(){});
+  return rec;
+}
+
+function paLikeFromRec(rec) {
+  return {
+    pronunciationScore: rec.score,
+    accuracyScore: rec.accuracy,
+    fluencyScore: rec.fluency,
+    completenessScore: rec.completeness,
+    detailResult: {
+      Words: (rec.words || []).map(w => ({
+        Word: w.w,
+        PronunciationAssessment: { AccuracyScore: w.score, ErrorType: w.err },
+        Phonemes: (w.phonemes || []).map(p => ({
+          Phoneme: p.p,
+          PronunciationAssessment: {
+            AccuracyScore: p.s,
+            NBestPhonemes: p.h ? [{ Phoneme: p.h }] : []
+          }
+        }))
+      }))
+    }
+  };
+}
+
+async function restoreRecord(convId, recId) {
+  const conv = getConvs().find(c => c.id === convId);
+  const rec = conv && (conv.records || []).find(r => r.id === recId);
+  if (!rec) return;
+  $('sentenceText').value = rec.text;
+  autoGrowTextarea($('sentenceText'));
+  renderResult(paLikeFromRec(rec), rec.recognizedText || '');
+  try {
+    // 原声就是 TTS：先兼容旧版本存的 ref:，没有则走 TTS 缓存（一般命中，不调 API）
+    let refBlob = await idbGet('ref:' + recId).catch(() => null);
+    if (!refBlob) {
+      try { refBlob = (await ttsCached(rec.text, rec.voice)).blob; } catch (e) {}
+    }
+    if (refBlob) {
+      if (lastRefUrl) URL.revokeObjectURL(lastRefUrl);
+      lastRefUrl = URL.createObjectURL(refBlob);
+      lastRefBlob = refBlob; lastRefText = rec.text;
+      refPlayer.load(lastRefUrl, true); // 自动播放原声
+    }
+  } catch (e) {}
+  try {
+    const myBlob = await idbGet('my:' + recId);
+    if (myBlob) {
+      if (myRecordingUrl) URL.revokeObjectURL(myRecordingUrl);
+      myRecordingUrl = URL.createObjectURL(myBlob);
+      myPlayer.load(myRecordingUrl, false);
+    }
+  } catch (e) {}
+  $('recordCard').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function renderHistory() {
+  const list = $('historyList');
+  const conv = activeConv();
+  const recs = (conv && conv.records) || [];
+  list.innerHTML = '';
+  if (!recs.length) {
+    list.innerHTML = '<div class="hint">暂无练习记录</div>';
+    return;
+  }
+  recs.forEach(rec => {
+    const d = document.createElement('button');
+    d.className = 'hist';
+    const c = rec.score >= 80 ? 'ok' : rec.score >= 60 ? 'warn' : 'bad';
+    const b = document.createElement('b'); b.className = c; b.textContent = rec.score;
+    const sp = document.createElement('span'); sp.textContent = rec.text;
+    const sm = document.createElement('small'); sm.textContent = new Date(rec.t).toLocaleString();
+    d.appendChild(b); d.appendChild(sp); d.appendChild(sm);
+    d.onclick = () => restoreRecord(conv.id, rec.id);
+    list.appendChild(d);
+  });
+}
+
+function deleteConvAudios(conv) {
+  const recs = (conv && conv.records) || [];
+  recs.forEach(r => {
+    idbDel('ref:' + r.id).catch(function(){});
+    idbDel('my:' + r.id).catch(function(){});
+  });
+}
+
+/* 把旧版全局历史迁移到当前对话下 */
+function migrateOldHistory() {
+  try {
+    const old = JSON.parse(localStorage.getItem(LS_HISTORY) || '[]');
+    localStorage.removeItem(LS_HISTORY);
+    if (!old.length) return;
+    const conv = activeConv();
+    if (!conv) return;
+    conv.records = conv.records || [];
+    old.forEach((h, i) => {
+      conv.records.push({
+        id: 'r-mig-' + h.t + '-' + i, t: h.t, text: h.text,
+        score: h.score, accuracy: h.score, fluency: h.score, completeness: h.score,
+        recognizedText: '', words: []
+      });
+    });
+    conv.records.sort((a, b) => b.t - a.t);
+    conv.records = conv.records.slice(0, getSettings().practiceHistoryLimit);
+    persistConv(conv);
+  } catch (e) {}
+}
+
+/* ================= 存储占用统计 ================= */
+function fmtBytes(n) {
+  n = n || 0;
+  if (n < 1024) return n + ' B';
+  if (n < 1048576) return (n / 1024).toFixed(1) + ' KB';
+  if (n < 1073741824) return (n / 1048576).toFixed(1) + ' MB';
+  return (n / 1073741824).toFixed(2) + ' GB';
+}
+async function refreshStorageStats() {
+  if (!$('statUsage')) return;
+  const s = getSettings();
+  $('statConvs').textContent = getConvs().length + ' / ' + s.convLimit + ' 个';
+  try { $('statTts').textContent = (await idbCount('tts:')) + ' / ' + s.ttsCacheLimit + ' 条'; }
+  catch (e) { $('statTts').textContent = '—'; }
+  try {
+    if (navigator.storage && navigator.storage.estimate) {
+      const { usage, quota } = await navigator.storage.estimate();
+      $('statUsage').textContent = fmtBytes(usage) + '（配额约 ' + fmtBytes(quota) + '）';
+    } else {
+      $('statUsage').textContent = '浏览器不支持统计';
+    }
+  } catch (e) { $('statUsage').textContent = '—'; }
+}
+
+/* ================= 初始化 ================= */
+async function init() {
+  initSettings();
+  initTabs();
+  await initConvsStore(); // 对话数据从 IndexedDB 加载（含 localStorage 老数据迁移）
+  if (!getConvs().length) newConversation();
+  migrateOldHistory();
+  renderConvList(); renderChat(); renderHistory();
+
+  $('menuBtn').onclick = openDrawer;
+  $('closeDrawer').onclick = closeDrawer;
+  let lastSearchQ = '';
+  $('convSearch').addEventListener('input', () => {
+    const q = $('convSearch').value.trim();
+    renderConvList();
+    if (!q && lastSearchQ) revealActiveConv(true); // 刚清空搜索：把当前选中的对话滚到可见
+    lastSearchQ = q;
+  });
+  $('scrim').onclick = closeDrawer;
+  $('exportAllBtn').onclick = exportAllConvs;
+  $('newChatBtn2').onclick = newConversation;
+  $('delAllBtn').onclick = async () => {
+    if (await confirmDlg('确定删除所有对话吗？相关的练习记录和音频也会一并清除。', '全部删除')) {
+      getConvs().forEach(deleteConvAudios);
+      saveConvs([]); setActiveId('');
+      newConversation(); closeDrawer();
+    }
+  };
+  async function deleteConvsOlderThan(days) {
+    const cutoff = Date.now() - days * 24 * 3600 * 1000;
+    const convs = getConvs();
+    const old = convs.filter(c => (c.createdAt || 0) < cutoff);
+    if (!old.length) { await alertDlg('没有 ' + days + ' 天前的对话'); return; }
+    if (!await confirmDlg('确定删除 ' + old.length + ' 个 ' + days + ' 天前的对话吗？相关的练习记录和录音也会一并清除，删了找不回来。')) return;
+    old.forEach(deleteConvAudios); // 录音同步清掉
+    const rest = convs.filter(c => (c.createdAt || 0) >= cutoff);
+    saveConvs(rest);
+    if (!rest.some(c => c.id === getActiveId())) setActiveId(rest.length ? rest[0].id : '');
+    if (!rest.length) newConversation();
+    else { renderConvList(); renderChat(); renderHistory(); }
+    closeDrawer();
+  }
+  $('delOldBtn').onclick = () => deleteConvsOlderThan(10);
+  $('delOld30Btn').onclick = () => deleteConvsOlderThan(30);
+
+  $('sendBtn').onclick = sendChat;
+  $('chatInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+
+  $('genBtn').onclick = () => genRefAudio($('sentenceText').value, true);
+  $('dlRefBtn').onclick = downloadRefAudio;
+  $('recBtn').onclick = onRecBtn;
+  initRefRate();
+  const stBox = $('sentenceText');
+  stBox.addEventListener('input', () => autoGrowTextarea(stBox));
+  autoGrowTextarea(stBox);
+  $('testChatBtn').onclick = testChat;
+  $('testTtsBtn').onclick = testTts;
+  $('statRefresh').onclick = refreshStorageStats;
+}
+document.addEventListener('DOMContentLoaded', init);
+// 注册 Service Worker（PWA 安装 + 弱网兜底）
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+}
+</script>
+</body>
+</html>
