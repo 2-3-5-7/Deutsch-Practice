@@ -414,7 +414,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261004-27</div>
+    <div class="ver">版本 v20261004-29</div>
   </section>
 </main>
 <script>
@@ -1926,6 +1926,7 @@ async function startRecording() {
     const recorder = new MediaRecorder(stream);
     recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
     recorder.start();
+    if (navigator.vibrate) navigator.vibrate(30); // 开始录音轻震一下（仅安卓等支持的设备）
     startMeter(stream);
     recSession = { recorder: recorder, stream: stream, chunks: chunks, text: text };
     recSession.maxTimer = setTimeout(() => {
@@ -1944,6 +1945,7 @@ async function stopRecording() {
   recSession = null;
   if (rs && rs.maxTimer) { try { clearTimeout(rs.maxTimer); } catch (e) {} }
   if (!rs) { setRecUI('idle'); return; }
+  if (navigator.vibrate) navigator.vibrate([30, 60, 30]); // 停止录音震两下，和开始区分开
   setRecUI('scoring');
   let blob = null;
   try {
@@ -2524,9 +2526,47 @@ async function refreshStorageStats() {
 }
 
 /* ================= 初始化 ================= */
+/* Web Share Target：从别的 App 分享文字过来 → 填入跟读框并生成原声 */
+function applySharedText(shared) {
+  const t = stripEmoji(String(shared || '')).trim(); // 去掉 emoji，Azure 读 emoji 很怪
+  if (!t) return;
+  const s = getSettings();
+  if (s.azureKey && s.azureRegion) {
+    selectSentence(t); // 填入跟读框 + 自动生成原声（播放被拦截时静默，只加载好音频等用户点播放）
+  } else {
+    // 没配 Azure Key：只填框，不弹错误打断启动；用户点"生成原声"时会收到引导
+    const box = $('sentenceText');
+    box.value = t;
+    autoGrowTextarea(box);
+    refreshSentenceBlur();
+    $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+}
+function handleSharedText() {
+  let q;
+  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  const shared = (q.get('text') || '').trim() || (q.get('title') || '').trim();
+  if (!shared) return;
+  try { history.replaceState(null, '', location.pathname); } catch (e) {} // 清掉参数，刷新不再重复触发
+  applySharedText(shared);
+}
+/* App 已打开时再被分享唤起：focus-existing 只聚焦不刷新页面，分享参数走 launchQueue 送达 */
+if ('launchQueue' in window) {
+  try {
+    window.launchQueue.setConsumer(params => {
+      try {
+        const u = new URL(params.targetURL || '');
+        const shared = (u.searchParams.get('text') || '').trim() || (u.searchParams.get('title') || '').trim();
+        if (shared) applySharedText(shared);
+      } catch (e) {}
+    });
+  } catch (e) {}
+}
+
 async function init() {
   initSettings();
   initSettingsNav();
+  handleSharedText();
   await initConvsStore(); // 对话数据从 IndexedDB 加载（含 localStorage 老数据迁移）
   if (!getConvs().length) newConversation();
   migrateOldHistory();
