@@ -414,7 +414,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261004-24</div>
+    <div class="ver">版本 v20261004-25</div>
   </section>
 </main>
 <script>
@@ -1892,7 +1892,9 @@ async function startRecording() {
   setRecUI('starting');
   setRecHint('');
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } // 直通麦克风原始信号：浏览器的降噪/增益会吃掉擦音等发音细节，影响打分
+    });
     const chunks = [];
     const recorder = new MediaRecorder(stream);
     recorder.ondataavailable = e => { if (e.data && e.data.size) chunks.push(e.data); };
