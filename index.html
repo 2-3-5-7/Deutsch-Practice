@@ -117,13 +117,16 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .test-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .test-row button{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:10px 16px;font-size:14px}
 .test-msg{font-size:13px;color:var(--mut)}
-.player{display:flex;align-items:center;gap:10px;background:#f8f7ff;border:1px solid var(--line);border-radius:12px;padding:8px 12px;margin:2px 0 10px}
+.player{display:block;background:#f8f7ff;border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:2px 0 10px}
 .playbtn{width:42px;height:42px;flex:none;border-radius:50%;border:none;background:var(--pri);display:flex;align-items:center;justify-content:center;cursor:pointer}
 .playbtn:disabled{opacity:.35}
+.playbtn.pill{width:100%;height:50px;border-radius:999px;font-size:16px;font-weight:700;color:#fff;gap:10px}
 .ic-play{width:0;height:0;border-left:15px solid #fff;border-top:10px solid transparent;border-bottom:10px solid transparent;margin-left:4px}
 .ic-pause{width:13px;height:17px;box-sizing:border-box;border-left:5px solid #fff;border-right:5px solid #fff}
-.player input[type=range]{flex:1;accent-color:var(--pri);min-width:0}
-.time{font-size:12px;color:var(--mut);min-width:38px;text-align:center;font-variant-numeric:tabular-nums}
+.player .seek{flex:1;height:32px;accent-color:var(--pri);cursor:pointer;margin:0;min-width:0}
+.seek-row{display:flex;align-items:center;gap:10px}
+.player-ctrl{display:flex;align-items:center;margin:12px 0 8px}
+.time{font-size:13px;color:var(--mut);font-variant-numeric:tabular-nums}
 .rate-row{display:flex;gap:6px;margin:0 0 10px;flex-wrap:wrap}
 .rate-row button{flex:1;border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 0;font-size:12px;color:var(--ink)}
 .rate-row button.on{background:var(--pri);border-color:var(--pri);color:#fff;font-weight:700}
@@ -268,17 +271,21 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="dlRefBtn">下载原声</button>
       </div>
       <div class="player">
-        <button id="refPlayBtn" class="playbtn" disabled><span class="ic-play"></span></button>
-        <span class="time" id="refCur">0:00</span>
-        <input type="range" id="refSeek" min="0" max="1000" value="0" disabled/>
-        <span class="time" id="refDur">0:00</span>
-      </div>
-      <div class="rate-row" id="refRateRow">
-        <button data-rate="0.5">0.5x</button>
-        <button data-rate="0.75">0.75x</button>
-        <button data-rate="1">1x</button>
-        <button data-rate="1.25">1.25x</button>
-        <button data-rate="1.5">1.5x</button>
+        <div class="rate-row" id="refRateRow">
+          <button data-rate="0.5">0.5x</button>
+          <button data-rate="0.75">0.75x</button>
+          <button data-rate="1">1x</button>
+          <button data-rate="1.25">1.25x</button>
+          <button data-rate="1.5">1.5x</button>
+        </div>
+        <div class="seek-row">
+          <span class="time" id="refCur">0:00</span>
+          <input type="range" id="refSeek" class="seek" min="0" max="1000" value="0" disabled/>
+          <span class="time" id="refDur">0:00</span>
+        </div>
+        <div class="player-ctrl">
+          <button id="refPlayBtn" class="playbtn pill" disabled><span class="ic-play"></span><span>播放</span></button>
+        </div>
       </div>
 
     </div>
@@ -291,10 +298,14 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <div class="recphase"><span id="recSpin" class="spinner hidden"></span><span id="recPhase"></span></div>
       </div>
       <div class="player" style="margin-top:10px">
-        <button id="myPlayBtn" class="playbtn" disabled><span class="ic-play"></span></button>
-        <span class="time" id="myCur">0:00</span>
-        <input type="range" id="mySeek" min="0" max="1000" value="0" disabled/>
-        <span class="time" id="myDur">0:00</span>
+        <div class="seek-row">
+          <span class="time" id="myCur">0:00</span>
+          <input type="range" id="mySeek" class="seek" min="0" max="1000" value="0" disabled/>
+          <span class="time" id="myDur">0:00</span>
+        </div>
+        <div class="player-ctrl">
+          <button id="myPlayBtn" class="playbtn pill" disabled><span class="ic-play"></span><span>播放</span></button>
+        </div>
       </div>
       <div id="recHint" class="hint"></div>
       <div id="resultCard" class="result hidden"></div>
@@ -414,7 +425,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261004-29</div>
+    <div class="ver">版本 v20261004-33</div>
   </section>
 </main>
 <script>
@@ -1600,7 +1611,7 @@ function createPlayer(ns, getRate) {
   const playBtn = $(ns + 'PlayBtn'), seek = $(ns + 'Seek'),
         cur = $(ns + 'Cur'), durEl = $(ns + 'Dur');
   const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-  const setIcon = playing => { playBtn.innerHTML = playing ? '<span class="ic-pause"></span>' : '<span class="ic-play"></span>'; };
+  const setIcon = playing => { playBtn.innerHTML = playing ? '<span class="ic-pause"></span><span>暂停</span>' : '<span class="ic-play"></span><span>播放</span>'; };
   playBtn.onclick = () => {
     if (!audio.src) return;
     if (getRate) audio.playbackRate = getRate(); // 每次播放都按当前语速配置来
