@@ -38,6 +38,17 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 90px}
 .msg.user .bubble{background:var(--pri);color:#fff;border-bottom-right-radius:4px}
 .msg.assistant .bubble{background:#f1edfd;border-bottom-left-radius:4px}
 .bubble:active{opacity:.75}
+.bubble.failed{background:#fef2f2;cursor:default}
+.bubble.failed:active{opacity:1}
+.fail-text{color:var(--bad);font-size:14px;line-height:1.5;margin-bottom:10px}
+.retry-btn{border:1px solid #fecaca;background:#fff;color:var(--bad);border-radius:8px;padding:7px 20px;font-size:13px}
+.retry-btn:active{opacity:.7}
+.edit-wrap{display:flex;flex-direction:column;gap:8px}
+.edit-box{width:100%;min-height:90px;border:1px solid var(--pri);border-radius:8px;padding:8px;font-size:14px;font-family:inherit;line-height:1.6;box-sizing:border-box}
+.edit-actions{display:flex;gap:8px;justify-content:flex-end}
+.edit-save{border:none;background:var(--pri);color:#fff;border-radius:8px;padding:7px 18px;font-size:13px}
+.edit-save:active,.edit-cancel:active{opacity:.7}
+.edit-cancel{border:1px solid var(--line);background:#fff;border-radius:8px;padding:7px 18px;font-size:13px;color:var(--ink)}
 .bubble p{margin:0 0 6px}
 .bubble p:last-child{margin-bottom:0}
 .bubble ul,.bubble ol{margin:4px 0 8px;padding-left:20px;white-space:normal}
@@ -373,7 +384,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261004-12</div>
+    <div class="ver">版本 v20261004-14</div>
   </section>
 </main>
 <nav class="tabbar">
@@ -1183,19 +1194,35 @@ function renderChat() {
   if (!msgs.length) {
     list.innerHTML = '<div class="hint">还没有对话，在下面用德语和 AI 聊起来吧。先去「设置」填好接口 Key。</div>';
   }
-  msgs.forEach(m => {
+  msgs.forEach((m, i) => {
     const div = document.createElement('div');
     div.className = 'msg ' + m.role;
+    div.dataset.idx = i;
     const body = document.createElement('div');
     body.className = 'bubble';
-    if (m.role === 'assistant') {
-      body.innerHTML = mdBlock(m.content); // AI 消息渲染 markdown
-      if (getSettings().blurChinese) blurChinese(body); // 中文默认模糊
+    if (m.failed) {
+      // 发送失败的气泡：显示原因 + 重试按钮
+      body.classList.add('failed');
+      const err = document.createElement('div');
+      err.className = 'fail-text';
+      err.textContent = '发送失败：' + (m.failMsg || '网络错误');
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'retry-btn';
+      btn.setAttribute('data-retry', '1');
+      btn.textContent = '↻ 重试';
+      body.appendChild(err);
+      body.appendChild(btn);
     } else {
-      body.textContent = m.content; // 用户消息保持纯文本
+      if (m.role === 'assistant') {
+        body.innerHTML = mdBlock(m.content); // AI 消息渲染 markdown
+        if (getSettings().blurChinese) blurChinese(body); // 中文默认模糊
+      } else {
+        body.textContent = m.content; // 用户消息保持纯文本
+      }
+      body.title = '点击生成这句的原声';
+      bindBubbleClick(body, m);
     }
-    body.title = '点击生成这句的原声';
-    bindBubbleClick(body, m);
     div.appendChild(body);
     list.appendChild(div);
   });
@@ -1208,10 +1235,20 @@ function lastBubble() {
   return bubbles[bubbles.length - 1] || null;
 }
 
+/* 点任意一段中文：整条消息的中文一起显示 / 一起隐藏 */
+function toggleZhAll(z) {
+  const msg = z.closest('.msg');
+  const all = msg ? msg.querySelectorAll('.zh') : [z];
+  const show = !z.classList.contains('show');
+  all.forEach(x => x.classList.toggle('show', show));
+}
+let suppressBubbleClick = false; // 长按弹出编辑后，忽略紧接着的一次点击（避免误触跟读/显隐）
 /* 给气泡绑定"点击 → 填入跟读"；内容为空时解绑 */
 function bindBubbleClick(el, m) {
   if (m.content && m.content !== '…') {
     el.onclick = e => {
+      if (suppressBubbleClick) return;
+      if (e.target.closest('[data-retry]')) return;
       if (e.target.closest('.zh')) return; // 点中文模糊区只切换显示，不触发跟读
       selectSentence(germanOnly(m.content));
     };
@@ -1248,13 +1285,21 @@ async function sendChat() {
   }
   let c = activeConv();
   if (!c) { newConversation(); c = activeConv(); }
+  c.messages.push({ role: 'user', content: text });
+  input.value = '';
+  await sendChatCore(c);
+}
+
+/* 核心发送流程：push AI 占位 → 流式 → 成功渲染 / 失败变成可重试气泡。
+   重试时直接调这个，不再重复 push 用户消息 */
+async function sendChatCore(c) {
+  const s = getSettings();
   const sendBtn = $('sendBtn');
   if (sendBtn.disabled) return; // 流式输出中，不重复发送
   sendBtn.disabled = true;
   const convId = c.id;
+  const aiMsg = { role: 'assistant', content: '' };
   try {
-    c.messages.push({ role: 'user', content: text });
-    const aiMsg = { role: 'assistant', content: '' };
     c.messages.push(aiMsg);
     // N = 发给 API 的消息条数（含当前问题，不含 AI 回复占位）：保留最近 N+1 条，窗口最多显示 N+1 条
     // N≥1 → N+1≥2，slice(-(N+1)) 安全（没有 slice(-0) 陷阱）
@@ -1263,7 +1308,6 @@ async function sendChat() {
     updateConvTitle(c);
     persistConv(c);
     renderConvList(); renderChat();
-    input.value = '';
 
     const base = s.chatBaseUrl.replace(/\/+$/, '');
     const apiMsgs = [{ role: 'system', content: convPrompt(c).content }]
@@ -1324,11 +1368,66 @@ async function sendChat() {
       renderConvList();
     }
   } catch (e) {
-    c.messages[c.messages.length - 1] = { role: 'assistant', content: '出错了：' + e.message + '（请检查设置里的 Base URL / 模型 / Key）' };
+    const i = c.messages.lastIndexOf(aiMsg);
+    if (i >= 0) c.messages[i] = { role: 'assistant', content: '', failed: true, failMsg: e.message };
     persistConv(c); renderChat();
   } finally {
     sendBtn.disabled = false;
   }
+}
+
+/* 重试上一次失败的发送：删掉失败气泡，原样重发 */
+function retrySend() {
+  const c = activeConv();
+  if (!c || $('sendBtn').disabled) return;
+  const i = c.messages.map(m => !!m.failed).lastIndexOf(true);
+  if (i < 0) return;
+  c.messages.splice(i, 1);
+  persistConv(c);
+  sendChatCore(c);
+}
+
+/* 长按/右键消息 → 编辑模式：可改用户和 AI 的历史消息，只改存档不重发 */
+function enterEditMode(msgEl, idx) {
+  const c = activeConv();
+  const m = c && c.messages[idx];
+  if (!m || $('sendBtn').disabled) return;
+  const bubble = msgEl.querySelector('.bubble');
+  bubble.onclick = null; // 编辑时不触发跟读
+  const wrap = document.createElement('div');
+  wrap.className = 'edit-wrap';
+  const ta = document.createElement('textarea');
+  ta.className = 'edit-box';
+  ta.value = m.content;
+  const grow = () => { ta.style.height = 'auto'; ta.style.height = ta.scrollHeight + 'px'; };
+  ta.addEventListener('input', grow);
+  const actions = document.createElement('div');
+  actions.className = 'edit-actions';
+  const save = document.createElement('button');
+  save.type = 'button'; save.className = 'edit-save'; save.textContent = '保存';
+  const cancel = document.createElement('button');
+  cancel.type = 'button'; cancel.className = 'edit-cancel'; cancel.textContent = '取消';
+  save.onclick = () => {
+    if (!ta.value.trim()) { alertDlg('内容不能为空'); return; }
+    // ChatGPT 逻辑：改 AI 的消息只改存档；改自己的消息则丢弃后面的，从这条重发
+    const resend = m.role === 'user' && !$('sendBtn').disabled;
+    m.content = ta.value;
+    if (resend) {
+      c.messages = c.messages.slice(0, idx + 1);
+      persistConv(c);
+      renderChat();
+      sendChatCore(c);
+    } else {
+      persistConv(c);
+      renderChat();
+    }
+  };
+  cancel.onclick = () => renderChat();
+  actions.appendChild(save); actions.appendChild(cancel);
+  wrap.appendChild(ta); wrap.appendChild(actions);
+  bubble.innerHTML = '';
+  bubble.appendChild(wrap);
+  ta.focus(); grow();
 }
 
 async function testChat() {
@@ -2284,10 +2383,27 @@ async function init() {
     if (!q && lastSearchQ) revealActiveConv(true); // 刚清空搜索：把当前选中的对话滚到可见
     lastSearchQ = q;
   });
-  // 中文模糊区：点一下显示/再点隐藏（不冒泡触发气泡的跟读）
+  // 中文模糊区：点任意一段，整条消息的中文一起显示/隐藏；重试按钮：重发上一次失败的请求
   $('chatList').addEventListener('click', e => {
+    if (suppressBubbleClick) return; // 长按刚结束，忽略这次点击
+    const r = e.target.closest('[data-retry]');
+    if (r) { retrySend(); return; }
     const z = e.target.closest('.zh');
-    if (z) z.classList.toggle('show');
+    if (z) toggleZhAll(z);
+  });
+  // 长按（手机）/ 右键（电脑）消息：进入编辑模式，可改用户和 AI 的历史消息
+  $('chatList').addEventListener('contextmenu', e => {
+    const msgEl = e.target.closest('.msg');
+    if (!msgEl || msgEl.querySelector('.edit-wrap')) return;
+    const idx = +msgEl.dataset.idx;
+    const c = activeConv();
+    const m = c && c.messages[idx];
+    if (!m || !m.content || m.failed) return;
+    if ($('sendBtn').disabled) return; // 流式输出中不编辑，避免和重发打架
+    e.preventDefault();
+    suppressBubbleClick = true;
+    setTimeout(() => { suppressBubbleClick = false; }, 600);
+    enterEditMode(msgEl, idx);
   });
   $('scrim').onclick = closeDrawer;
   $('exportAllBtn').onclick = exportAllConvs;
