@@ -324,7 +324,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
       <div class="stat-row"><span>原声缓存个数</span><b id="statTts">…</b></div>
       <p class="foot">放心用：所有数据只存在你的手机/浏览器里，不会上传。</p>
     </div>
-    <div class="ver">版本 v20261003-24</div>
+    <div class="ver">版本 v20261003-25</div>
   </section>
 </main>
 <nav class="tabbar">
@@ -565,7 +565,7 @@ function convToMarkdown(c) {
   const L = [];
   L.push('# ' + (c.title || '德语对话'));
   L.push('');
-  L.push('导出时间：' + new Date().toLocaleString());
+  L.push('导出时间：' + fmtDateTime(Date.now()));
   L.push('');
   const msgs = Array.isArray(c.messages) ? c.messages.filter(Boolean) : [];
   msgs.forEach(m => {
@@ -580,11 +580,13 @@ function convToMarkdown(c) {
     L.push('');
     L.push('## 练习记录');
     L.push('');
+    L.push('| 时间 | 分数 | 准确度 | 流利度 | 完整度 | 句子 |');
+    L.push('|---|---|---|---|---|---|');
     recs.forEach(r => {
-      let when = '';
-      try { when = new Date(r.t).toLocaleString(); } catch (e) {}
-      L.push('- ' + when + '　**' + (r.score || 0) + '分**（准确度' +
-        (r.accuracy || 0) + ' / 流利度' + (r.fluency || 0) + ' / 完整度' + (r.completeness || 0) + '）　' + (r.text || ''));
+      const cell = s => String(s == null ? '' : s).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
+      L.push('| ' + cell(fmtDateTime(r.t)) + ' | ' + cell(r.score || 0) + ' | ' +
+        cell(r.accuracy || 0) + ' | ' + cell(r.fluency || 0) + ' | ' +
+        cell(r.completeness || 0) + ' | ' + cell(r.text || '') + ' |');
     });
     L.push('');
   }
@@ -621,7 +623,7 @@ function exportAllConvs() {
   const d = new Date();
   const stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') +
     '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
-  const head = '# 德语对话合集（共 ' + convs.length + ' 个对话）\n\n导出时间：' + d.toLocaleString() + '\n';
+  const head = '# 德语对话合集（共 ' + convs.length + ' 个对话）\n\n导出时间：' + fmtDateTime(d) + '\n';
   downloadMd('德语对话-全部-' + stamp + '.md', head + '\n---\n\n' + convs.map(convToMarkdown).join('\n\n---\n\n'));
   } catch (e) {
     dlg({ title: '导出失败', message: String((e && e.message) || e) });
@@ -641,7 +643,7 @@ function renderConvList() {
     b.className = 'conv' + (c.id === aid ? ' active' : '');
     const tt = document.createElement('span'); tt.className = 'tt';
     const t1 = document.createElement('span'); t1.textContent = c.title || '新对话';
-    const t2 = document.createElement('small'); t2.textContent = new Date(c.createdAt).toLocaleString();
+    const t2 = document.createElement('small'); t2.textContent = fmtDateTime(c.createdAt);
     tt.appendChild(t1); tt.appendChild(t2);
     const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '删除';
     x.onclick = async e => {
@@ -658,9 +660,13 @@ function renderConvList() {
 }
 
 /* ================= 对话搜索 ================= */
-function fmtDay(ts) {
-  const d = new Date(ts || Date.now());
-  return (d.getMonth() + 1) + '月' + d.getDate() + '日';
+/* 统一时间格式：2026/10/3 19:27:25（年月日 + 24小时制，不随浏览器语言变化） */
+function fmtDateTime(ts) {
+  const d = new Date(ts);
+  if (isNaN(d.getTime())) return '';
+  const p = n => String(n).padStart(2, '0');
+  return d.getFullYear() + '/' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' +
+    p(d.getHours()) + ':' + p(d.getMinutes()) + ':' + p(d.getSeconds());
 }
 /* 关键词高亮：先转义再匹配，避免 HTML 注入 */
 function highlightHtml(text, q) {
@@ -699,7 +705,7 @@ function renderSearchHits(q) {
     const snipText = hitMsg ? matchSnippet(stripMarkdown(hitMsg.content), q)
       : String((c.messages && c.messages[0] && c.messages[0].content) || '').slice(0, 44);
     snip.innerHTML = highlightHtml(snipText, q);
-    const dt = document.createElement('span'); dt.className = 'hit-date'; dt.textContent = fmtDay(c.createdAt);
+    const dt = document.createElement('span'); dt.className = 'hit-date'; dt.textContent = fmtDateTime(c.createdAt);
     tt.appendChild(t1); tt.appendChild(snip);
     b.appendChild(tt); b.appendChild(dt);
     b.onclick = () => { setActiveId(c.id); renderChat(); renderHistory(); renderConvList(); closeDrawer(); };
@@ -1900,7 +1906,7 @@ function renderHistory() {
     const c = rec.score >= 80 ? 'ok' : rec.score >= 60 ? 'warn' : 'bad';
     const b = document.createElement('b'); b.className = c; b.textContent = rec.score;
     const sp = document.createElement('span'); sp.textContent = rec.text;
-    const sm = document.createElement('small'); sm.textContent = new Date(rec.t).toLocaleString();
+    const sm = document.createElement('small'); sm.textContent = fmtDateTime(rec.t);
     d.appendChild(b); d.appendChild(sp); d.appendChild(sm);
     d.onclick = () => restoreRecord(conv.id, rec.id);
     list.appendChild(d);
