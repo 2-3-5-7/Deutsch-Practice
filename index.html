@@ -28,6 +28,7 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 90px}
 .hidden{display:none!important}
 .chat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
 .chat-head h2{margin:0}
+.conv-prompt-sel{max-width:62%;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:15px;font-weight:700;font-family:inherit;background:#fff;color:var(--ink)}
 .linkbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:13px;color:var(--pri);cursor:pointer}
 .chat-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .msg{display:flex;flex-direction:column;max-width:88%}
@@ -152,6 +153,8 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .check-row input{width:16px;height:16px;accent-color:var(--pri)}
 .dlg-ov{position:fixed;inset:0;background:rgba(30,27,46,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;animation:dlgIn .18s ease-out}
 .dlg-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.28)}
+.dlg-input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;margin:2px 0 16px;background:#fff;color:var(--ink)}
+.dlg-input:focus{outline:none;border-color:var(--pri)}
 .dlg-title{font-size:16px;font-weight:700;margin:0 0 8px;color:var(--ink)}
 .dlg-msg{font-size:15px;line-height:1.65;color:var(--ink);margin:0 0 18px}
 .dlg-btns{display:flex;gap:10px;justify-content:flex-end}
@@ -161,6 +164,24 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .dlg-ok.pri{background:var(--pri)}
 @keyframes dlgIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 .row-head{display:flex;justify-content:space-between;align-items:center}
+.tpl-box{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fafaff;margin-bottom:14px}
+.tpl-box>label{display:block;font-size:13px;color:var(--mut);margin-bottom:2px}
+.tpl-box .desc{font-size:12px;color:var(--mut);margin:0 0 8px;line-height:1.5}
+.tpl-box select{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;background:#fff}
+.tpl-box textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;background:#fff;resize:vertical;margin-top:10px;box-sizing:border-box}
+.tpl-row{display:flex;gap:8px}
+.tpl-row select{flex:1;min-width:0}
+.mini-btn{flex:none;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;font-size:14px;color:var(--pri);cursor:pointer;font-family:inherit;white-space:nowrap}
+.mini-btn:active{opacity:.7}
+.tpl-actions{display:flex;gap:12px;margin-top:10px}
+.tpl-btn{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 18px;font-size:13px;color:var(--ink);cursor:pointer;font-family:inherit}
+.tpl-btn:active{opacity:.65}
+.tpl-btn.danger{color:var(--bad);border-color:#f0c6c6}
+.btn-row{display:flex;gap:10px;margin-top:4px}
+.btn-row + .btn-row{margin-top:10px}
+.btn-row .danger{flex:1;background:#fef2f2;color:var(--bad);border-color:#fecaca} /* 盖过 .btn-row button 的白底 */
+.ghost-btn{flex:1;border:1px solid var(--line);background:#fff;border-radius:10px;padding:10px;font-size:14px;color:var(--ink);cursor:pointer;font-family:inherit}
+.ghost-btn:active{opacity:.7}
 .card .foot{font-size:12px;color:var(--mut);margin:10px 0 0;line-height:1.5}
 .conv .hit-date{flex:none;color:var(--mut);font-size:11px}
 mark{background:#fff3b0;border-radius:2px;padding:0 1px}
@@ -199,7 +220,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 <main>
   <section id="view-practice">
     <div class="card">
-      <div class="chat-head"><h2>和 AI 用德语聊天</h2><button id="newChatBtn2" class="linkbtn">＋ 新对话</button></div>
+      <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn">＋ 新对话</button></div>
       <div id="chatList" class="chat-list"></div>
       <div class="chat-input">
         <textarea id="chatInput" rows="2" placeholder="用德语说点什么…（可用 Gboard 语音输入）"></textarea>
@@ -267,9 +288,18 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <label>API Key</label>
         <input id="setKey" type="password" autocomplete="off" placeholder="sk-..."/>
       </div>
-      <div class="field">
-        <label>系统提示词（AI 的角色设定）</label>
-        <textarea id="setPrompt" rows="6"></textarea>
+      <div class="tpl-box">
+        <label>提示词模板</label>
+        <p class="desc">新对话用这里选中的模板；当前对话在聊天页顶部切换。</p>
+        <div class="tpl-row">
+          <select id="setPromptSel"></select>
+          <button id="newTplBtn" type="button" class="mini-btn">＋新建</button>
+        </div>
+        <textarea id="setPrompt" rows="6" placeholder="在这里写提示词…"></textarea>
+        <div class="tpl-actions">
+          <button id="renameTplBtn" type="button" class="tpl-btn">重命名</button>
+          <button id="delTplBtn" type="button" class="tpl-btn danger">删除</button>
+        </div>
       </div>
       <div class="field check-row">
         <label><input id="setBlurZh" type="checkbox"/> 中文翻译默认模糊</label>
@@ -325,13 +355,25 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
     </div>
 
     <div class="card">
-      <h2 class="row-head">存储占用<button id="statRefresh" class="link-btn" type="button">刷新</button></h2>
+      <h2>存储占用</h2>
       <div class="stat-row"><span>本地已用空间</span><b id="statUsage">…</b></div>
       <div class="stat-row"><span>对话个数</span><b id="statConvs">…</b></div>
       <div class="stat-row"><span>原声缓存个数</span><b id="statTts">…</b></div>
       <p class="foot">放心用：所有数据只存在你的手机/浏览器里，不会上传。</p>
     </div>
-    <div class="ver">版本 v20261004-02</div>
+
+    <div class="card">
+      <h2>设置管理</h2>
+      <div class="btn-row">
+        <button id="exportSettingsBtn" type="button" class="ghost-btn">导出设置</button>
+        <button id="importSettingsBtn" type="button" class="ghost-btn">导入设置</button>
+        <input id="importSettingsFile" type="file" accept="application/json,.json" class="hidden"/>
+      </div>
+      <div class="btn-row">
+        <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
+      </div>
+    </div>
+    <div class="ver">版本 v20261004-12</div>
   </section>
 </main>
 <nav class="tabbar">
@@ -360,6 +402,14 @@ const DEFAULT_SYSTEM_PROMPT =
 '- 用户德语说错时，用中文温和指出错误并给出正确说法，再继续对话。\n' +
 '- 一次只问一个跟进问题，保持对话流动。';
 
+const DEFAULT_CUSTOMS_PROMPT =
+'你是一名严格的德国海关官员，正在对我进行入境盘问。\n' +
+'规则：\n' +
+'- 全程用德语和我对话，语速正常，不要迁就初学者。\n' +
+'- 你怀疑我的入境目的：不断追问细节，质疑含糊的回答，发现前后矛盾要当场指出。\n' +
+'- 我的目标是说服你让我入境；只有当你真正被说服时才放行，并用中文说"过关"。\n' +
+'- 结束后用中文简要点评：哪些表达地道、哪里出了错。';
+
 const DEFAULTS = {
   chatBaseUrl: 'https://openrouter.ai/api/v1',
   chatModel: '',
@@ -372,7 +422,9 @@ const DEFAULTS = {
   practiceHistoryLimit: 30, // 练习记录保留条数
   convLimit: 200, // 对话保留个数
   ttsCacheLimit: 100, // TTS 缓存条数，0 = 关闭
-  blurChinese: true // AI 回复里的中文默认模糊，点一下显示
+  blurChinese: true, // AI 回复里的中文默认模糊，点一下显示
+  promptTemplates: null, // [{id,name,content}]，首次使用时从 systemPrompt 生成
+  activePromptId: 'default'
 };
 
 const REGIONS = [
@@ -408,12 +460,43 @@ function getSettings() {
     s.convLimit = clampInt(s.convLimit, 10, 1000, 200);
     s.ttsCacheLimit = clampInt(s.ttsCacheLimit, 0, 500, 100);
     s.blurChinese = !!s.blurChinese;
+    // 老用户迁移：没有模板时用原来的 systemPrompt 生成默认模板（含一个任务示例）
+    if (!Array.isArray(s.promptTemplates) || !s.promptTemplates.length) {
+      s.promptTemplates = [
+        { id: 'default', name: '德语口语陪练', content: s.systemPrompt || DEFAULT_SYSTEM_PROMPT },
+        { id: 'customs', name: '海关官员（任务）', content: DEFAULT_CUSTOMS_PROMPT }
+      ];
+    }
+    if (!s.promptTemplates.some(t => t.id === s.activePromptId)) s.activePromptId = s.promptTemplates[0].id;
     return s;
   }
   catch (e) { return Object.assign({}, DEFAULTS); }
 }
+/* 当前生效的提示词模板 */
+function activePrompt() {
+  const s = getSettings();
+  const ts = Array.isArray(s.promptTemplates) ? s.promptTemplates : [];
+  return ts.find(t => t.id === s.activePromptId) || ts[0] || { id: '', name: '', content: '' };
+}
+/* 刷新模板下拉框 + 文本框（不打断正在输入的内容） */
+function refreshPromptUI() {
+  const s = getSettings();
+  const sel = $('setPromptSel');
+  if (!sel) return;
+  sel.innerHTML = '';
+  (s.promptTemplates || []).forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id;
+    o.textContent = t.name || '未命名';
+    sel.appendChild(o);
+  });
+  sel.value = s.activePromptId;
+  if (document.activeElement !== $('setPrompt')) $('setPrompt').value = activePrompt().content;
+  $('delTplBtn').style.visibility = s.promptTemplates.length > 1 ? '' : 'hidden';
+}
 function saveSettings(s) { localStorage.setItem(LS_SETTINGS, JSON.stringify(s)); }
 function collectSettings() {
+  const cur = getSettings(); // 模板等非表单字段原样保留
   saveSettings({
     chatBaseUrl: $('setBaseUrl').value.trim(),
     chatModel: $('setModel').value.trim(),
@@ -426,9 +509,12 @@ function collectSettings() {
     practiceHistoryLimit: clampInt($('setRecLimit').value, 1, 200, 30),
     convLimit: clampInt($('setConvLimit').value, 10, 1000, 200),
     ttsCacheLimit: clampInt($('setTtsLimit').value, 0, 500, 100),
-    blurChinese: $('setBlurZh').checked
+    blurChinese: $('setBlurZh').checked,
+    promptTemplates: cur.promptTemplates,
+    activePromptId: cur.activePromptId
   });
   applyHistoryLimits(); // 条数变化立即对现有数据生效
+  refreshStorageStats(); // 上限变化可能裁剪了数据，统计数字同步刷新
 }
 /* 设置里的保留条数变化后，立即裁剪现有数据（超出的聊天/练习记录删掉，录音同步清） */
 function applyHistoryLimits() {
@@ -463,32 +549,84 @@ function applyHistoryLimits() {
   }
   trimTtsCache(s.ttsCacheLimit).catch(function(){});
 }
-function initSettings() {
+/* 把设置值填进表单（幂等，导入设置后可重复调用；不绑事件） */
+function fillSettingsForm() {
   const s = getSettings();
   $('setBaseUrl').value = s.chatBaseUrl;
   $('setModel').value = s.chatModel;
   $('setKey').value = s.chatKey;
-  $('setPrompt').value = s.systemPrompt;
   $('setAzKey').value = s.azureKey;
-  REGIONS.forEach(([v, l]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = l + ' (' + v + ')';
-    $('setRegion').appendChild(o);
-  });
   $('setRegion').value = s.azureRegion;
-  VOICES.forEach(([v, l]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = v + ' · ' + l;
-    $('setVoice').appendChild(o);
-  });
   $('setVoice').value = s.voice;
   $('setChatLimit').value = s.chatHistoryLimit;
   $('setRecLimit').value = s.practiceHistoryLimit;
   $('setConvLimit').value = s.convLimit;
   $('setTtsLimit').value = s.ttsCacheLimit;
   $('setBlurZh').checked = s.blurChinese;
-  ['setBaseUrl','setModel','setKey','setPrompt','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
+  refreshPromptUI();
+}
+function initSettings() {
+  REGIONS.forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = l + ' (' + v + ')';
+    $('setRegion').appendChild(o);
+  });
+  VOICES.forEach(([v, l]) => {
+    const o = document.createElement('option'); o.value = v; o.textContent = v + ' · ' + l;
+    $('setVoice').appendChild(o);
+  });
+  fillSettingsForm();
+  $('setPromptSel').addEventListener('change', () => {
+    const s2 = getSettings();
+    s2.activePromptId = $('setPromptSel').value;
+    saveSettings(s2);
+    refreshPromptUI();
+  });
+  $('setPrompt').addEventListener('change', () => {
+    const s2 = getSettings();
+    const t = (s2.promptTemplates || []).find(x => x.id === s2.activePromptId);
+    if (t) { t.content = $('setPrompt').value; saveSettings(s2); }
+  });
+  $('newTplBtn').onclick = async () => {
+    const name = await promptDlg('新建提示词模板', '起个名字，比如"面试官"或"餐厅点餐"。', '', '模板名称');
+    if (!name) return;
+    const s2 = getSettings();
+    const t = { id: 'p' + Date.now(), name: name, content: '' };
+    s2.promptTemplates.push(t);
+    s2.activePromptId = t.id;
+    saveSettings(s2);
+    refreshPromptUI();
+    $('setPrompt').focus();
+  };
+  $('renameTplBtn').onclick = async () => {
+    const ap = activePrompt();
+    const name = await promptDlg('重命名模板', '', ap.name, '模板名称');
+    if (!name) return;
+    const s2 = getSettings();
+    const t = s2.promptTemplates.find(x => x.id === ap.id);
+    if (t) { t.name = name; saveSettings(s2); refreshPromptUI(); }
+  };
+  $('delTplBtn').onclick = async () => {
+    const s2 = getSettings();
+    if (s2.promptTemplates.length <= 1) { alertDlg('至少保留一个提示词模板。'); return; }
+    const ap = activePrompt();
+    if (!await confirmDlg('确定删除提示词模板「' + ap.name + '」吗？', '删除')) return;
+    s2.promptTemplates = s2.promptTemplates.filter(x => x.id !== ap.id);
+    if (s2.activePromptId === ap.id) s2.activePromptId = s2.promptTemplates[0].id;
+    saveSettings(s2);
+    refreshPromptUI();
+  };
+  ['setBaseUrl','setModel','setKey','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
     $(id).addEventListener('change', collectSettings);
   });
   $('setBlurZh').addEventListener('change', () => { collectSettings(); renderChat(); }); // 切换后立即重渲染聊天
+  $('exportSettingsBtn').onclick = exportSettings;
+  $('importSettingsBtn').onclick = () => $('importSettingsFile').click();
+  $('importSettingsFile').addEventListener('change', e => {
+    const f = e.target.files && e.target.files[0];
+    e.target.value = ''; // 同一文件可重复选
+    if (f) importSettingsFile(f);
+  });
+  $('resetSettingsBtn').onclick = resetSettings;
 }
 
 /* ================= 对话管理 ================= */
@@ -545,10 +683,28 @@ function activeConv() {
   const convs = getConvs();
   let c = convs.find(x => x.id === getActiveId());
   if (!c && convs.length) { c = convs[0]; setActiveId(c.id); }
+  if (c && !c.promptId) { ensureConvPrompt(c); persistConv(c); } // 老对话补提示词字段
+  return c;
+}
+/* 对话实际使用的提示词：模板还在就取最新（改名改内容都跟随），模板删了就用对话里的快照兜底 */
+function convPrompt(c) {
+  const ts = getSettings().promptTemplates || [];
+  const t = ts.find(x => x.id === c.promptId);
+  if (t) return { id: t.id, name: t.name || '未命名', content: t.content || '', deleted: false };
+  return { id: c.promptId, name: (c.promptName || '未知模板') + '（已删除）', content: c.promptContent || activePrompt().content, deleted: true };
+}
+/* 老对话补字段：没有 promptId 就按当前默认模板补一份快照 */
+function ensureConvPrompt(c) {
+  const ap = activePrompt();
+  c.promptId = ap.id;
+  c.promptName = ap.name;
+  c.promptContent = ap.content;
   return c;
 }
 function newConversation() {
-  const c = { id: 'c' + Date.now(), title: '新对话', createdAt: Date.now(), messages: [], records: [] };
+  const ap = activePrompt();
+  const c = { id: 'c' + Date.now(), title: '新对话', createdAt: Date.now(), messages: [], records: [],
+    promptId: ap.id, promptName: ap.name, promptContent: ap.content };
   const convs = getConvs();
   convs.unshift(c);
   saveConvs(trimConvsToLimit(convs, getSettings().convLimit));
@@ -605,6 +761,59 @@ function convToMarkdown(c) {
   return L.join('\n');
 }
 
+/* ================= 设置导入 / 导出 ================= */
+// 设置（含提示词模板）存在 localStorage，体积很小；对话和音频在 IndexedDB，不在此备份
+function downloadJson(filename, obj) {
+  const blob = new Blob([JSON.stringify(obj, null, 2)], { type: 'application/json;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 1500);
+}
+function exportSettings() {
+  try {
+    const d = new Date();
+    const pad = n => String(n).padStart(2, '0');
+    const name = 'deutsch-settings-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '.json';
+    downloadJson(name, getSettings());
+  } catch (e) { alertDlg('导出失败：' + (e && e.message || e)); }
+}
+function importSettingsFile(file) {
+  const rd = new FileReader();
+  rd.onload = async () => {
+    try {
+      const obj = JSON.parse(rd.result);
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('文件内容不是设置');
+      if (obj.promptTemplates != null) {
+        if (!Array.isArray(obj.promptTemplates)) throw new Error('模板格式不对');
+        obj.promptTemplates.forEach(t => {
+          if (!t || typeof t.id !== 'string' || typeof t.name !== 'string' || typeof t.content !== 'string') throw new Error('模板格式不对');
+        });
+      }
+      if (!await confirmDlg('导入将覆盖当前全部设置（含提示词模板），确定吗？', '导入')) return;
+      saveSettings(Object.assign({}, DEFAULTS, obj)); // 缺的字段用默认值补齐
+      fillSettingsForm();
+      refreshConvPromptSel();
+      refreshStorageStats(); // 上限可能变了，刷新显示
+      alertDlg('设置已导入。');
+    } catch (e) {
+      alertDlg('导入失败：' + (e && e.message || '文件无法解析'));
+    }
+  };
+  rd.onerror = () => alertDlg('导入失败：文件读取出错');
+  rd.readAsText(file);
+}
+/* 还原默认设置：自定义模板一并清除，恢复成初始的两个模板 */
+async function resetSettings() {
+  if (!await confirmDlg('确定要还原所有设置为默认值吗？自定义的提示词模板会被删除，恢复成初始的两个模板。', '还原')) return;
+  saveSettings(Object.assign({}, DEFAULTS));
+  fillSettingsForm();
+  refreshConvPromptSel();
+  refreshStorageStats();
+  alertDlg('已还原为默认设置。');
+}
 function downloadMd(filename, text) {
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
   const a = document.createElement('a');
@@ -739,14 +948,16 @@ function revealActiveConv(smooth) {
 }
 /* ================= 统一弹窗 =================
    App 内所有弹窗都走这里（替代原生 alert / confirm），样式统一。
-   dlg({ title?, message, okText?, cancel?:bool, cancelText?, danger?:bool }) -> Promise<boolean>
+   dlg({ title?, message, okText?, cancel?:bool, cancelText?, danger?:bool,
+        input?:bool, inputValue?, inputPlaceholder? }) -> Promise<boolean>
      点"确定"返回 true；点取消 / 点遮罩 / 按 Esc 返回 false。
    以后要加新弹窗，直接调 dlg 传参就行，不用再手写 DOM。
    快捷写法：
      alertDlg(message, okText?)    信息提示（紫色按钮，如"知道了"）
-     confirmDlg(message, okText?) 删除确认（红色按钮 + 取消按钮） */
+     confirmDlg(message, okText?) 删除确认（红色按钮 + 取消按钮）
+     promptDlg(title, message?, defaultValue?, placeholder?) 输入框（确定返回输入内容，取消返回 null） */
 function dlg(o) {
-  o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false }, o);
+  o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false, input: false, inputValue: '', inputPlaceholder: '' }, o);
   return new Promise(resolve => {
     const ov = document.createElement('div');
     ov.className = 'dlg-ov';
@@ -759,17 +970,28 @@ function dlg(o) {
       t.textContent = o.title;
       card.appendChild(t);
     }
-    const msg = document.createElement('p');
-    msg.className = 'dlg-msg';
-    msg.textContent = o.message;
-    card.appendChild(msg);
+    if (o.message) {
+      const msg = document.createElement('p');
+      msg.className = 'dlg-msg';
+      msg.textContent = o.message;
+      card.appendChild(msg);
+    }
     const btns = document.createElement('div');
     btns.className = 'dlg-btns';
     const done = v => {
       document.removeEventListener('keydown', onKey);
       if (ov.parentNode) ov.parentNode.removeChild(ov);
-      resolve(v);
+      resolve(o.input ? (v && inputEl ? inputEl.value.trim() : null) : v);
     };
+    let inputEl = null;
+    if (o.input) {
+      inputEl = document.createElement('input');
+      inputEl.className = 'dlg-input';
+      inputEl.value = o.inputValue || '';
+      inputEl.placeholder = o.inputPlaceholder || '';
+      inputEl.addEventListener('keydown', e => { if (e.key === 'Enter') done(true); });
+      card.appendChild(inputEl);
+    }
     let focusBtn;
     if (o.cancel) {
       const cancel = document.createElement('button');
@@ -791,11 +1013,14 @@ function dlg(o) {
     document.addEventListener('keydown', onKey);
     ov.appendChild(card);
     document.body.appendChild(ov);
-    focusBtn.focus();
+    if (inputEl) { inputEl.focus(); inputEl.select(); } else focusBtn.focus();
   });
 }
 function alertDlg(message, okText) { return dlg({ message: message, okText: okText || '知道了' }); }
 function confirmDlg(message, okText) { return dlg({ message: message, okText: okText || '删除', cancel: true, danger: true }); }
+function promptDlg(title, message, defaultValue, placeholder) {
+  return dlg({ title: title, message: message || '', okText: '确定', cancel: true, input: true, inputValue: defaultValue || '', inputPlaceholder: placeholder || '' });
+}
 
 /* ================= Tab 切换 ================= */
 function initTabs() {
@@ -804,6 +1029,7 @@ function initTabs() {
     $('view-practice').classList.toggle('hidden', b.dataset.tab !== 'practice');
     $('view-settings').classList.toggle('hidden', b.dataset.tab !== 'settings');
     if (b.dataset.tab === 'settings') refreshStorageStats(); // 每次打开设置页刷新占用统计
+    else refreshConvPromptSel(); // 切回练习页时刷新顶部模板下拉框（设置里增删改了模板）
     window.scrollTo(0, 0);
   }));
 }
@@ -926,7 +1152,30 @@ function blurChinese(root) {
   });
 }
 
+/* 刷新聊天顶部的模板下拉框（用户正在点它时不重建，避免打断） */
+function refreshConvPromptSel() {
+  const sel = $('convPromptSel');
+  if (!sel || document.activeElement === sel) return;
+  const c = activeConv();
+  if (!c) return;
+  const ts = getSettings().promptTemplates || [];
+  sel.innerHTML = '';
+  ts.forEach(t => {
+    const o = document.createElement('option');
+    o.value = t.id;
+    o.textContent = t.name || '未命名';
+    sel.appendChild(o);
+  });
+  if (c.promptId && !ts.some(t => t.id === c.promptId)) {
+    const o = document.createElement('option');
+    o.value = c.promptId;
+    o.textContent = (c.promptName || '未知模板') + '（已删除）';
+    sel.appendChild(o);
+  }
+  sel.value = c.promptId || '';
+}
 function renderChat() {
+  refreshConvPromptSel();
   const list = $('chatList');
   const c = activeConv();
   const msgs = c ? c.messages : [];
@@ -1017,7 +1266,7 @@ async function sendChat() {
     input.value = '';
 
     const base = s.chatBaseUrl.replace(/\/+$/, '');
-    const apiMsgs = [{ role: 'system', content: s.systemPrompt }]
+    const apiMsgs = [{ role: 'system', content: convPrompt(c).content }]
       .concat(c.messages.filter(m => m.content && m.content !== '…').map(m => ({ role: m.role, content: m.content })));
     // 流式请求（SSE）：OpenAI 兼容接口通用
     const res = await fetch(base + '/chat/completions', {
@@ -1098,7 +1347,7 @@ async function testChat() {
     if (!res.ok) throw new Error('HTTP ' + res.status + '：' + JSON.stringify(data && data.error || data).slice(0, 160));
     const r = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
     if (r) msg.textContent = '连接成功，模型回复：' + String(r).slice(0, 60);
-    else msg.textContent = '连接成功（测试时限制了长度所以模型返回为空，不影响正常聊天）';
+    else msg.textContent = '连接成功';
   } catch (e) {
     msg.textContent = '失败：' + e.message;
   }
@@ -2043,6 +2292,16 @@ async function init() {
   $('scrim').onclick = closeDrawer;
   $('exportAllBtn').onclick = exportAllConvs;
   $('newChatBtn2').onclick = newConversation;
+  $('convPromptSel').addEventListener('change', () => {
+    const c = activeConv();
+    const t = (getSettings().promptTemplates || []).find(x => x.id === $('convPromptSel').value);
+    if (!c || !t) return; // 删了模板的旧对话停留在"（已删除）"上，不动
+    c.promptId = t.id;
+    c.promptName = t.name;
+    c.promptContent = t.content;
+    persistConv(c);
+    refreshConvPromptSel();
+  });
   $('delAllBtn').onclick = async () => {
     if (await confirmDlg('确定删除所有对话吗？相关的练习记录和音频也会一并清除。', '全部删除')) {
       getConvs().forEach(deleteConvAudios);
@@ -2081,7 +2340,6 @@ async function init() {
   autoGrowTextarea(stBox);
   $('testChatBtn').onclick = testChat;
   $('testTtsBtn').onclick = testTts;
-  $('statRefresh').onclick = refreshStorageStats;
 }
 document.addEventListener('DOMContentLoaded', init);
 // 注册 Service Worker（PWA 安装 + 弱网兜底）
