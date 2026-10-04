@@ -146,6 +146,10 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .stat-row:last-of-type{border-bottom:none}
 .stat-row b{font-weight:600;font-variant-numeric:tabular-nums}
 .link-btn{border:none;background:none;color:var(--pri);font-size:13px;padding:0;cursor:pointer;font-family:inherit}
+.bubble .zh{filter:blur(5px);-webkit-filter:blur(5px);cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;border-radius:3px;transition:filter .25s}
+.bubble .zh.show{filter:blur(0);-webkit-filter:blur(0);user-select:text;-webkit-user-select:text}
+.check-row label{display:flex!important;align-items:center;gap:8px;font-size:14px!important;color:var(--ink)!important;cursor:pointer}
+.check-row input{width:16px;height:16px;accent-color:var(--pri)}
 .dlg-ov{position:fixed;inset:0;background:rgba(30,27,46,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;animation:dlgIn .18s ease-out}
 .dlg-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.28)}
 .dlg-title{font-size:16px;font-weight:700;margin:0 0 8px;color:var(--ink)}
@@ -267,6 +271,9 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <label>系统提示词（AI 的角色设定）</label>
         <textarea id="setPrompt" rows="6"></textarea>
       </div>
+      <div class="field check-row">
+        <label><input id="setBlurZh" type="checkbox"/> 中文翻译默认模糊</label>
+      </div>
       <div class="test-row">
         <button id="testChatBtn">测试连接</button>
         <span id="chatTestMsg" class="test-msg"></span>
@@ -324,7 +331,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
       <div class="stat-row"><span>原声缓存个数</span><b id="statTts">…</b></div>
       <p class="foot">放心用：所有数据只存在你的手机/浏览器里，不会上传。</p>
     </div>
-    <div class="ver">版本 v20261003-25</div>
+    <div class="ver">版本 v20261004-02</div>
   </section>
 </main>
 <nav class="tabbar">
@@ -364,7 +371,8 @@ const DEFAULTS = {
   chatHistoryLimit: 30, // 聊天记录保留条数
   practiceHistoryLimit: 30, // 练习记录保留条数
   convLimit: 200, // 对话保留个数
-  ttsCacheLimit: 100 // TTS 缓存条数，0 = 关闭
+  ttsCacheLimit: 100, // TTS 缓存条数，0 = 关闭
+  blurChinese: true // AI 回复里的中文默认模糊，点一下显示
 };
 
 const REGIONS = [
@@ -399,6 +407,7 @@ function getSettings() {
     s.practiceHistoryLimit = clampInt(s.practiceHistoryLimit, 1, 200, 30);
     s.convLimit = clampInt(s.convLimit, 10, 1000, 200);
     s.ttsCacheLimit = clampInt(s.ttsCacheLimit, 0, 500, 100);
+    s.blurChinese = !!s.blurChinese;
     return s;
   }
   catch (e) { return Object.assign({}, DEFAULTS); }
@@ -416,7 +425,8 @@ function collectSettings() {
     chatHistoryLimit: clampInt($('setChatLimit').value, 1, 200, 30),
     practiceHistoryLimit: clampInt($('setRecLimit').value, 1, 200, 30),
     convLimit: clampInt($('setConvLimit').value, 10, 1000, 200),
-    ttsCacheLimit: clampInt($('setTtsLimit').value, 0, 500, 100)
+    ttsCacheLimit: clampInt($('setTtsLimit').value, 0, 500, 100),
+    blurChinese: $('setBlurZh').checked
   });
   applyHistoryLimits(); // 条数变化立即对现有数据生效
 }
@@ -474,9 +484,11 @@ function initSettings() {
   $('setRecLimit').value = s.practiceHistoryLimit;
   $('setConvLimit').value = s.convLimit;
   $('setTtsLimit').value = s.ttsCacheLimit;
+  $('setBlurZh').checked = s.blurChinese;
   ['setBaseUrl','setModel','setKey','setPrompt','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
     $(id).addEventListener('change', collectSettings);
   });
+  $('setBlurZh').addEventListener('change', () => { collectSettings(); renderChat(); }); // 切换后立即重渲染聊天
 }
 
 /* ================= 对话管理 ================= */
@@ -881,6 +893,39 @@ function mdBlock(text) {
   return html;
 }
 
+/* 中文模糊：把渲染后气泡里的中文（含中文标点）包上 .zh span，点一下显示/再点隐藏。
+   跳过 code/pre（代码示例不模糊）。只操作文本节点，不影响 markdown 结构。 */
+const CJK_RUN = /[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2013\u2014\u2018-\u201f\u2026]+/g;
+const CJK_ONE = /[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2013\u2014\u2018-\u201f\u2026]/;
+function blurChinese(root) {
+  const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
+  const nodes = [];
+  while (walker.nextNode()) nodes.push(walker.currentNode);
+  nodes.forEach(n => {
+    if (!CJK_ONE.test(n.textContent)) return;
+    let p = n.parentNode, skip = false;
+    while (p && p !== root) {
+      if (p.nodeType === 1 && (p.classList.contains('zh') || p.tagName === 'CODE' || p.tagName === 'PRE')) { skip = true; break; }
+      p = p.parentNode;
+    }
+    if (skip || !n.parentNode) return;
+    const frag = document.createDocumentFragment();
+    const src = n.textContent;
+    let last = 0, m;
+    CJK_RUN.lastIndex = 0;
+    while ((m = CJK_RUN.exec(src))) {
+      if (m.index > last) frag.appendChild(document.createTextNode(src.slice(last, m.index)));
+      const s = document.createElement('span');
+      s.className = 'zh';
+      s.textContent = m[0];
+      frag.appendChild(s);
+      last = m.index + m[0].length;
+    }
+    if (last < src.length) frag.appendChild(document.createTextNode(src.slice(last)));
+    n.parentNode.replaceChild(frag, n);
+  });
+}
+
 function renderChat() {
   const list = $('chatList');
   const c = activeConv();
@@ -896,6 +941,7 @@ function renderChat() {
     body.className = 'bubble';
     if (m.role === 'assistant') {
       body.innerHTML = mdBlock(m.content); // AI 消息渲染 markdown
+      if (getSettings().blurChinese) blurChinese(body); // 中文默认模糊
     } else {
       body.textContent = m.content; // 用户消息保持纯文本
     }
@@ -916,7 +962,10 @@ function lastBubble() {
 /* 给气泡绑定"点击 → 填入跟读"；内容为空时解绑 */
 function bindBubbleClick(el, m) {
   if (m.content && m.content !== '…') {
-    el.onclick = () => selectSentence(germanOnly(m.content));
+    el.onclick = e => {
+      if (e.target.closest('.zh')) return; // 点中文模糊区只切换显示，不触发跟读
+      selectSentence(germanOnly(m.content));
+    };
   } else {
     el.onclick = null;
   }
@@ -1020,6 +1069,7 @@ async function sendChat() {
       const b = lastBubble();
       if (b) {
         b.innerHTML = mdBlock(aiMsg.content); // 流式结束，渲染 markdown
+        if (getSettings().blurChinese) blurChinese(b); // 中文默认模糊
         bindBubbleClick(b, aiMsg); // 补上点击事件（流式开始时内容为空，还没绑）
       }
       renderConvList();
@@ -1984,6 +2034,11 @@ async function init() {
     renderConvList();
     if (!q && lastSearchQ) revealActiveConv(true); // 刚清空搜索：把当前选中的对话滚到可见
     lastSearchQ = q;
+  });
+  // 中文模糊区：点一下显示/再点隐藏（不冒泡触发气泡的跟读）
+  $('chatList').addEventListener('click', e => {
+    const z = e.target.closest('.zh');
+    if (z) z.classList.toggle('show');
   });
   $('scrim').onclick = closeDrawer;
   $('exportAllBtn').onclick = exportAllConvs;
