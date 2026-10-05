@@ -504,7 +504,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261005-29</div>
+    <div class="ver">版本 v20261005-30</div>
   </section>
 </main>
 <script>
@@ -2154,7 +2154,7 @@ function renderChat() {
   const msgs = c ? c.messages : [];
   list.innerHTML = '';
   if (!msgs.length) {
-    list.innerHTML = '<div class="hint">还没有对话，在下面用德语和 AI 聊起来吧。先点右上角齿轮填好接口 Key。</div>';
+    list.innerHTML = '<div class="hint">还没有对话，在下面用德语和 AI 聊起来吧。</div>';
   }
   msgs.forEach((m, i) => {
     const div = document.createElement('div');
