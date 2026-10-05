@@ -60,6 +60,10 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 24px}
 .bubble strong{font-weight:700}
 .chat-input{display:flex;gap:8px}
 .chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;font-family:inherit}
+.micbtn{flex:none;width:44px;border:none;border-radius:10px;background:#f0ebfd;color:var(--pri);display:flex;align-items:center;justify-content:center}
+.micbtn svg{width:20px;height:20px}
+.micbtn.listening{background:#fee2e2;color:#dc2626;animation:micpulse 1.1s ease-in-out infinite}
+@keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 button{font-family:inherit;cursor:pointer}
 #sendBtn{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:14px}
 #sendBtn:active{background:var(--pri-d)}
@@ -72,6 +76,29 @@ textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px
 .result{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:6px;background:#fbfaff}
 .retrybox p{margin:0 0 10px;font-size:14px;color:var(--ink)}
 .ver{margin-top:10px;font-size:11px;color:#9aa0a6;text-align:center}
+/* 用量统计 */
+.quota2{display:flex;gap:12px}
+.quota2 .quota{flex:1;min-width:0}
+.q-label{font-size:13px}
+.qbar{position:relative;height:24px;background:#eee9fb;border-radius:12px;overflow:hidden}
+.qbar i{position:absolute;left:0;top:0;bottom:0;width:0;background:linear-gradient(90deg,#a78bfa,#6d28d9);transition:width .3s}
+.qbar-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+.qbar-t-dark{color:#fff}
+.qbar-t-light{color:#5b21b6}
+.stat6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:14px}
+.s6{background:#f8f7ff;border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;min-width:0}
+.s6 span{display:block;font-size:11px;color:var(--mut);white-space:nowrap}
+.s6 b{display:block;font-size:14px;margin-top:2px;font-variant-numeric:tabular-nums}
+.s6 input{width:100%;box-sizing:border-box;border:none;border-bottom:1px dashed #b79df7;background:transparent;text-align:center;font-size:14px;font-weight:700;font-family:inherit;color:var(--pri);padding:2px 0;outline:none;font-variant-numeric:tabular-nums}
+.cost-row{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:10px 0 4px;font-size:14px}
+.cost-row b{font-size:19px;color:var(--pri);font-variant-numeric:tabular-nums}
+.day-box{border:1px solid var(--line);border-radius:12px;padding:12px;margin:14px 0;background:#fafaff}
+.day-table{width:100%;border-collapse:collapse;font-size:12.5px}
+.day-table th{font-weight:400;color:var(--mut);font-size:12px;padding:4px 4px;text-align:center;white-space:nowrap;vertical-align:middle}
+.day-table td{padding:5px 4px;text-align:center;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
+.th-share{border:none;background:#f0ebfd;color:var(--pri);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;padding:12px 10px;border-radius:10px;white-space:nowrap;width:100%;box-sizing:border-box}
+.th-share:active{opacity:.6}
+.day-table td.rowbtn{text-align:center;vertical-align:middle;border-top:none;font-weight:400;padding:4px}
 .bubble hr{border:none;border-top:1px solid var(--line);margin:8px 0}
 .btn-pri{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700}
 .btn-pri:disabled{opacity:.6}
@@ -143,7 +170,8 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .spinner{width:15px;height:15px;flex:none;border:2px solid #e9e4f5;border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{margin-left:auto}
-.backbtn{border:none;background:none;color:var(--pri);font-size:15px;padding:2px 0 10px;cursor:pointer;text-align:left}
+.backbtn{display:block;width:100%;text-align:left;border:none;background:none;color:#b3aec7;font-size:32px;font-weight:300;line-height:1;padding:2px 14px 6px 0;cursor:pointer;margin-bottom:2px}
+.backbtn:active{opacity:.6}
 .key-guide{display:flex;align-items:center;gap:10px;background:#f3efff;border:1px solid #e2d9fb;border-radius:14px;padding:12px 14px;margin-bottom:12px}
 .key-guide-text{flex:1;min-width:0}
 .key-guide-text b{display:block;font-size:14px;margin-bottom:2px}
@@ -187,6 +215,7 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .dlg-msg{font-size:15px;line-height:1.65;color:var(--ink);margin:0 0 18px}
 .dlg-btns{display:flex;gap:10px;justify-content:flex-end}
 .dlg-btns button{border-radius:10px;padding:9px 20px;font-size:14px;font-family:inherit;cursor:pointer}
+.checkin-img{display:block;width:100%;border-radius:12px;margin:4px 0 12px}
 .dlg-cancel{background:#fff;border:1px solid var(--line);color:var(--ink)}
 .dlg-ok{background:var(--bad);border:none;color:#fff;font-weight:600}
 .dlg-ok.pri{background:var(--pri)}
@@ -257,7 +286,8 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
       <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn">＋ 新对话</button></div>
       <div id="chatList" class="chat-list"></div>
       <div class="chat-input">
-        <textarea id="chatInput" rows="2" placeholder="用德语说点什么…（可用 Gboard 语音输入）"></textarea>
+        <textarea id="chatInput" rows="2" placeholder="用德语说点什么…"></textarea>
+        <button id="micBtn" class="micbtn" aria-label="语音输入" title="语音输入 (Alt+A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
         <button id="sendBtn">发送</button>
       </div>
 
@@ -284,7 +314,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           <span class="time" id="refDur">0:00</span>
         </div>
         <div class="player-ctrl">
-          <button id="refPlayBtn" class="playbtn pill" disabled><span class="ic-play"></span><span>播放</span></button>
+          <button id="refPlayBtn" class="playbtn pill" title="播放原声 (S)" disabled><span class="ic-play"></span><span>播放</span></button>
         </div>
       </div>
 
@@ -292,7 +322,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 
     <div class="card" id="recordCard">
       <h2>录音打分</h2>
-      <button id="recBtn" class="recbtn"><span class="recdot"></span><span id="recLabel">开始录音</span></button>
+      <button id="recBtn" class="recbtn" title="开始录音 (D)"><span class="recdot"></span><span id="recLabel">开始录音</span></button>
       <div id="recStatus" class="hidden">
         <div class="meter"><i id="meterFill"></i></div>
         <div class="recphase"><span id="recSpin" class="spinner hidden"></span><span id="recPhase"></span></div>
@@ -304,7 +334,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           <span class="time" id="myDur">0:00</span>
         </div>
         <div class="player-ctrl">
-          <button id="myPlayBtn" class="playbtn pill" disabled><span class="ic-play"></span><span>播放</span></button>
+          <button id="myPlayBtn" class="playbtn pill" title="播放我的录音 (F)" disabled><span class="ic-play"></span><span>播放</span></button>
         </div>
       </div>
       <div id="recHint" class="hint"></div>
@@ -316,7 +346,56 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
   </section>
 
   <section id="view-settings" class="hidden">
-    <button id="backBtn" class="backbtn">← 返回</button>
+    <button id="backBtn" class="backbtn" aria-label="返回">‹</button>
+    <div class="card">
+      <h2>用量统计</h2>
+      <div class="day-box">
+        <table class="day-table">
+          <tbody>
+            <tr>
+              <td rowspan="2" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share">今日打卡</button></td>
+              <th>聊天</th><th>听原声</th><th>录音练习</th><th>花费</th>
+            </tr>
+            <tr>
+              <td id="uqDayChat">0次</td>
+              <td id="uqDayTts">0句</td>
+              <td id="uqDayAssess">0次</td>
+              <td id="uqDayCost">0.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="quota2">
+        <div class="quota">
+          <span class="q-label">原声生成（本月）</span>
+          <div class="qbar">
+            <i id="uqTtsBar"></i>
+            <span class="qbar-t qbar-t-dark" id="uqTtsTextA">–</span>
+            <span class="qbar-t qbar-t-light" id="uqTtsTextB">–</span>
+          </div>
+        </div>
+        <div class="quota">
+          <span class="q-label">发音评估（本月）</span>
+          <div class="qbar">
+            <i id="uqSpeechBar"></i>
+            <span class="qbar-t qbar-t-dark" id="uqSpeechTextA">–</span>
+            <span class="qbar-t qbar-t-light" id="uqSpeechTextB">–</span>
+          </div>
+        </div>
+      </div>
+      <div class="stat6">
+        <div class="s6"><span>输入量</span><b id="uqIn">0</b></div>
+        <div class="s6"><span>百万单价</span><input id="setPriceIn" type="text" inputmode="decimal" placeholder="0"/></div>
+        <div class="s6"><span>输出量</span><b id="uqOut">0</b></div>
+        <div class="s6"><span>百万单价</span><input id="setPriceOut" type="text" inputmode="decimal" placeholder="0"/></div>
+        <div class="s6"><span>缓存量</span><b id="uqCached">0</b></div>
+        <div class="s6"><span>百万单价</span><input id="setPriceCached" type="text" inputmode="decimal" placeholder="0"/></div>
+      </div>
+      <div class="cost-row">
+        <span>预估花费：<b id="uqCost">0.00</b></span>
+        <button id="resetChatBtn" type="button" class="danger">重置聊天统计</button>
+      </div>
+    </div>
     <div class="card">
       <h2>聊天设置</h2>
       <div class="field check-row">
@@ -425,7 +504,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261004-33</div>
+    <div class="ver">版本 v20261005-29</div>
   </section>
 </main>
 <script>
@@ -462,7 +541,6 @@ const DEFAULTS = {
   chatBaseUrl: 'https://openrouter.ai/api/v1',
   chatModel: '',
   chatKey: '',
-  systemPrompt: DEFAULT_SYSTEM_PROMPT,
   azureKey: '',
   azureRegion: 'westus2',
   voice: 'de-DE-KatjaNeural',
@@ -473,8 +551,11 @@ const DEFAULTS = {
   autoSpeak: true, // 收到 AI 回复后自动朗读
   showDe: true, // 显示德语（关 = 德语模糊）
   showZh: false, // 显示中文（开 = 中文不模糊）
-  promptTemplates: null, // [{id,name,content}]，首次使用时从 systemPrompt 生成
-  activePromptId: 'default'
+  promptTemplates: null, // [{id,name,content}]，首次使用时生成（老用户从旧 systemPrompt 迁移）
+  activePromptId: 'default',
+  priceIn: 0, // 输入 token 单价（每百万）
+  priceOut: 0, // 输出 token 单价（每百万）
+  priceCached: 0, // 缓存 token 单价（每百万）
 };
 
 const REGIONS = [
@@ -524,6 +605,8 @@ function getSettings() {
       ];
     }
     if (!s.promptTemplates.some(t => t.id === s.activePromptId)) s.activePromptId = s.promptTemplates[0].id;
+    // 僵尸字段：模板上线后 systemPrompt 已废弃；上面迁移用完即删，导出不再出现
+    delete s.systemPrompt;
     return s;
 }
 /* 显示德语的实际生效值：没开自动朗读时强制显示（否则既听不到又看不到） */
@@ -558,7 +641,6 @@ function collectSettings() {
     chatBaseUrl: $('setBaseUrl').value.trim(),
     chatModel: $('setModel').value.trim(),
     chatKey: $('setKey').value.trim(),
-    systemPrompt: $('setPrompt').value,
     azureKey: $('setAzKey').value.trim(),
     azureRegion: $('setRegion').value,
     voice: $('setVoice').value,
@@ -570,7 +652,10 @@ function collectSettings() {
     showDe: autoSpeak ? $('setShowDe').checked : cur.showDe, // 父关时不覆盖原值，重开恢复
     showZh: $('setShowZh').checked,
     promptTemplates: cur.promptTemplates,
-    activePromptId: cur.activePromptId
+    activePromptId: cur.activePromptId,
+    priceIn: Math.max(0, parseFloat($('setPriceIn').value) || 0),
+    priceOut: Math.max(0, parseFloat($('setPriceOut').value) || 0),
+    priceCached: Math.max(0, parseFloat($('setPriceCached').value) || 0)
   });
   applyHistoryLimits(); // 条数变化立即对现有数据生效
   refreshStorageStats(); // 上限变化可能裁剪了数据，统计数字同步刷新
@@ -621,6 +706,9 @@ function fillSettingsForm() {
   $('setRecLimit').value = s.practiceHistoryLimit;
   $('setConvLimit').value = s.convLimit;
   $('setTtsLimit').value = s.ttsCacheLimit;
+  $('setPriceIn').value = s.priceIn;
+  $('setPriceOut').value = s.priceOut;
+  $('setPriceCached').value = s.priceCached;
   refreshSpeakUI();
   refreshPromptUI();
 }
@@ -687,6 +775,9 @@ function initSettings() {
   ['setBaseUrl','setModel','setKey','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
     $(id).addEventListener('change', collectSettings);
   });
+  ['setPriceIn','setPriceOut','setPriceCached'].forEach(id => {
+    $(id).addEventListener('change', () => { collectSettings(); refreshUsageUI(); });
+  });
   $('setAutoSpeak').addEventListener('change', () => { collectSettings(); refreshSpeakUI(); renderChat(); }); // 开关层级：子选项置灰
   $('setShowDe').addEventListener('change', () => { collectSettings(); renderChat(); refreshSentenceBlur(); });
   $('setShowZh').addEventListener('change', () => { collectSettings(); renderChat(); });
@@ -698,6 +789,21 @@ function initSettings() {
     if (f) importSettingsFile(f);
   });
   $('resetSettingsBtn').onclick = resetSettings;
+  $('resetChatBtn').onclick = async () => {
+    if (!await confirmDlg('确定清空聊天 Token 统计吗？Azure 用量按月自动清零，不受影响。', '清空')) return;
+    resetChatUsage();
+    refreshUsageUI();
+  };
+  $('shareCardBtn').onclick = previewCheckinCard;
+  // PWA 长按菜单“今日打卡”：带 ?checkin=1 启动时自动生成并预览（参数用完即清，刷新不再触发）
+  try {
+    if (new URLSearchParams(location.search).get('checkin') === '1') {
+      history.replaceState(null, '', location.pathname + location.hash);
+      const runCheckin = () => setTimeout(previewCheckinCard, 600);
+      if (document.readyState === 'complete') runCheckin();
+      else window.addEventListener('load', runCheckin);
+    }
+  } catch (e) {}
 }
 
 /* ================= 对话管理 ================= */
@@ -1093,11 +1199,753 @@ function promptDlg(title, message, defaultValue, placeholder) {
   return dlg({ title: title, message: message || '', okText: '确定', cancel: true, input: true, inputValue: defaultValue || '', inputPlaceholder: placeholder || '' });
 }
 
+/* ================= 用量统计 ================= */
+const LS_USAGE = 'deutsch.usage.v1';
+const TTS_QUOTA_CHARS = 500000; // Azure F0 免费版：神经网络 TTS 每月 50 万字符（SSML 标签不计费，只计文本）
+const SPEECH_QUOTA_SEC = 5 * 3600; // Azure F0 免费版：语音识别（含发音评估）每月 5 小时
+function usageMonth() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0'); }
+function usageDay() { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); }
+function loadUsage() {
+  let u = null;
+  try { u = JSON.parse(localStorage.getItem(LS_USAGE) || 'null'); } catch (e) {}
+  if (!u || typeof u !== 'object') u = {};
+  const m = usageMonth();
+  if (u.azureMonth !== m) { u.azureMonth = m; u.ttsChars = 0; u.speechSec = 0; } // 自然月切换：Azure 免费额度清零
+  u.ttsChars = +u.ttsChars || 0;
+  u.speechSec = +u.speechSec || 0;
+  u.chatIn = +u.chatIn || 0; u.chatOut = +u.chatOut || 0; u.chatCached = +u.chatCached || 0;
+  u.chatEstimated = !!u.chatEstimated;
+  if (!u.days || typeof u.days !== 'object') u.days = {};
+  const t = usageDay();
+  Object.keys(u.days).forEach(k => { if (k !== t) delete u.days[k]; }); // 只统计总量和今天用量：历史天数据清掉
+  return u;
+}
+let _usage = null;
+function getUsage() { if (!_usage) _usage = loadUsage(); return _usage; }
+function saveUsage() { try { localStorage.setItem(LS_USAGE, JSON.stringify(getUsage())); } catch (e) {} }
+/* 花费显示：小于 0.01 时多给两位小数，不然 0.0011 会显示成 0.00、像没算一样 */
+function fmtCost(c) {
+  c = +c || 0;
+  return (c > 0 && c < 0.01) ? c.toFixed(4) : c.toFixed(2);
+}
+/* 当天记账桶：只留当天 */
+function dayBucket(u, day) {
+  day = day || usageDay();
+  if (!u.days) u.days = {};
+  Object.keys(u.days).forEach(k => { if (k !== day) delete u.days[k]; }); // 只留当天：历史天数据清掉
+  if (!u.days[day]) u.days[day] = { ttsChars: 0, speechSec: 0, chatIn: 0, chatOut: 0, chatCached: 0, ttsCalls: 0, assessCalls: 0, chatRounds: 0 };
+  const d = u.days[day];
+  // 老版本建的 bucket 没有新字段：补上，顺带把已有的 NaN 修成 0（undefined + 1 = NaN 的坑）
+  d.ttsCalls = +d.ttsCalls || 0;
+  d.assessCalls = +d.assessCalls || 0;
+  d.chatRounds = +d.chatRounds || 0;
+  return d;
+}
+/* 记录一次用量：只有真正调了 API 才记（TTS 缓存命中不记） */
+function trackUsage(delta) {
+  const u = getUsage();
+  const m = usageMonth();
+  if (u.azureMonth !== m) { u.azureMonth = m; u.ttsChars = 0; u.speechSec = 0; }
+  const d = dayBucket(u);
+  if (delta.ttsChars) { u.ttsChars += delta.ttsChars; d.ttsChars += delta.ttsChars; }
+  if (delta.speechSec) { u.speechSec += delta.speechSec; d.speechSec += delta.speechSec; }
+  if (delta.chatIn) { u.chatIn += delta.chatIn; d.chatIn += delta.chatIn; }
+  if (delta.chatOut) { u.chatOut += delta.chatOut; d.chatOut += delta.chatOut; }
+  if (delta.chatCached) { u.chatCached += delta.chatCached; d.chatCached += delta.chatCached; }
+  if (delta.chatEstimated) u.chatEstimated = true;
+  if (delta.ttsCalls) d.ttsCalls += delta.ttsCalls; // 每日"跟读X句"用
+  if (delta.assessCalls) d.assessCalls += delta.assessCalls; // 每日"打分X次"用
+  if (delta.chatRounds) d.chatRounds += delta.chatRounds; // 每日"聊天X轮"用
+  saveUsage();
+}
+function resetChatUsage() {
+  const u = getUsage();
+  u.chatIn = 0; u.chatOut = 0; u.chatCached = 0; u.chatEstimated = false;
+  saveUsage();
+}
+/* 从 OpenAI 兼容接口的 usage 取 token（流式最后一段 / 非流式响应） */
+/* 接口返回的 usage 优先：输出口径用 total 校验——Google 系把 thinking 单列在 completion 之外
+   （total = prompt + completion + reasoning，官方按输出计价），此时把 reasoning 并入输出；
+   OpenAI 系 reasoning 已含在 completion 内（total = prompt + completion），不重复加 */
+function trackChatFromUsage(j) {
+  const u = j && j.usage;
+  if (!u || typeof u.prompt_tokens !== 'number') return false;
+  const p = u.prompt_tokens;
+  const c = u.completion_tokens || 0;
+  const r = (u.completion_tokens_details && u.completion_tokens_details.reasoning_tokens) || 0;
+  const t = u.total_tokens;
+  const out = (r > 0 && typeof t === 'number' && t === p + c + r) ? c + r : c;
+  trackUsage({
+    chatIn: p,
+    chatOut: out,
+    chatCached: (u.prompt_tokens_details && u.prompt_tokens_details.cached_tokens) || 0
+  });
+  return true;
+}
+/* token 估算（接口没返回用量时兜底）：CJK 按 1 token/字，其他按 4 字符/token */
+function estTokens(s) {
+  s = String(s || '');
+  let cjk = 0, other = 0;
+  for (const ch of s) {
+    if (/[぀-ヿ㐀-䶿一-鿿豈-﫿가-힯｀-￯]/.test(ch)) cjk++;
+    else other++;
+  }
+  return Math.ceil(cjk + other / 4);
+}
+function chatCost(chatIn, chatOut, chatCached, s) {
+  return (chatIn / 1e6) * (+s.priceIn || 0) + (chatOut / 1e6) * (+s.priceOut || 0) + (chatCached / 1e6) * (+s.priceCached || 0);
+}
+const fmtInt = n => Math.round(n).toLocaleString('en-US');
+const fmtMin = sec => Math.round(sec / 6) / 10; // 秒 → 分钟（1 位小数）
+/* 进度条内嵌文字：深/浅两层用 clip-path 裁开，填充到哪文字都可读 */
+function setQBar(barId, darkId, lightId, text, pct) {
+  pct = Math.max(0, Math.min(100, pct));
+  $(barId).style.width = pct + '%';
+  $(darkId).textContent = text;
+  $(lightId).textContent = text;
+  $(darkId).style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+  $(lightId).style.clipPath = 'inset(0 0 0 ' + pct + '%)';
+}
+/* 刷新设置页顶部的用量统计 */
+function refreshUsageUI() {
+  const u = getUsage();
+  const s = getSettings();
+  setQBar('uqTtsBar', 'uqTtsTextA', 'uqTtsTextB',
+    fmtInt(u.ttsChars) + ' / ' + fmtInt(TTS_QUOTA_CHARS) + ' 字符', u.ttsChars / TTS_QUOTA_CHARS * 100);
+  setQBar('uqSpeechBar', 'uqSpeechTextA', 'uqSpeechTextB',
+    fmtMin(u.speechSec) + ' / 300 分钟', u.speechSec / SPEECH_QUOTA_SEC * 100);
+  $('uqIn').textContent = fmtInt(u.chatIn);
+  $('uqOut').textContent = fmtInt(u.chatOut);
+  $('uqCached').textContent = fmtInt(u.chatCached);
+  $('uqCost').textContent = fmtCost(chatCost(u.chatIn, u.chatOut, u.chatCached, s));
+  const dToday = dayBucket(u); // 今日小表只看今天
+  $('uqDayTts').textContent = (dToday.ttsCalls || 0) + '句';
+  $('uqDayAssess').textContent = (dToday.assessCalls || 0) + '次';
+  $('uqDayChat').textContent = (dToday.chatRounds || 0) + '次';
+  $('uqDayCost').textContent = fmtCost(chatCost(dToday.chatIn, dToday.chatOut, dToday.chatCached, s));
+}
+/* 打卡图小工具：按日期稳定的伪随机数（同一天同一片风景） */
+function hashStr(s) {
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return function() {
+    a |= 0; a = (a + 0x6D2B79F5) | 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+/* 每日德语名言：[德语, 中文, 出处]，共 365 句，按一年中的第几天轮换，一年不重样 */
+const CHECKIN_QUOTES = [
+['Übung macht den Meister.', '熟能生巧。', ''],
+['Aller Anfang ist schwer.', '万事开头难。', ''],
+['Man lernt nie aus.', '活到老，学到老。', ''],
+['Morgenstund hat Gold im Mund.', '一日之计在于晨。', ''],
+['Ohne Fleiß kein Preis.', '一分耕耘，一分收获。', ''],
+['Was du heute kannst besorgen, das verschiebe nicht auf morgen.', '今日事，今日毕。', ''],
+['Stille Wasser sind tief.', '静水流深。', ''],
+['Besser spät als nie.', '迟做总比不做好。', ''],
+['Kleider machen Leute.', '人靠衣装。', ''],
+['Ordnung ist das halbe Leben.', '井井有条，事半功倍。', ''],
+['Ordnung muss sein.', '秩序必须有。', ''],
+['Wer rastet, der rostet.', '懈怠使人落后。', ''],
+['Geteiltes Leid ist halbes Leid.', '分担的痛苦减半。', ''],
+['Geteilte Freude ist doppelte Freude.', '分享的快乐加倍。', ''],
+['Wo ein Wille ist, ist auch ein Weg.', '有志者，事竟成。', ''],
+['Ende gut, alles gut.', '结局好，一切都好。', ''],
+['Was lange währt, wird endlich gut.', '好事多磨，终有好结果。', ''],
+['Hochmut kommt vor dem Fall.', '骄者必败。', ''],
+['Jeder ist seines Glückes Schmied.', '幸福靠自己打造。', ''],
+['Ehrlich währt am längsten.', '诚实最长久。', ''],
+['Von nichts kommt nichts.', '天上不会掉馅饼。', ''],
+['Wer A sagt, muss auch B sagen.', '做事要有始有终。', ''],
+['Lügen haben kurze Beine.', '谎言跑不远。', ''],
+['Hunde, die bellen, beißen nicht.', '虚张声势者，不足惧。', ''],
+['Der Apfel fällt nicht weit vom Stamm.', '有其父，必有其子。', ''],
+['Wie man in den Wald hineinruft, so schallt es heraus.', '种瓜得瓜，种豆得豆。', ''],
+['Man soll den Tag nicht vor dem Abend loben.', '不到最后，不下结论。', ''],
+['Aller guten Dinge sind drei.', '好事成三。', ''],
+['Alles hat ein Ende, nur die Wurst hat zwei.', '万物皆有终，唯香肠有两个头。', ''],
+['Guter Anfang, gutes Ende.', '好的开始是成功的一半。', ''],
+['Arbeit adelt.', '劳动光荣。', ''],
+['Der Fleiß siegt über alles.', '勤奋战胜一切。', ''],
+['Arbeit macht das Leben süß.', '劳动使生活甜蜜。', ''],
+['Müßiggang ist aller Laster Anfang.', '游手好闲是万恶之源。', ''],
+['Wer nicht arbeitet, soll auch nicht essen.', '不劳动者不得食。', ''],
+['Erst die Arbeit, dann das Vergnügen.', '先工作，后享乐。', ''],
+['Nach getaner Arbeit ist gut ruhn.', '干完活，好好休息。', ''],
+['Handwerk hat goldenen Boden.', '手艺是金饭碗。', ''],
+['Lehrjahre sind keine Herrenjahre.', '学徒期不是享福期。', ''],
+['Schuster, bleib bei deinen Leisten.', '守住本分，别越界。', ''],
+['Wer anderen eine Grube gräbt, fällt selbst hinein.', '害人终害己。', ''],
+['Reden ist Silber, Schweigen ist Gold.', '雄辩是银，沉默是金。', ''],
+['Einmal ist keinmal.', '偶尔一次不算数，贵在坚持。', ''],
+['Viele Köche verderben den Brei.', '人多嘴杂坏事。', ''],
+['Der Klügere gibt nach.', '聪明人懂得让步。', ''],
+['Was Hänschen nicht lernt, lernt Hans nimmermehr.', '少壮不努力，老大徒伤悲。', ''],
+['Frisch gewagt ist halb gewonnen.', '勇敢尝试就成功了一半。', ''],
+['Kommt Zeit, kommt Rat.', '船到桥头自然直。', ''],
+['Abwarten und Tee trinken.', '静观其变。', ''],
+['Neue Besen kehren gut.', '新官上任三把火。', ''],
+['Alte Liebe rostet nicht.', '旧情不生锈。', ''],
+['Liebe geht durch den Magen.', '要抓住心，先抓住胃。', ''],
+['Das Auge isst mit.', '摆盘也很重要。', ''],
+['Hunger ist der beste Koch.', '饥饿是最好的厨师。', ''],
+['Man ist, was man isst.', '人如其食。', ''],
+['In der Kürze liegt die Würze.', '言简意赅。', ''],
+['Der Ton macht die Musik.', '语气决定一切。', ''],
+['Aus den Augen, aus dem Sinn.', '眼不见，心不想。', ''],
+['Was ich nicht weiß, macht mich nicht heiß.', '不知道的事，不烦心。', ''],
+['Scherben bringen Glück.', '打碎东西是好兆头。', ''],
+['Jeder Topf findet seinen Deckel.', '总有一款适合你。', ''],
+['Gegensätze ziehen sich an.', '性格互补。', ''],
+['Gleich und gleich gesellt sich gern.', '物以类聚。', ''],
+['Mit Speck fängt man Mäuse.', '舍小利，钓大鱼。', ''],
+['Kleine Geschenke erhalten die Freundschaft.', '小礼物维系友谊。', ''],
+['Der Glaube versetzt Berge.', '信念可以移山。', ''],
+['Hoffnung ist der Anker des Lebens.', '希望是生命之锚。', ''],
+['Die Hoffnung stirbt zuletzt.', '希望最后才熄灭。', ''],
+['Nach Regen folgt Sonnenschein.', '雨后有阳光，否极泰来。', ''],
+['Hinter den Wolken scheint die Sonne.', '云后面有太阳。', ''],
+['Es ist noch kein Meister vom Himmel gefallen.', '没有人生来就是大师。', ''],
+['Es wird nichts so heiß gegessen, wie es gekocht wird.', '事情没你想的那么糟。', ''],
+['Probieren geht über Studieren.', '实践胜过死读书。', ''],
+['Versprochen ist versprochen.', '承诺就是承诺。', ''],
+['Ein Mann, ein Wort.', '一言既出，驷马难追。', ''],
+['In der Not erkennt man die Freunde.', '患难见真情。', ''],
+['Freunde in der Not gehen hundert auf ein Lot.', '患难真情千金难求。', ''],
+['Besser ein ehrlicher Feind als ein falscher Freund.', '诚实的敌人胜过虚伪的朋友。', ''],
+['Sage mir, mit wem du umgehst, so sage ich dir, wer du bist.', '看你的朋友，就知道你是谁。', ''],
+['Des einen Leid, des anderen Freud.', '一人的痛苦，他人的快乐。', ''],
+['Wie gewonnen, so zerronnen.', '来得快，去得也快。', ''],
+['Geld regiert die Welt.', '金钱统治世界。', ''],
+['Geld allein macht nicht glücklich.', '光有钱不会幸福。', ''],
+['Gesundheit ist der größte Reichtum.', '健康是最大的财富。', ''],
+['Vorsicht ist besser als Nachsicht.', '小心驶得万年船。', ''],
+['Eile mit Weile.', '欲速则不达。', ''],
+['Gut Ding will Weile haben.', '好事需要时间。', ''],
+['Doppelt genäht hält besser.', '有备无患。', ''],
+['Sicher ist sicher.', '稳妥为上。', ''],
+['Lieber den Spatz in der Hand als die Taube auf dem Dach.', '手中麻雀胜过屋顶鸽子。', ''],
+['Man muss die Feste feiern, wie sie fallen.', '该庆祝时就庆祝。', ''],
+['Wer feiern kann, kann auch arbeiten.', '会庆祝的人，也会工作。', ''],
+['Zeit ist Geld.', '时间就是金钱。', ''],
+['Pünktlichkeit ist die Höflichkeit der Könige.', '守时是君王的礼貌。', ''],
+['Wer zu spät kommt, den bestraft das Leben.', '迟到者，受生活惩罚。', 'Gorbatschow'],
+['Das Leben ist kein Ponyhof.', '生活不易。', ''],
+['Hinfallen, aufstehen, Krönchen richten, weitergehen.', '跌倒、爬起、扶正皇冠、继续走。', ''],
+['Man muss auch mal Glück haben.', '人也得有点运气。', ''],
+['Den Wald vor lauter Bäumen nicht sehen.', '只见树木，不见森林。', ''],
+['Das Kind mit dem Bade ausschütten.', '别矫枉过正。', ''],
+['Wer im Glashaus sitzt, soll nicht mit Steinen werfen.', '住玻璃房的人，别扔石头。', ''],
+['Einem geschenkten Gaul schaut man nicht ins Maul.', '别挑剔收到的礼物。', ''],
+['Morgen, morgen, nur nicht heute, sagen alle faulen Leute.', '“明天再说”是懒人的口头禅。', ''],
+['Was man nicht im Kopf hat, muss man in den Beinen haben.', '脑子记不住，腿就多跑路。', ''],
+['Der frühe Vogel fängt den Wurm.', '早起的鸟儿有虫吃。', ''],
+['Jeder ist sich selbst der Nächste.', '人先顾自己。', ''],
+['Da liegt der Hund begraben.', '问题症结就在这里。', ''],
+['Das ist nicht mein Bier.', '这不关我的事。', ''],
+['Ich verstehe nur Bahnhof.', '我完全没听懂。', ''],
+['Alles in Butter.', '一切顺利。', ''],
+['Ins Gras beißen.', '完蛋了。', ''],
+['Schwein haben.', '走运了。', ''],
+['Die Kirche im Dorf lassen.', '适可而止，别夸张。', ''],
+['Tomaten auf den Augen haben.', '视而不见。', ''],
+['Ein Brett vor dem Kopf haben.', '脑子转不过弯。', ''],
+['Jemandem auf den Keks gehen.', '惹人烦。', ''],
+['Das geht auf keine Kuhhaut.', '太离谱了。', ''],
+['Da steppt der Bär.', '那里很热闹。', ''],
+['Hals- und Beinbruch!', '祝好运！', ''],
+['Daumen drücken.', '为你加油。', ''],
+['Ins kalte Wasser springen.', '硬着头皮直接上。', ''],
+['Über den Tellerrand schauen.', '开阔眼界。', ''],
+['Zwei Fliegen mit einer Klappe schlagen.', '一石二鸟。', ''],
+['Den Nagel auf den Kopf treffen.', '一针见血。', ''],
+['Nicht alle Tassen im Schrank haben.', '脑子缺根弦。', ''],
+['Alles unter einen Hut bringen.', '兼顾各方。', ''],
+['Den Faden verlieren.', '思路断了。', ''],
+['Am Ball bleiben.', '坚持下去。', ''],
+['Die Nase vorn haben.', '领先一步。', ''],
+['Kalte Füße bekommen.', '临阵退缩。', ''],
+['Schmetterlinge im Bauch haben.', '心里小鹿乱撞。', ''],
+['Ein Herz aus Gold haben.', '有颗金子般的心。', ''],
+['Das Herz auf der Zunge tragen.', '心直口快。', ''],
+['Aus vollem Herzen lachen.', '开怀大笑。', ''],
+['Leeres Stroh dreschen.', '做无用功。', ''],
+['Perlen vor die Säue werfen.', '对牛弹琴。', ''],
+['Da haben wir den Salat.', '这下闯祸了。', ''],
+['Das ist Käse.', '胡说八道。', ''],
+['Da liegt der Hase im Pfeffer.', '关键就在这里。', ''],
+['Jemandem einen Bären aufbinden.', '忽悠人。', ''],
+['Eulen nach Athen tragen.', '多此一举。', ''],
+['Mit dem Kopf durch die Wand wollen.', '蛮干到底。', ''],
+['Das Handtuch werfen.', '放弃。', ''],
+['Nägel mit Köpfen machen.', '干脆利落。', ''],
+['Tacheles reden.', '有话直说。', ''],
+['Butter bei die Fische.', '别绕弯子，说重点。', ''],
+['Einen Zahn zulegen.', '加快速度。', ''],
+['Gas geben.', '加油干。', ''],
+['Die Kurve kriegen.', '渡过难关。', ''],
+['Am Hungertuch nagen.', '穷困潦倒。', ''],
+['Auf großem Fuß leben.', '生活奢侈。', ''],
+['Aus einer Mücke einen Elefanten machen.', '小题大做。', ''],
+['Die Katze aus dem Sack lassen.', '说出秘密。', ''],
+['Die Katze im Sack kaufen.', '盲目购买。', ''],
+['Für einen Apfel und ein Ei.', '贱卖。', ''],
+['Äpfel mit Birnen vergleichen.', '混为一谈。', ''],
+['In den sauren Apfel beißen.', '硬着头皮做。', ''],
+['Sein Licht nicht unter den Scheffel stellen.', '别过分谦虚。', ''],
+['Mit allen Wassern gewaschen sein.', '老江湖。', ''],
+['Ins Fettnäpfchen treten.', '说错话得罪人。', ''],
+['Jemandem Honig ums Maul schmieren.', '拍马屁。', ''],
+['Da beißt die Maus keinen Faden ab.', '无可改变。', ''],
+['Leben wie Gott in Frankreich.', '逍遥自在。', ''],
+['Das Ei will klüger sein als die Henne.', '小辈想教长辈。', ''],
+['Viele Hunde sind des Hasen Tod.', '寡不敌众。', ''],
+['Jedem Tierchen sein Pläsierchen.', '各有所好。', ''],
+['April, April, der macht, was er will.', '四月天气随心所欲。', ''],
+['Morgenrot, schlecht Wetter droht; Abendrot, gut Wetter bot.', '朝霞预示坏天气，晚霞带来好天气。', ''],
+['Ist der Mai kühl und nass, füllt\'s dem Bauern Scheun\' und Fass.', '五月凉又湿，粮仓谷满满。', ''],
+['Wenn\'s an Lichtmess stürmt und schneit, ist der Frühling nicht mehr weit.', '圣烛节风雪大，春天就不远。', ''],
+['Der März soll wie ein Wolf kommen und wie ein Lamm gehen.', '三月如狼来，如羊去。', ''],
+['Ein grüner Weihnacht, ein weißer Ostern.', '圣诞无雪，复活节补。', ''],
+['Regnet\'s am Siebenschläfertag, regnet\'s noch sieben Wochen danach.', '圣徒节下雨，连下七周雨。', ''],
+['Kräht der Hahn auf dem Mist, ändert sich\'s Wetter, oder es bleibt, wie es ist.', '公鸡粪堆上打鸣，要么变天，要么不变。', ''],
+['Der Hunger treibt den Wolf ins Dorf.', '人急了，什么都做得出来。', ''],
+['Ein voller Bauch studiert nicht gern.', '饱肚不好学。', ''],
+['Wo man singt, da lass dich ruhig nieder.', '有歌声的地方，可以安心坐下。', ''],
+['Der Mensch lebt nicht vom Brot allein.', '人不单靠面包活着。', ''],
+['Wasser predigen und Wein trinken.', '嘴上说水，喝的却是酒。', ''],
+['Den Teufel an die Wand malen.', '乌鸦嘴。', ''],
+['Den Braten riechen.', '嗅到不对劲。', ''],
+['Sein Schäfchen ins Trockene bringen.', '先顾好自己。', ''],
+['Das schwarze Schaf sein.', '当异类。', ''],
+['Ein Wolf im Schafspelz.', '披着羊皮的狼。', ''],
+['Den Bock zum Gärtner machen.', '用人不当。', ''],
+['Auf zwei Hochzeiten tanzen.', '脚踩两只船。', ''],
+['Zwischen zwei Stühlen sitzen.', '两头不讨好。', ''],
+['Auf dem Holzweg sein.', '完全搞错了。', ''],
+['Auf dem falschen Dampfer sein.', '搞错了。', ''],
+['Jemandem den Kopf waschen.', '狠狠批评一顿。', ''],
+['Jemandem die Leviten lesen.', '数落一顿。', ''],
+['Haare auf den Zähnen haben.', '厉害，不好惹。', ''],
+['Kein Blatt vor den Mund nehmen.', '说话不遮掩。', ''],
+['Die Flinte ins Korn werfen.', '放弃。', ''],
+['Klare Kante zeigen.', '表明立场。', ''],
+['Steter Tropfen höhlt den Stein.', '水滴石穿。', ''],
+['Der erste Schritt ist der schwerste.', '第一步最难。', ''],
+['Lachen ist die beste Medizin.', '笑是最好的药。', ''],
+['Ein Lächeln kostet nichts.', '微笑不花钱。', ''],
+['Freude ist ansteckend.', '快乐会传染。', ''],
+['Taten sagen mehr als Worte.', '行动胜于言语。', ''],
+['Papier ist geduldig.', '落笔要慎重。', ''],
+['Der erste Eindruck zählt.', '第一印象很重要。', ''],
+['Man sieht sich immer zweimal im Leben.', '人生总会再相见。', ''],
+['Was sich liebt, das neckt sich.', '打是亲，骂是爱。', ''],
+['Liebe macht blind.', '爱情使人盲目。', ''],
+['Jung gewohnt, alt getan.', '从小养成的习惯，老了改不了。', ''],
+['Erfahrung ist die beste Lehrmeisterin.', '经验是最好的老师。', ''],
+['Aus Fehlern lernt man.', '从错误中学习。', ''],
+['Fehler sind zum Lernen da.', '错误就是用来学习的。', ''],
+['Niemand ist vollkommen.', '没有人是完美的。', ''],
+['Irren ist menschlich.', '犯错是人之常情。', ''],
+['Vergeben und vergessen.', '原谅并忘记。', ''],
+['Geduld bringt Rosen.', '耐心带来玫瑰。', ''],
+['Geduld ist eine Tugend.', '耐心是美德。', ''],
+['Rom wurde auch nicht an einem Tag erbaut.', '罗马不是一天建成的。', ''],
+['Gras wächst nicht schneller, wenn man daran zieht.', '拔苗助长。', ''],
+['Man erntet, was man sät.', '种瓜得瓜。', ''],
+['Wer Wind sät, wird Sturm ernten.', '种风者，收风暴。', ''],
+['Die Zeit heilt alle Wunden.', '时间治愈一切伤口。', ''],
+['Alles zu seiner Zeit.', '凡事都有它的时间。', ''],
+['Morgen ist auch noch ein Tag.', '明天也是新的一天。', ''],
+['Jeder Tag ist ein neuer Anfang.', '每天都是新的开始。', ''],
+['Heute ist der erste Tag vom Rest deines Lebens.', '今天是你余生的第一天。', ''],
+['Lebe jeden Tag, als wäre es dein letzter.', '像最后一天那样活好今天。', ''],
+['Das Leben ist zu kurz für schlechte Laune.', '人生苦短，别皱眉。', ''],
+['Lächle, und die Welt lächelt mit dir.', '微笑，世界便与你一起微笑。', ''],
+['Ein Tag ohne Lächeln ist ein verlorener Tag.', '没有微笑的一天，是失去的一天。', ''],
+['Freunde sind die Familie, die man sich aussucht.', '朋友是自己选择的家人。', ''],
+['Echte Freunde sind wie Sterne: man sieht sie nicht immer, aber sie sind da.', '真朋友像星星，不常见，但一直在。', ''],
+['Zusammen ist man weniger allein.', '在一起，就不那么孤单。', ''],
+['Alleine stark, zusammen unschlagbar.', '独行强，众行无敌。', ''],
+['Viele Hände, schnelles Ende.', '人多好办事。', ''],
+['Einigkeit macht stark.', '团结就是力量。', ''],
+['Der Weg zum Erfolg hat keine Abkürzung.', '成功之路没有捷径。', ''],
+['Erfolg hat drei Buchstaben: TUN.', '成功的秘诀就一个字：干。', ''],
+['Erfolg ist kein Glück, sondern harte Arbeit.', '成功不是运气，是汗水。', ''],
+['Wer nicht wagt, der nicht gewinnt.', '不敢冒险，就不会赢。', ''],
+['Mut steht am Anfang des Handelns, Glück am Ende.', '勇气在行动之初，幸运在行动之末。', ''],
+['Das Glück hilft den Mutigen.', '幸运眷顾勇者。', ''],
+['Anfangen ist leicht, durchhalten ist Kunst.', '开始容易，坚持是艺术。', ''],
+['Dranbleiben lohnt sich.', '坚持下去，会有回报。', ''],
+['Aufgeben ist keine Option.', '放弃不是选项。', ''],
+['Kleine Schritte führen auch ans Ziel.', '小步也终达目标。', ''],
+['Schritt für Schritt.', '一步一步来。', ''],
+['Langsam aber sicher.', '慢而稳。', ''],
+['Wissen ist Macht.', '知识就是力量。', ''],
+['Lesen bildet.', '阅读使人明智。', ''],
+['Wer lesen kann, ist nie allein.', '会阅读的人，永不孤单。', ''],
+['Sprachen öffnen Türen.', '语言打开大门。', ''],
+['Mit jeder Sprache lebt man ein neues Leben.', '每学一门语言，就多活一种人生。', ''],
+['Die beste Zeit, einen Baum zu pflanzen, war vor zwanzig Jahren. Die zweitbeste Zeit ist jetzt.', '种树的最佳时间是二十年前，其次是现在。', ''],
+['Der beste Weg, die Zukunft vorauszusagen, ist, sie zu gestalten.', '预测未来的最好方式，是创造未来。', ''],
+['Träume nicht dein Leben, lebe deinen Traum.', '别梦见人生，去活出梦想。', ''],
+['Folge deinem Herzen.', '跟随你的心。', ''],
+['Hör auf dein Bauchgefühl.', '相信直觉。', ''],
+['Alles wird gut.', '一切都会好的。', ''],
+['Man muss sich nach der Decke strecken.', '量力而行。', ''],
+['Es ist nichts beständig als die Unbeständigkeit.', '唯有变化是永恒的。', ''],
+['Der Weg ist das Ziel.', '过程即是目标。', 'Konfuzius'],
+['Carpe diem. Nutze den Tag.', '活在当下。', 'Horaz'],
+['Per aspera ad astra.', '循此苦旅，以达星辰。', ''],
+['Veni, vidi, vici.', '我来，我见，我征服。', 'Cäsar'],
+['Es ist nicht genug zu wissen, man muss auch anwenden; es ist nicht genug zu wollen, man muss auch tun.', '光知道不够，必须去行动；光想不够，必须去做。', 'Goethe'],
+['Auch aus Steinen, die einem in den Weg gelegt werden, kann man Schönes bauen.', '即使是绊脚石，也能建成美丽的东西。', 'Goethe'],
+['Wer nicht neugierig ist, erfährt nichts.', '不好奇的人，什么也学不到。', 'Goethe'],
+['Die Tat ist alles, nichts der Ruhm.', '行动就是一切，虚名算不得什么。', 'Goethe'],
+['Edel sei der Mensch, hilfreich und gut.', '人应高尚、乐助、善良。', 'Goethe'],
+['Hier bin ich Mensch, hier darf ich\'s sein.', '在这里我是人，在这里我可以做人。', 'Goethe'],
+['Was du ererbt von deinen Vätern hast, erwirb es, um es zu besitzen.', '从父辈继承的，要自己去赢得才真正拥有。', 'Goethe'],
+['In der Beschränkung zeigt sich erst der Meister.', '唯有在限制中，方显大师。', 'Goethe'],
+['Wer immer strebend sich bemüht, den können wir erlösen.', '凡不断努力向上的人，都值得被救赎。', 'Goethe'],
+['Grau, teurer Freund, ist alle Theorie, und grün des Lebens goldner Baum.', '理论是灰色的，生命之树常青。', 'Goethe'],
+['Zwei Seelen wohnen, ach! in meiner Brust.', '唉，我胸中有两个灵魂在交战。', 'Goethe'],
+['Man reist nicht, um anzukommen, sondern um zu reisen.', '旅行不是为了到达，而是为了在路上。', 'Goethe'],
+['Es hört doch jeder nur, was er versteht.', '每个人只听得懂他能理解的。', 'Goethe'],
+['Was man in der Jugend wünscht, hat man im Alter die Fülle.', '年轻时渴望的，年老时会丰盛地拥有。', 'Goethe'],
+['Alles Gescheite ist schon gedacht worden; man muss nur versuchen, es noch einmal zu denken.', '一切聪明的想法都已被想过；我们只需再想一遍。', 'Goethe'],
+['Behandle die Menschen so, als wären sie, was sie sein sollten, und du hilfst ihnen zu werden, was sie sein können.', '待人如其应是，助其成为其所能。', 'Goethe'],
+['Der Mensch wächst mit seinen größeren Zwecken.', '人随目标一起长大。', 'Schiller'],
+['Wer gar zu viel bedenkt, wird wenig leisten.', '思虑过多者，难有作为。', 'Schiller'],
+['Früh übt sich, was ein Meister werden will.', '想成大师，要趁早练习。', 'Schiller'],
+['Mit der Dummheit kämpfen Götter selbst vergebens.', '连神明都斗不过愚蠢。', 'Schiller'],
+['Der Starke ist am mächtigsten allein.', '强者独处时最强大。', 'Schiller'],
+['Was mich nicht umbringt, macht mich stärker.', '杀不死我的，使我更强大。', 'Nietzsche'],
+['Wer ein Warum zu leben hat, erträgt fast jedes Wie.', '知道为何而活的人，能忍受任何活法。', 'Nietzsche'],
+['Man muss noch Chaos in sich haben, um einen tanzenden Stern gebären zu können.', '心中尚有混沌，才能诞生舞动的星辰。', 'Nietzsche'],
+['Ohne Musik wäre das Leben ein Irrtum.', '没有音乐，生命就是一场错误。', 'Nietzsche'],
+['Je höher wir uns erheben, desto kleiner erscheinen wir denen, die nicht fliegen können.', '飞得越高，在不会飞的人眼中越渺小。', 'Nietzsche'],
+['Was aus Liebe getan wird, geschieht immer jenseits von Gut und Böse.', '出于爱所做的事，总在善恶之外。', 'Nietzsche'],
+['Es gibt in der Welt einen einzigen Weg, auf welchem niemand gehen kann, außer dir.', '世界上有一条路，除了你无人能走。', 'Nietzsche'],
+['Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt.', '语言的边界，就是我世界的边界。', 'Wittgenstein'],
+['Wovon man nicht sprechen kann, darüber muss man schweigen.', '对不可言说之物，必须保持沉默。', 'Wittgenstein'],
+['Habe Mut, dich deines eigenen Verstandes zu bedienen!', '要有勇气运用你自己的理智！', 'Kant'],
+['Der Mensch kann nur Mensch werden durch Erziehung.', '人只有通过教育才能成为人。', 'Kant'],
+['Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt.', '想象力比知识更重要，因为知识有限。', 'Einstein'],
+['Das Leben ist wie Fahrradfahren. Um die Balance zu halten, musst du in Bewegung bleiben.', '生活像骑自行车，要保持平衡就得一直向前。', 'Einstein'],
+['Logik bringt dich von A nach B. Phantasie bringt dich überall hin.', '逻辑带你从A到B，想象力带你去任何地方。', 'Einstein'],
+['Probleme kann man niemals mit derselben Denkweise lösen, durch die sie entstanden sind.', '无法用制造问题时的思维去解决问题。', 'Einstein'],
+['Wenn du es einem Sechsjährigen nicht erklären kannst, hast du es selbst nicht verstanden.', '如果你不能向六岁孩子解释清楚，说明你自己也没懂。', 'Einstein'],
+['Der Langsamste, der sein Ziel nicht aus den Augen verliert, geht immer noch schneller als der, der ohne Ziel herumirrt.', '不丢失目标的最慢者，也比漫无目的者走得快。', 'Lessing'],
+['Denk ich an Deutschland in der Nacht, dann bin ich um den Schlaf gebracht.', '夜里想起德国，我便再难入眠。', 'Heine'],
+['Das ist ein weites Feld.', '一言难尽。', 'Fontane'],
+['Vater werden ist nicht schwer, Vater sein dagegen sehr.', '当父亲不难，做好父亲很难。', 'Wilhelm Busch'],
+['Musik wird oft nicht schön gefunden, weil sie stets mit Geräusch verbunden.', '音乐常不被觉得美，因为总和噪音相连。', 'Wilhelm Busch'],
+['Ist der Ruf erst ruiniert, lebt es sich ganz ungeniert.', '名声一旦败坏，反而活得自在。', 'Wilhelm Busch'],
+['Das Gute, dieser Satz steht fest, ist stets das Böse, was man lässt.', '所谓善，就是你没做的恶。', 'Wilhelm Busch'],
+['Enthaltsamkeit ist das Vergnügen an Sachen, welche wir nicht kriegen.', '节制，就是对得不到的东西感到愉悦。', 'Wilhelm Busch'],
+['Der Neid ist die aufrichtigste Form der Anerkennung.', '嫉妒是最真诚的认可。', 'Wilhelm Busch'],
+['Es gibt nichts Gutes, außer man tut es.', '没有善，除非你去行善。', 'Erich Kästner'],
+['Wird\'s besser? Wird\'s schlimmer? fragt man alljährlich. Seien wir ehrlich: Leben ist immer lebensgefährlich.', '变好变坏年年问，实话实说：活着总有风险。', 'Erich Kästner'],
+['Humor ist der Knopf, der verhindert, dass uns der Kragen platzt.', '幽默是防止衣领爆开的纽扣。', 'Ringelnatz'],
+['Sicher ist, dass nichts sicher ist. Selbst das nicht.', '唯一确定的是什么都不确定，连这也不确定。', 'Ringelnatz'],
+['Der Vorteil der Klugheit besteht darin, dass man sich dumm stellen kann. Das Gegenteil ist schon schwieriger.', '聪明的优势在于能装傻，反过来就难了。', 'Tucholsky'],
+['Die Philosophen haben die Welt nur verschieden interpretiert; es kommt darauf an, sie zu verändern.', '哲学家只是解释世界，关键在于改变世界。', 'Marx'],
+['Musik ist höhere Offenbarung als alle Weisheit und Philosophie.', '音乐是比一切智慧和哲学更高的启示。', 'Beethoven'],
+['Die Welt ist meine Vorstellung.', '世界是我的表象。', 'Schopenhauer'],
+['Man kann tun, was man will, aber man kann nicht wollen, was man will.', '人能做想做的事，但不能决定自己想什么。', 'Schopenhauer'],
+['Hier stehe ich, ich kann nicht anders.', '我站在这里，别无选择。', 'Luther'],
+['Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.', '战斗者可能失败，不战斗者已经失败。', 'Brecht'],
+['Man muss das Unmögliche versuchen, um das Mögliche zu erreichen.', '要尝试不可能，才能达成可能。', 'Hesse'],
+['Und jedem Anfang wohnt ein Zauber inne, der uns beschützt und der uns hilft, zu leben.', '每个开端都住着魔法，守护我们，帮助我们生活。', 'Hesse'],
+['Wege entstehen dadurch, dass man sie geht.', '路是走出来的。', 'Kafka'],
+['Leben Sie jetzt die Fragen.', '活在问题之中。', 'Rilke'],
+['Ein Leben ohne Mops ist möglich, aber sinnlos.', '没有巴哥犬的人生可能，但无意义。', 'Loriot'],
+['Den größten Fehler, den man im Leben machen kann, ist, immer Angst zu haben, einen Fehler zu machen.', '人生能犯的最大错误，就是总害怕犯错。', 'Bonhoeffer'],
+['Glück ist, wenn Vorbereitung auf Gelegenheit trifft.', '运气，是准备遇上机会。', 'Seneca'],
+['Der Zufall begünstigt nur den vorbereiteten Geist.', '机会只青睐有准备的头脑。', 'Pasteur'],
+['Der Morgen ist klüger als der Abend.', '睡一觉再决定。', ''],
+['Besser ein Ende mit Schrecken als ein Schrecken ohne Ende.', '长痛不如短痛。', ''],
+['Aufgeschoben ist nicht aufgehoben.', '推迟不是取消。', ''],
+['Der Schein trügt.', '表象骗人。', ''],
+['Es ist nicht alles Gold, was glänzt.', '发光的不都是金子。', ''],
+['Neid muss man sich verdienen, Mitleid bekommt man umsonst.', '嫉妒要靠挣，同情白送。', ''],
+['Wer zuletzt lacht, lacht am besten.', '笑到最后，笑得最好。', ''],
+['Lachen verlängert das Leben.', '笑延长寿命。', ''],
+['Vorbeugen ist besser als heilen.', '预防胜于治疗。', ''],
+['Man kann es nicht allen recht machen.', '无法让所有人满意。', ''],
+['Allen Leuten recht getan, ist eine Kunst, die niemand kann.', '让所有人满意，是无人能会的艺术。', ''],
+['Allein geht man schneller, zusammen kommt man weiter.', '独行快，众行远。', ''],
+['In der Ruhe liegt die Kraft.', '静中有力。', ''],
+['Manchmal ist Schweigen die beste Antwort.', '有时沉默是最好的回答。', ''],
+['Weniger ist mehr.', '少即是多。', ''],
+['Einfachheit ist die höchste Stufe der Vollendung.', '大道至简。', 'Leonardo da Vinci'],
+['Perfektion ist nicht dann erreicht, wenn man nichts mehr hinzufügen kann, sondern wenn man nichts mehr wegnehmen kann.', '完美不是加无可加，而是减无可减。', 'Saint-Exupéry'],
+['Du bist, was du denkst.', '你是你所想。', ''],
+['Ändere deine Gedanken, und du änderst deine Welt.', '改变思想，就改变世界。', ''],
+['Ob du denkst, du kannst es, oder du kannst es nicht: du hast recht.', '觉得行还是不行，你都是对的。', 'Henry Ford'],
+['Scheitern ist nur die Gelegenheit, es noch einmal zu versuchen, diesmal intelligenter.', '失败只是更聪明地再试一次的机会。', 'Henry Ford'],
+['Zusammenkommen ist ein Beginn, Zusammenbleiben ein Fortschritt, Zusammenarbeiten ein Erfolg.', '相聚是开始，坚持是进步，合作是成功。', 'Henry Ford'],
+['Es gibt mehr Leute, die kapitulieren, als solche, die scheitern.', '放弃的人比失败的人多。', 'Henry Ford'],
+['Der einzige Weg, großartige Arbeit zu leisten, ist, zu lieben, was man tut.', '做出伟大工作的唯一方式，是热爱你所做的。', 'Steve Jobs'],
+['Bleib hungrig, bleib verrückt.', '求知若饥，虚心若愚。', 'Steve Jobs'],
+['Sei du selbst die Veränderung, die du dir wünschst für diese Welt.', '成为你想看到的改变。', 'Gandhi'],
+['Die Zukunft hängt davon ab, was wir heute tun.', '未来取决于今天的行动。', 'Gandhi'],
+['Stärke kommt nicht aus körperlicher Kraft, sondern aus unbeugsamem Willen.', '力量不来自身体，来自不屈的意志。', 'Gandhi'],
+['Was dich nicht herausfordert, verändert dich nicht.', '不挑战你的，不能改变你。', ''],
+['Wachstum beginnt am Ende deiner Komfortzone.', '成长始于舒适区边缘。', ''],
+['Das Leben beginnt am Ende deiner Komfortzone.', '生活始于舒适区之外。', ''],
+['Tue jeden Tag etwas, das dir Angst macht.', '每天做一件让你害怕的事。', ''],
+['Mut ist nicht die Abwesenheit von Angst, sondern der Triumph darüber.', '勇气不是没有恐惧，而是战胜恐惧。', 'Mandela'],
+['Es scheint immer unmöglich, bis es vollbracht ist.', '在完成之前，一切都看似不可能。', 'Mandela'],
+['Bildung ist die mächtigste Waffe, um die Welt zu verändern.', '教育是改变世界最有力的武器。', 'Mandela'],
+['Ich verliere nie. Entweder ich gewinne, oder ich lerne.', '我从不失败，要么赢，要么学。', 'Mandela'],
+['Der größte Ruhm im Leben liegt nicht darin, nie zu fallen, sondern jedes Mal wieder aufzustehen.', '人生最大的荣耀不在于不跌倒，而在于每次都能爬起。', '']
+];
+/* 画一层锯齿山脊；snow=true 时给最高的几个峰顶加雪盖 */
+function drawRidge(g, rnd, W, H, baseY, peakY, color, snow) {
+  const n = 9 + Math.floor(rnd() * 4);
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    pts.push([(W * i) / n, (i === 0 || i === n) ? baseY : baseY - rnd() * (baseY - peakY)]);
+  }
+  g.fillStyle = color;
+  g.beginPath();
+  g.moveTo(-10, H + 10);
+  g.lineTo(-10, pts[0][1]);
+  for (let i = 0; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
+  g.lineTo(W + 10, H + 10);
+  g.closePath();
+  g.fill();
+  if (snow) {
+    // 给最高的几个峰顶戴"贴合山形"的雪盖：顺着两侧山坡走，底部带锯齿
+    const idx = [];
+    for (let i = 1; i < n; i++) {
+      if (pts[i][1] < pts[i - 1][1] && pts[i][1] < pts[i + 1][1]) idx.push(i);
+    }
+    idx.sort((a, b) => pts[a][1] - pts[b][1]);
+    g.fillStyle = 'rgba(238,242,255,.95)';
+    idx.slice(0, 3).forEach(k => {
+      const A = pts[k], L = pts[k - 1], R = pts[k + 1];
+      const B = [A[0] + (L[0] - A[0]) * 0.55, A[1] + (L[1] - A[1]) * 0.55];
+      const C = [A[0] + (R[0] - A[0]) * 0.55, A[1] + (R[1] - A[1]) * 0.55];
+      g.beginPath();
+      g.moveTo(A[0], A[1]);
+      g.lineTo(B[0], B[1]);
+      // 底部走柔和的波浪线，像积雪的边缘
+      const waves = 3;
+      for (let t = 1; t <= waves; t++) {
+        const x0 = B[0] + (C[0] - B[0]) * (t - 1) / waves;
+        const y0 = B[1] + (C[1] - B[1]) * (t - 1) / waves;
+        const x1 = B[0] + (C[0] - B[0]) * t / waves;
+        const y1 = B[1] + (C[1] - B[1]) * t / waves;
+        g.quadraticCurveTo((x0 + x1) / 2, (y0 + y1) / 2 + 10 + rnd() * 8, x1, y1);
+      }
+      g.closePath();
+      g.fill();
+    });
+  }
+}
+/* 折行：德语按词断行，中文按字断行 */
+function wrapLines(g, text, maxW) {
+  const tokens = text.match(/[^\s\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]+|\s+|[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/g) || [];
+  const lines = [];
+  let line = '';
+  for (const tk of tokens) {
+    if (/^\s+$/.test(tk)) {
+      if (line && !line.endsWith(' ')) line += ' ';
+      continue;
+    }
+    const t = line + tk;
+    if (line && g.measureText(t).width > maxW) { lines.push(line.replace(/\s+$/, '')); line = tk; }
+    else line = t;
+  }
+  if (line) lines.push(line.replace(/\s+$/, ''));
+  return lines;
+}
+/* 打卡图：手绘阿尔卑斯黄昏 + 每日德语名言，canvas 绘制，可分享或下载 */
+function roundRectPath(g, x, y, w, h, r) {
+  g.beginPath();
+  g.moveTo(x + r, y);
+  g.arcTo(x + w, y, x + w, y + h, r);
+  g.arcTo(x + w, y + h, x, y + h, r);
+  g.arcTo(x, y + h, x, y, r);
+  g.arcTo(x, y, x + w, y, r);
+  g.closePath();
+}
+/* 打卡图生成：canvas → PNG File（“今日打卡”按钮和 PWA 长按菜单共用） */
+function makeCheckinFile() {
+  return new Promise((resolve, reject) => {
+  try {
+    const u = getUsage();
+    const d = dayBucket(u);
+    const day = usageDay();
+    const W = 900, H = 1180;
+    const cv = document.createElement('canvas');
+    cv.width = W; cv.height = H;
+    const g = cv.getContext('2d');
+    const rnd = mulberry32(hashStr(day));
+    // 黄昏天空
+    const sky = g.createLinearGradient(0, 0, 0, H);
+    sky.addColorStop(0, '#1c1548');
+    sky.addColorStop(0.5, '#5b2a8f');
+    sky.addColorStop(0.78, '#c06a2e');
+    sky.addColorStop(1, '#f2a65a');
+    g.fillStyle = sky;
+    g.fillRect(0, 0, W, H);
+    // 星星
+    for (let i = 0; i < 60; i++) {
+      g.fillStyle = 'rgba(255,255,255,' + (0.25 + rnd() * 0.6).toFixed(2) + ')';
+      g.beginPath();
+      g.arc(rnd() * W, rnd() * 360, 0.8 + rnd() * 1.8, 0, 7);
+      g.fill();
+    }
+    // 月亮（夜空配星星，放在高处不被山挡住）
+    const moonX = 745, moonY = 160, moonR = 68;
+    const mglow = g.createRadialGradient(moonX, moonY, 12, moonX, moonY, 150);
+    mglow.addColorStop(0, 'rgba(245,240,215,.5)');
+    mglow.addColorStop(1, 'rgba(245,240,215,0)');
+    g.fillStyle = mglow;
+    g.fillRect(moonX - 150, moonY - 150, 300, 300);
+    g.fillStyle = '#faf7ea';
+    g.beginPath();
+    g.arc(moonX, moonY, moonR, 0, 7);
+    g.fill();
+    // 环形山（小斑点点缀）
+    g.fillStyle = 'rgba(0,0,0,.08)';
+    [[-19, -11, 9], [14, 8, 11], [-3, 27, 7], [25, -22, 6], [-30, 12, 5]].forEach(c => {
+      g.beginPath();
+      g.arc(moonX + c[0], moonY + c[1], c[2], 0, 7);
+      g.fill();
+    });
+    // 远山、雪山
+    drawRidge(g, rnd, W, H, 430, 230, '#7a5fae', true);
+    drawRidge(g, rnd, W, H, 540, 320, '#4e3670', true);
+    // 标题
+    g.textAlign = 'center';
+    g.shadowColor = 'rgba(0,0,0,.35)';
+    g.shadowBlur = 12;
+    g.fillStyle = '#fff';
+    g.font = '700 66px system-ui, sans-serif';
+    g.fillText('德语练习打卡', W / 2, 120);
+    g.font = '400 36px system-ui, sans-serif';
+    g.fillStyle = 'rgba(255,255,255,.85)';
+    g.fillText(day, W / 2, 178);
+    g.shadowBlur = 0;
+    // 白色数据卡
+    roundRectPath(g, 60, 360, W - 120, 435, 36);
+    g.fillStyle = '#fff';
+    g.fill();
+    const rows = [
+      ['今日聊天', (d.chatRounds || 0) + ' 次'],
+      ['今日听原声', (d.ttsCalls || 0) + ' 句'],
+      ['今日录音练习', (d.assessCalls || 0) + ' 次']
+    ];
+    g.textAlign = 'left';
+    rows.forEach((r, i) => {
+      const y = 360 + 105 * (i + 1);
+      g.font = '400 34px system-ui, sans-serif';
+      g.fillStyle = '#6b7280';
+      g.fillText(r[0], 110, y);
+      g.font = '700 36px system-ui, sans-serif';
+      g.fillStyle = '#111827';
+      g.textAlign = 'right';
+      g.fillText(r[1], W - 110, y);
+      g.textAlign = 'left';
+      if (i < rows.length - 1) {
+        g.strokeStyle = '#e5e7eb'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(110, y + 42); g.lineTo(W - 110, y + 42); g.stroke();
+      }
+    });
+    // 近山（卡片下方，峰顶抬高给名言区留出深色底）
+    drawRidge(g, rnd, W, H, 1180, 900, '#2b2148', false);
+    // 底部渐隐罩：保证名言在任何山形下都清晰可读
+    const scrim = g.createLinearGradient(0, 900, 0, H);
+    scrim.addColorStop(0, 'rgba(20,12,45,0)');
+    scrim.addColorStop(1, 'rgba(20,12,45,.55)');
+    g.fillStyle = scrim;
+    g.fillRect(0, 900, W, H - 900);
+    // 每日德语名言
+    const doy = Math.floor((new Date(day + 'T00:00:00') - new Date(+day.slice(0, 4), 0, 1)) / 864e5);
+    const q = CHECKIN_QUOTES[((doy % CHECKIN_QUOTES.length) + CHECKIN_QUOTES.length) % CHECKIN_QUOTES.length];
+    g.textAlign = 'center';
+    g.shadowColor = 'rgba(0,0,0,.4)';
+    g.shadowBlur = 10;
+    // 版式：德语原句 → 作者 → 中文翻译；过长时自动缩小字号，保证完整画下
+    const ZT = 920, ZB = 1120;
+    let qfs = 34, glines, clines, blockH;
+    while (true) {
+      g.font = '700 ' + qfs + 'px system-ui, sans-serif';
+      glines = wrapLines(g, '„' + q[0] + '"', 780);
+      g.font = '400 30px system-ui, sans-serif';
+      clines = wrapLines(g, q[1], 780);
+      blockH = glines.length * (qfs + 14) + (q[2] ? 46 : 0) + 10 + clines.length * 42;
+      if ((glines.length <= 3 && blockH <= ZB - ZT) || qfs <= 22) break;
+      qfs -= 2;
+    }
+    const qlh = qfs + 14;
+    let qy = ZT + Math.max(0, (ZB - ZT - blockH) / 2) + qlh * 0.8;
+    g.fillStyle = '#fff';
+    g.font = '700 ' + qfs + 'px system-ui, sans-serif';
+    glines.forEach(l => { g.fillText(l, W / 2, qy); qy += qlh; });
+    if (q[2]) {
+      g.font = '400 28px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.8)';
+      qy += 6;
+      g.fillText('—— ' + q[2], W / 2, qy);
+      qy += 40;
+    }
+    g.font = '400 30px system-ui, sans-serif';
+    g.fillStyle = 'rgba(255,255,255,.88)';
+    qy += 10;
+    clines.forEach(l => { g.fillText(l, W / 2, qy); qy += 42; });
+    g.shadowBlur = 0;
+    cv.toBlob(blob => {
+      if (!blob) { reject(new Error('图片生成失败')); return; }
+      resolve(new File([blob], 'deutsch-checkin-' + usageDay() + '.png', { type: 'image/png' }));
+    }, 'image/png');
+    } catch (e) { reject(e); }
+  });
+}
+
+/* “今日打卡”（按钮 & PWA 长按菜单共用）：生成打卡图 → 弹窗预览 → 点“分享”调系统面板 */
+function previewCheckinCard() {
+  makeCheckinFile().then(file => {
+    const url = URL.createObjectURL(file);
+    const ov = document.createElement('div');
+    ov.className = 'dlg-ov';
+    ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">今日打卡</div>' +
+      '<img class="checkin-img" alt="今日打卡图">' +
+      '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button>' +
+      '<button type="button" class="dlg-ok pri">分享</button></div></div>';
+    ov.querySelector('img').src = url;
+    const close = () => { URL.revokeObjectURL(url); ov.remove(); };
+    ov.querySelector('.dlg-cancel').onclick = close;
+    ov.querySelector('.dlg-ok').onclick = () => {
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        navigator.share({ files: [file], title: '德语练习打卡' }).catch(() => {});
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = file.name;
+        document.body.appendChild(a); a.click(); a.remove();
+      }
+    };
+    ov.addEventListener('click', e => { if (e.target === ov) close(); });
+    document.body.appendChild(ov);
+  }).catch(e => alertDlg('图片生成失败：' + e.message));
+}
+
 /* ================= 设置页进出（右上角齿轮） ================= */
 function openSettings() {
   $('view-practice').classList.add('hidden');
   $('view-settings').classList.remove('hidden');
   refreshStorageStats(); // 每次打开设置页刷新占用统计
+  refreshUsageUI(); // 刷新用量统计
   window.scrollTo(0, 0);
 }
 function closeSettings() {
@@ -1394,7 +2242,49 @@ function updateConvTitle(c) {
   }
 }
 
+/* 聊天框语音输入：Web Speech API，锁定德语识别；结果填入输入框，不自动发送 */
+let dictRec = null;
+let dictFocusAfter = true; // 听写结束后是否把焦点放回输入框；发送时设为 false，保证 ASDF 快捷键立即可用
+function toggleDictation() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alertDlg('当前浏览器不支持语音输入，可以用 Gboard 的语音输入代替'); return; }
+  if (dictRec) { try { dictRec.stop(); } catch (e) {} return; }
+  const input = $('chatInput');
+  const btn = $('micBtn');
+  const rec = new SR();
+  dictRec = rec;
+  const base = input.value.replace(/\s+$/, '');
+  const prefix = base ? base + ' ' : '';
+  let finalText = '';
+  rec.lang = 'de-DE';
+  rec.interimResults = true;
+  rec.maxAlternatives = 1;
+  btn.classList.add('listening');
+  btn.setAttribute('aria-label', '停止语音输入');
+  rec.onresult = e => {
+    let interim = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      const t = e.results[i][0].transcript;
+      if (e.results[i].isFinal) finalText += t;
+      else interim += t;
+    }
+    input.value = prefix + finalText + interim;
+    autoGrowTextarea(input);
+  };
+  const done = () => { dictRec = null; btn.classList.remove('listening'); btn.setAttribute('aria-label', '语音输入'); if (dictFocusAfter) input.focus(); dictFocusAfter = true; };
+  rec.onend = done;
+  rec.onerror = e => {
+    done();
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') alertDlg('麦克风权限被拒绝，请在浏览器设置里允许后重试');
+    else if (e.error === 'audio-capture') alertDlg('没有找到麦克风');
+    else if (e.error === 'network') alertDlg('语音识别需要联网，请检查网络后重试');
+  };
+  try { rec.start(); } catch (e) { done(); }
+}
+
 async function sendChat() {
+  dictFocusAfter = false; // 发送后焦点不回输入框，ASDF 快捷键立即可用；想打字就多点一下
+  if (dictRec) { try { dictRec.stop(); } catch (e) {} } // 发送时先停掉语音输入
   const s = getSettings();
   const input = $('chatInput');
   const text = input.value.trim();
@@ -1407,6 +2297,7 @@ async function sendChat() {
   if (!c) { newConversation(); c = activeConv(); }
   c.messages.push({ role: 'user', content: text });
   input.value = '';
+  input.blur(); // 焦点离开输入框，ASDF 快捷键立即可用
   await sendChatCore(c);
 }
 
@@ -1436,7 +2327,7 @@ async function sendChatCore(c) {
     const res = await fetch(base + '/chat/completions', {
       method: 'POST',
       headers: chatHeaders(s.chatKey),
-      body: JSON.stringify({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs })
+      body: JSON.stringify({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs, stream_options: { include_usage: true } })
     });
     if (!res.ok || !res.body) {
       const t = await res.text().catch(() => '');
@@ -1447,7 +2338,7 @@ async function sendChatCore(c) {
     }
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
-    let buf = '', finished = false;
+    let buf = '', finished = false, streamUsage = null;
     const uiAlive = () => getActiveId() === convId;
     const paint = () => {
       if (!uiAlive()) return;
@@ -1469,6 +2360,7 @@ async function sendChatCore(c) {
         if (data === '[DONE]') { finished = true; break; }
         try {
           const j = JSON.parse(data);
+          if (j.usage) streamUsage = j.usage; // 流式最后一段可能带用量
           const ch = j.choices && j.choices[0];
           const delta = ch && ch.delta && ch.delta.content;
           if (delta) { aiMsg.content += delta; paint(); }
@@ -1477,6 +2369,13 @@ async function sendChatCore(c) {
     }
     try { reader.cancel(); } catch (e) {}
     if (!aiMsg.content) throw new Error('接口返回为空');
+    if (!trackChatFromUsage(streamUsage)) {
+      // 接口没返回用量：按字符估算（输入按实际发送的消息，输出按收到的回复）
+      let pin = 0;
+      apiMsgs.forEach(m => { pin += 4 + estTokens(m.content); });
+      trackUsage({ chatIn: pin, chatOut: estTokens(aiMsg.content), chatEstimated: true });
+    }
+    trackUsage({ chatRounds: 1 }); // 成功完成一轮问答
     persistConv(c);
     if (uiAlive()) {
       const b = lastBubble();
@@ -1571,6 +2470,7 @@ async function testChat() {
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error('HTTP ' + res.status + '：' + JSON.stringify(data && data.error || data).slice(0, 160));
     const r = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
+    trackChatFromUsage(data); // 测试也记（用量很小）
     if (r) msg.textContent = '连接成功，模型回复：' + String(r).slice(0, 60);
     else msg.textContent = '连接成功';
   } catch (e) {
@@ -1711,6 +2611,7 @@ async function ttsCached(rawText, voice) {
   const hit = await idbGet(key).catch(() => null);
   if (hit && hit.blob && hit.text === t) return { blob: hit.blob, text: t, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段视为未命中，重新生成一次即自愈
   const blob = await ttsBlob(t);
+  trackUsage({ ttsChars: t.length, ttsCalls: 1 }); // 只有真正调了 API 才计费：缓存命中不计
   const lim = getSettings().ttsCacheLimit; // 已钳制 0–500；0 = 关闭缓存
   if (lim > 0) {
     idbSet(key, { blob: blob, t: Date.now(), text: t }).catch(() => {});
@@ -2124,6 +3025,7 @@ async function assessPcm(pcm16, referenceText) {
       Phonemes: (w.Phonemes || []).map(normPhoneme)
     };
   };
+  trackUsage({ speechSec: pcm16.length / 16000, assessCalls: 1 }); // 成功才计：发给微软的音频秒数
   return {
     pa: {
       pronunciationScore: pick(a.PronScore, best.PronScore),
@@ -2650,6 +3552,28 @@ async function init() {
   $('delOld30Btn').onclick = () => deleteConvsOlderThan(30);
 
   $('sendBtn').onclick = sendChat;
+  $('micBtn').onclick = toggleDictation;
+  /* PC 快捷键：Alt+A 语音输入（聊天输入框里也能用，方便说一半继续说）/ S 播放原声 / D 开始录音 / F 播放我的录音
+     S/D/F 焦点在任何输入框时不触发；Alt+A 只在页面和聊天输入框响应，其他输入框不响应
+     设置页、弹窗/抽屉打开时都不触发（按钮 title 里有提示，移动端不受影响） */
+  document.addEventListener('keydown', e => {
+    const k = (e.key || '').toLowerCase();
+    const noMod = !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey;
+    let id = null;
+    if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && k === 'a') id = 'micBtn';
+    else if (noMod) id = k === 's' ? 'refPlayBtn' : k === 'd' ? 'recBtn' : k === 'f' ? 'myPlayBtn' : null;
+    if (!id) return;
+    const ae = document.activeElement;
+    const inField = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.isContentEditable);
+    if (inField && !(id === 'micBtn' && ae.id === 'chatInput')) return; // 只有聊天输入框响应 Alt+A
+    if ($('view-practice').classList.contains('hidden')) return; // 设置页不触发
+    if (document.querySelector('.dlg-ov')) return; // 弹窗打开时不触发
+    if ($('drawer').classList.contains('open')) return; // 抽屉打开时不触发
+    const btn = $(id);
+    if (!btn || btn.disabled || !btn.offsetParent) return; // 不可见或不可用不触发
+    e.preventDefault();
+    btn.click();
+  });
   $('chatInput').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
