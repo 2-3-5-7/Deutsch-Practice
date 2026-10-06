@@ -504,7 +504,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261006-11</div>
+    <div class="ver">版本 v20261006-12</div>
   </section>
 </main>
 <script src="quotes.js"></script>
@@ -1515,9 +1515,11 @@ function makeCheckinFile() {
     // 打卡标题
     const ds = day.replace(/-/g, '.');
     g.textAlign = 'center';
-    g.font = '400 28px system-ui, sans-serif';
-    g.fillStyle = 'rgba(255,255,255,.88)';
+    g.font = '700 28px system-ui, sans-serif';
+    g.fillStyle = '#fff';
+    g.letterSpacing = '3px';
     g.fillText(ds, W / 2, divY + 46);
+    g.letterSpacing = '0px';
     const stats = [
       ['对话', (d.chatRounds || 0), '次'],
       ['听原声', (d.ttsCalls || 0), '句'],
