@@ -354,7 +354,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           <tbody>
             <tr>
               <td rowspan="2" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share">今日打卡</button></td>
-              <th>聊天</th><th>听原声</th><th>录音练习</th><th>花费</th>
+              <th>对话</th><th>听原声</th><th>录音练习</th><th>花费</th>
             </tr>
             <tr>
               <td id="uqDayChat">0次</td>
@@ -504,9 +504,10 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261005-30</div>
+    <div class="ver">版本 v20261006-11</div>
   </section>
 </main>
+<script src="quotes.js"></script>
 <script>
 'use strict';
 /* ================= 工具 ================= */
@@ -790,7 +791,7 @@ function initSettings() {
   });
   $('resetSettingsBtn').onclick = resetSettings;
   $('resetChatBtn').onclick = async () => {
-    if (!await confirmDlg('确定清空聊天 Token 统计吗？Azure 用量按月自动清零，不受影响。', '清空')) return;
+    if (!await confirmDlg('确定清空聊天统计吗？Azure 用量按月自动清零，不受影响。', '清空')) return;
     resetChatUsage();
     refreshUsageUI();
   };
@@ -1330,445 +1331,80 @@ function hashStr(s) {
   for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); }
   return h >>> 0;
 }
-function mulberry32(seed) {
-  let a = seed >>> 0;
-  return function() {
-    a |= 0; a = (a + 0x6D2B79F5) | 0;
-    let t = Math.imul(a ^ (a >>> 15), 1 | a);
-    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-/* 每日德语名言：[德语, 中文, 出处]，共 365 句，按一年中的第几天轮换，一年不重样 */
-const CHECKIN_QUOTES = [
-['Übung macht den Meister.', '熟能生巧。', ''],
-['Aller Anfang ist schwer.', '万事开头难。', ''],
-['Man lernt nie aus.', '活到老，学到老。', ''],
-['Morgenstund hat Gold im Mund.', '一日之计在于晨。', ''],
-['Ohne Fleiß kein Preis.', '一分耕耘，一分收获。', ''],
-['Was du heute kannst besorgen, das verschiebe nicht auf morgen.', '今日事，今日毕。', ''],
-['Stille Wasser sind tief.', '静水流深。', ''],
-['Besser spät als nie.', '迟做总比不做好。', ''],
-['Kleider machen Leute.', '人靠衣装。', ''],
-['Ordnung ist das halbe Leben.', '井井有条，事半功倍。', ''],
-['Ordnung muss sein.', '秩序必须有。', ''],
-['Wer rastet, der rostet.', '懈怠使人落后。', ''],
-['Geteiltes Leid ist halbes Leid.', '分担的痛苦减半。', ''],
-['Geteilte Freude ist doppelte Freude.', '分享的快乐加倍。', ''],
-['Wo ein Wille ist, ist auch ein Weg.', '有志者，事竟成。', ''],
-['Ende gut, alles gut.', '结局好，一切都好。', ''],
-['Was lange währt, wird endlich gut.', '好事多磨，终有好结果。', ''],
-['Hochmut kommt vor dem Fall.', '骄者必败。', ''],
-['Jeder ist seines Glückes Schmied.', '幸福靠自己打造。', ''],
-['Ehrlich währt am längsten.', '诚实最长久。', ''],
-['Von nichts kommt nichts.', '天上不会掉馅饼。', ''],
-['Wer A sagt, muss auch B sagen.', '做事要有始有终。', ''],
-['Lügen haben kurze Beine.', '谎言跑不远。', ''],
-['Hunde, die bellen, beißen nicht.', '虚张声势者，不足惧。', ''],
-['Der Apfel fällt nicht weit vom Stamm.', '有其父，必有其子。', ''],
-['Wie man in den Wald hineinruft, so schallt es heraus.', '种瓜得瓜，种豆得豆。', ''],
-['Man soll den Tag nicht vor dem Abend loben.', '不到最后，不下结论。', ''],
-['Aller guten Dinge sind drei.', '好事成三。', ''],
-['Alles hat ein Ende, nur die Wurst hat zwei.', '万物皆有终，唯香肠有两个头。', ''],
-['Guter Anfang, gutes Ende.', '好的开始是成功的一半。', ''],
-['Arbeit adelt.', '劳动光荣。', ''],
-['Der Fleiß siegt über alles.', '勤奋战胜一切。', ''],
-['Arbeit macht das Leben süß.', '劳动使生活甜蜜。', ''],
-['Müßiggang ist aller Laster Anfang.', '游手好闲是万恶之源。', ''],
-['Wer nicht arbeitet, soll auch nicht essen.', '不劳动者不得食。', ''],
-['Erst die Arbeit, dann das Vergnügen.', '先工作，后享乐。', ''],
-['Nach getaner Arbeit ist gut ruhn.', '干完活，好好休息。', ''],
-['Handwerk hat goldenen Boden.', '手艺是金饭碗。', ''],
-['Lehrjahre sind keine Herrenjahre.', '学徒期不是享福期。', ''],
-['Schuster, bleib bei deinen Leisten.', '守住本分，别越界。', ''],
-['Wer anderen eine Grube gräbt, fällt selbst hinein.', '害人终害己。', ''],
-['Reden ist Silber, Schweigen ist Gold.', '雄辩是银，沉默是金。', ''],
-['Einmal ist keinmal.', '偶尔一次不算数，贵在坚持。', ''],
-['Viele Köche verderben den Brei.', '人多嘴杂坏事。', ''],
-['Der Klügere gibt nach.', '聪明人懂得让步。', ''],
-['Was Hänschen nicht lernt, lernt Hans nimmermehr.', '少壮不努力，老大徒伤悲。', ''],
-['Frisch gewagt ist halb gewonnen.', '勇敢尝试就成功了一半。', ''],
-['Kommt Zeit, kommt Rat.', '船到桥头自然直。', ''],
-['Abwarten und Tee trinken.', '静观其变。', ''],
-['Neue Besen kehren gut.', '新官上任三把火。', ''],
-['Alte Liebe rostet nicht.', '旧情不生锈。', ''],
-['Liebe geht durch den Magen.', '要抓住心，先抓住胃。', ''],
-['Das Auge isst mit.', '摆盘也很重要。', ''],
-['Hunger ist der beste Koch.', '饥饿是最好的厨师。', ''],
-['Man ist, was man isst.', '人如其食。', ''],
-['In der Kürze liegt die Würze.', '言简意赅。', ''],
-['Der Ton macht die Musik.', '语气决定一切。', ''],
-['Aus den Augen, aus dem Sinn.', '眼不见，心不想。', ''],
-['Was ich nicht weiß, macht mich nicht heiß.', '不知道的事，不烦心。', ''],
-['Scherben bringen Glück.', '打碎东西是好兆头。', ''],
-['Jeder Topf findet seinen Deckel.', '总有一款适合你。', ''],
-['Gegensätze ziehen sich an.', '性格互补。', ''],
-['Gleich und gleich gesellt sich gern.', '物以类聚。', ''],
-['Mit Speck fängt man Mäuse.', '舍小利，钓大鱼。', ''],
-['Kleine Geschenke erhalten die Freundschaft.', '小礼物维系友谊。', ''],
-['Der Glaube versetzt Berge.', '信念可以移山。', ''],
-['Hoffnung ist der Anker des Lebens.', '希望是生命之锚。', ''],
-['Die Hoffnung stirbt zuletzt.', '希望最后才熄灭。', ''],
-['Nach Regen folgt Sonnenschein.', '雨后有阳光，否极泰来。', ''],
-['Hinter den Wolken scheint die Sonne.', '云后面有太阳。', ''],
-['Es ist noch kein Meister vom Himmel gefallen.', '没有人生来就是大师。', ''],
-['Es wird nichts so heiß gegessen, wie es gekocht wird.', '事情没你想的那么糟。', ''],
-['Probieren geht über Studieren.', '实践胜过死读书。', ''],
-['Versprochen ist versprochen.', '承诺就是承诺。', ''],
-['Ein Mann, ein Wort.', '一言既出，驷马难追。', ''],
-['In der Not erkennt man die Freunde.', '患难见真情。', ''],
-['Freunde in der Not gehen hundert auf ein Lot.', '患难真情千金难求。', ''],
-['Besser ein ehrlicher Feind als ein falscher Freund.', '诚实的敌人胜过虚伪的朋友。', ''],
-['Sage mir, mit wem du umgehst, so sage ich dir, wer du bist.', '看你的朋友，就知道你是谁。', ''],
-['Des einen Leid, des anderen Freud.', '一人的痛苦，他人的快乐。', ''],
-['Wie gewonnen, so zerronnen.', '来得快，去得也快。', ''],
-['Geld regiert die Welt.', '金钱统治世界。', ''],
-['Geld allein macht nicht glücklich.', '光有钱不会幸福。', ''],
-['Gesundheit ist der größte Reichtum.', '健康是最大的财富。', ''],
-['Vorsicht ist besser als Nachsicht.', '小心驶得万年船。', ''],
-['Eile mit Weile.', '欲速则不达。', ''],
-['Gut Ding will Weile haben.', '好事需要时间。', ''],
-['Doppelt genäht hält besser.', '有备无患。', ''],
-['Sicher ist sicher.', '稳妥为上。', ''],
-['Lieber den Spatz in der Hand als die Taube auf dem Dach.', '手中麻雀胜过屋顶鸽子。', ''],
-['Man muss die Feste feiern, wie sie fallen.', '该庆祝时就庆祝。', ''],
-['Wer feiern kann, kann auch arbeiten.', '会庆祝的人，也会工作。', ''],
-['Zeit ist Geld.', '时间就是金钱。', ''],
-['Pünktlichkeit ist die Höflichkeit der Könige.', '守时是君王的礼貌。', ''],
-['Wer zu spät kommt, den bestraft das Leben.', '迟到者，受生活惩罚。', 'Gorbatschow'],
-['Das Leben ist kein Ponyhof.', '生活不易。', ''],
-['Hinfallen, aufstehen, Krönchen richten, weitergehen.', '跌倒、爬起、扶正皇冠、继续走。', ''],
-['Man muss auch mal Glück haben.', '人也得有点运气。', ''],
-['Den Wald vor lauter Bäumen nicht sehen.', '只见树木，不见森林。', ''],
-['Das Kind mit dem Bade ausschütten.', '别矫枉过正。', ''],
-['Wer im Glashaus sitzt, soll nicht mit Steinen werfen.', '住玻璃房的人，别扔石头。', ''],
-['Einem geschenkten Gaul schaut man nicht ins Maul.', '别挑剔收到的礼物。', ''],
-['Morgen, morgen, nur nicht heute, sagen alle faulen Leute.', '“明天再说”是懒人的口头禅。', ''],
-['Was man nicht im Kopf hat, muss man in den Beinen haben.', '脑子记不住，腿就多跑路。', ''],
-['Der frühe Vogel fängt den Wurm.', '早起的鸟儿有虫吃。', ''],
-['Jeder ist sich selbst der Nächste.', '人先顾自己。', ''],
-['Da liegt der Hund begraben.', '问题症结就在这里。', ''],
-['Das ist nicht mein Bier.', '这不关我的事。', ''],
-['Ich verstehe nur Bahnhof.', '我完全没听懂。', ''],
-['Alles in Butter.', '一切顺利。', ''],
-['Ins Gras beißen.', '完蛋了。', ''],
-['Schwein haben.', '走运了。', ''],
-['Die Kirche im Dorf lassen.', '适可而止，别夸张。', ''],
-['Tomaten auf den Augen haben.', '视而不见。', ''],
-['Ein Brett vor dem Kopf haben.', '脑子转不过弯。', ''],
-['Jemandem auf den Keks gehen.', '惹人烦。', ''],
-['Das geht auf keine Kuhhaut.', '太离谱了。', ''],
-['Da steppt der Bär.', '那里很热闹。', ''],
-['Hals- und Beinbruch!', '祝好运！', ''],
-['Daumen drücken.', '为你加油。', ''],
-['Ins kalte Wasser springen.', '硬着头皮直接上。', ''],
-['Über den Tellerrand schauen.', '开阔眼界。', ''],
-['Zwei Fliegen mit einer Klappe schlagen.', '一石二鸟。', ''],
-['Den Nagel auf den Kopf treffen.', '一针见血。', ''],
-['Nicht alle Tassen im Schrank haben.', '脑子缺根弦。', ''],
-['Alles unter einen Hut bringen.', '兼顾各方。', ''],
-['Den Faden verlieren.', '思路断了。', ''],
-['Am Ball bleiben.', '坚持下去。', ''],
-['Die Nase vorn haben.', '领先一步。', ''],
-['Kalte Füße bekommen.', '临阵退缩。', ''],
-['Schmetterlinge im Bauch haben.', '心里小鹿乱撞。', ''],
-['Ein Herz aus Gold haben.', '有颗金子般的心。', ''],
-['Das Herz auf der Zunge tragen.', '心直口快。', ''],
-['Aus vollem Herzen lachen.', '开怀大笑。', ''],
-['Leeres Stroh dreschen.', '做无用功。', ''],
-['Perlen vor die Säue werfen.', '对牛弹琴。', ''],
-['Da haben wir den Salat.', '这下闯祸了。', ''],
-['Das ist Käse.', '胡说八道。', ''],
-['Da liegt der Hase im Pfeffer.', '关键就在这里。', ''],
-['Jemandem einen Bären aufbinden.', '忽悠人。', ''],
-['Eulen nach Athen tragen.', '多此一举。', ''],
-['Mit dem Kopf durch die Wand wollen.', '蛮干到底。', ''],
-['Das Handtuch werfen.', '放弃。', ''],
-['Nägel mit Köpfen machen.', '干脆利落。', ''],
-['Tacheles reden.', '有话直说。', ''],
-['Butter bei die Fische.', '别绕弯子，说重点。', ''],
-['Einen Zahn zulegen.', '加快速度。', ''],
-['Gas geben.', '加油干。', ''],
-['Die Kurve kriegen.', '渡过难关。', ''],
-['Am Hungertuch nagen.', '穷困潦倒。', ''],
-['Auf großem Fuß leben.', '生活奢侈。', ''],
-['Aus einer Mücke einen Elefanten machen.', '小题大做。', ''],
-['Die Katze aus dem Sack lassen.', '说出秘密。', ''],
-['Die Katze im Sack kaufen.', '盲目购买。', ''],
-['Für einen Apfel und ein Ei.', '贱卖。', ''],
-['Äpfel mit Birnen vergleichen.', '混为一谈。', ''],
-['In den sauren Apfel beißen.', '硬着头皮做。', ''],
-['Sein Licht nicht unter den Scheffel stellen.', '别过分谦虚。', ''],
-['Mit allen Wassern gewaschen sein.', '老江湖。', ''],
-['Ins Fettnäpfchen treten.', '说错话得罪人。', ''],
-['Jemandem Honig ums Maul schmieren.', '拍马屁。', ''],
-['Da beißt die Maus keinen Faden ab.', '无可改变。', ''],
-['Leben wie Gott in Frankreich.', '逍遥自在。', ''],
-['Das Ei will klüger sein als die Henne.', '小辈想教长辈。', ''],
-['Viele Hunde sind des Hasen Tod.', '寡不敌众。', ''],
-['Jedem Tierchen sein Pläsierchen.', '各有所好。', ''],
-['April, April, der macht, was er will.', '四月天气随心所欲。', ''],
-['Morgenrot, schlecht Wetter droht; Abendrot, gut Wetter bot.', '朝霞预示坏天气，晚霞带来好天气。', ''],
-['Ist der Mai kühl und nass, füllt\'s dem Bauern Scheun\' und Fass.', '五月凉又湿，粮仓谷满满。', ''],
-['Wenn\'s an Lichtmess stürmt und schneit, ist der Frühling nicht mehr weit.', '圣烛节风雪大，春天就不远。', ''],
-['Der März soll wie ein Wolf kommen und wie ein Lamm gehen.', '三月如狼来，如羊去。', ''],
-['Ein grüner Weihnacht, ein weißer Ostern.', '圣诞无雪，复活节补。', ''],
-['Regnet\'s am Siebenschläfertag, regnet\'s noch sieben Wochen danach.', '圣徒节下雨，连下七周雨。', ''],
-['Kräht der Hahn auf dem Mist, ändert sich\'s Wetter, oder es bleibt, wie es ist.', '公鸡粪堆上打鸣，要么变天，要么不变。', ''],
-['Der Hunger treibt den Wolf ins Dorf.', '人急了，什么都做得出来。', ''],
-['Ein voller Bauch studiert nicht gern.', '饱肚不好学。', ''],
-['Wo man singt, da lass dich ruhig nieder.', '有歌声的地方，可以安心坐下。', ''],
-['Der Mensch lebt nicht vom Brot allein.', '人不单靠面包活着。', ''],
-['Wasser predigen und Wein trinken.', '嘴上说水，喝的却是酒。', ''],
-['Den Teufel an die Wand malen.', '乌鸦嘴。', ''],
-['Den Braten riechen.', '嗅到不对劲。', ''],
-['Sein Schäfchen ins Trockene bringen.', '先顾好自己。', ''],
-['Das schwarze Schaf sein.', '当异类。', ''],
-['Ein Wolf im Schafspelz.', '披着羊皮的狼。', ''],
-['Den Bock zum Gärtner machen.', '用人不当。', ''],
-['Auf zwei Hochzeiten tanzen.', '脚踩两只船。', ''],
-['Zwischen zwei Stühlen sitzen.', '两头不讨好。', ''],
-['Auf dem Holzweg sein.', '完全搞错了。', ''],
-['Auf dem falschen Dampfer sein.', '搞错了。', ''],
-['Jemandem den Kopf waschen.', '狠狠批评一顿。', ''],
-['Jemandem die Leviten lesen.', '数落一顿。', ''],
-['Haare auf den Zähnen haben.', '厉害，不好惹。', ''],
-['Kein Blatt vor den Mund nehmen.', '说话不遮掩。', ''],
-['Die Flinte ins Korn werfen.', '放弃。', ''],
-['Klare Kante zeigen.', '表明立场。', ''],
-['Steter Tropfen höhlt den Stein.', '水滴石穿。', ''],
-['Der erste Schritt ist der schwerste.', '第一步最难。', ''],
-['Lachen ist die beste Medizin.', '笑是最好的药。', ''],
-['Ein Lächeln kostet nichts.', '微笑不花钱。', ''],
-['Freude ist ansteckend.', '快乐会传染。', ''],
-['Taten sagen mehr als Worte.', '行动胜于言语。', ''],
-['Papier ist geduldig.', '落笔要慎重。', ''],
-['Der erste Eindruck zählt.', '第一印象很重要。', ''],
-['Man sieht sich immer zweimal im Leben.', '人生总会再相见。', ''],
-['Was sich liebt, das neckt sich.', '打是亲，骂是爱。', ''],
-['Liebe macht blind.', '爱情使人盲目。', ''],
-['Jung gewohnt, alt getan.', '从小养成的习惯，老了改不了。', ''],
-['Erfahrung ist die beste Lehrmeisterin.', '经验是最好的老师。', ''],
-['Aus Fehlern lernt man.', '从错误中学习。', ''],
-['Fehler sind zum Lernen da.', '错误就是用来学习的。', ''],
-['Niemand ist vollkommen.', '没有人是完美的。', ''],
-['Irren ist menschlich.', '犯错是人之常情。', ''],
-['Vergeben und vergessen.', '原谅并忘记。', ''],
-['Geduld bringt Rosen.', '耐心带来玫瑰。', ''],
-['Geduld ist eine Tugend.', '耐心是美德。', ''],
-['Rom wurde auch nicht an einem Tag erbaut.', '罗马不是一天建成的。', ''],
-['Gras wächst nicht schneller, wenn man daran zieht.', '拔苗助长。', ''],
-['Man erntet, was man sät.', '种瓜得瓜。', ''],
-['Wer Wind sät, wird Sturm ernten.', '种风者，收风暴。', ''],
-['Die Zeit heilt alle Wunden.', '时间治愈一切伤口。', ''],
-['Alles zu seiner Zeit.', '凡事都有它的时间。', ''],
-['Morgen ist auch noch ein Tag.', '明天也是新的一天。', ''],
-['Jeder Tag ist ein neuer Anfang.', '每天都是新的开始。', ''],
-['Heute ist der erste Tag vom Rest deines Lebens.', '今天是你余生的第一天。', ''],
-['Lebe jeden Tag, als wäre es dein letzter.', '像最后一天那样活好今天。', ''],
-['Das Leben ist zu kurz für schlechte Laune.', '人生苦短，别皱眉。', ''],
-['Lächle, und die Welt lächelt mit dir.', '微笑，世界便与你一起微笑。', ''],
-['Ein Tag ohne Lächeln ist ein verlorener Tag.', '没有微笑的一天，是失去的一天。', ''],
-['Freunde sind die Familie, die man sich aussucht.', '朋友是自己选择的家人。', ''],
-['Echte Freunde sind wie Sterne: man sieht sie nicht immer, aber sie sind da.', '真朋友像星星，不常见，但一直在。', ''],
-['Zusammen ist man weniger allein.', '在一起，就不那么孤单。', ''],
-['Alleine stark, zusammen unschlagbar.', '独行强，众行无敌。', ''],
-['Viele Hände, schnelles Ende.', '人多好办事。', ''],
-['Einigkeit macht stark.', '团结就是力量。', ''],
-['Der Weg zum Erfolg hat keine Abkürzung.', '成功之路没有捷径。', ''],
-['Erfolg hat drei Buchstaben: TUN.', '成功的秘诀就一个字：干。', ''],
-['Erfolg ist kein Glück, sondern harte Arbeit.', '成功不是运气，是汗水。', ''],
-['Wer nicht wagt, der nicht gewinnt.', '不敢冒险，就不会赢。', ''],
-['Mut steht am Anfang des Handelns, Glück am Ende.', '勇气在行动之初，幸运在行动之末。', ''],
-['Das Glück hilft den Mutigen.', '幸运眷顾勇者。', ''],
-['Anfangen ist leicht, durchhalten ist Kunst.', '开始容易，坚持是艺术。', ''],
-['Dranbleiben lohnt sich.', '坚持下去，会有回报。', ''],
-['Aufgeben ist keine Option.', '放弃不是选项。', ''],
-['Kleine Schritte führen auch ans Ziel.', '小步也终达目标。', ''],
-['Schritt für Schritt.', '一步一步来。', ''],
-['Langsam aber sicher.', '慢而稳。', ''],
-['Wissen ist Macht.', '知识就是力量。', ''],
-['Lesen bildet.', '阅读使人明智。', ''],
-['Wer lesen kann, ist nie allein.', '会阅读的人，永不孤单。', ''],
-['Sprachen öffnen Türen.', '语言打开大门。', ''],
-['Mit jeder Sprache lebt man ein neues Leben.', '每学一门语言，就多活一种人生。', ''],
-['Die beste Zeit, einen Baum zu pflanzen, war vor zwanzig Jahren. Die zweitbeste Zeit ist jetzt.', '种树的最佳时间是二十年前，其次是现在。', ''],
-['Der beste Weg, die Zukunft vorauszusagen, ist, sie zu gestalten.', '预测未来的最好方式，是创造未来。', ''],
-['Träume nicht dein Leben, lebe deinen Traum.', '别梦见人生，去活出梦想。', ''],
-['Folge deinem Herzen.', '跟随你的心。', ''],
-['Hör auf dein Bauchgefühl.', '相信直觉。', ''],
-['Alles wird gut.', '一切都会好的。', ''],
-['Man muss sich nach der Decke strecken.', '量力而行。', ''],
-['Es ist nichts beständig als die Unbeständigkeit.', '唯有变化是永恒的。', ''],
-['Der Weg ist das Ziel.', '过程即是目标。', 'Konfuzius'],
-['Carpe diem. Nutze den Tag.', '活在当下。', 'Horaz'],
-['Per aspera ad astra.', '循此苦旅，以达星辰。', ''],
-['Veni, vidi, vici.', '我来，我见，我征服。', 'Cäsar'],
-['Es ist nicht genug zu wissen, man muss auch anwenden; es ist nicht genug zu wollen, man muss auch tun.', '光知道不够，必须去行动；光想不够，必须去做。', 'Goethe'],
-['Auch aus Steinen, die einem in den Weg gelegt werden, kann man Schönes bauen.', '即使是绊脚石，也能建成美丽的东西。', 'Goethe'],
-['Wer nicht neugierig ist, erfährt nichts.', '不好奇的人，什么也学不到。', 'Goethe'],
-['Die Tat ist alles, nichts der Ruhm.', '行动就是一切，虚名算不得什么。', 'Goethe'],
-['Edel sei der Mensch, hilfreich und gut.', '人应高尚、乐助、善良。', 'Goethe'],
-['Hier bin ich Mensch, hier darf ich\'s sein.', '在这里我是人，在这里我可以做人。', 'Goethe'],
-['Was du ererbt von deinen Vätern hast, erwirb es, um es zu besitzen.', '从父辈继承的，要自己去赢得才真正拥有。', 'Goethe'],
-['In der Beschränkung zeigt sich erst der Meister.', '唯有在限制中，方显大师。', 'Goethe'],
-['Wer immer strebend sich bemüht, den können wir erlösen.', '凡不断努力向上的人，都值得被救赎。', 'Goethe'],
-['Grau, teurer Freund, ist alle Theorie, und grün des Lebens goldner Baum.', '理论是灰色的，生命之树常青。', 'Goethe'],
-['Zwei Seelen wohnen, ach! in meiner Brust.', '唉，我胸中有两个灵魂在交战。', 'Goethe'],
-['Man reist nicht, um anzukommen, sondern um zu reisen.', '旅行不是为了到达，而是为了在路上。', 'Goethe'],
-['Es hört doch jeder nur, was er versteht.', '每个人只听得懂他能理解的。', 'Goethe'],
-['Was man in der Jugend wünscht, hat man im Alter die Fülle.', '年轻时渴望的，年老时会丰盛地拥有。', 'Goethe'],
-['Alles Gescheite ist schon gedacht worden; man muss nur versuchen, es noch einmal zu denken.', '一切聪明的想法都已被想过；我们只需再想一遍。', 'Goethe'],
-['Behandle die Menschen so, als wären sie, was sie sein sollten, und du hilfst ihnen zu werden, was sie sein können.', '待人如其应是，助其成为其所能。', 'Goethe'],
-['Der Mensch wächst mit seinen größeren Zwecken.', '人随目标一起长大。', 'Schiller'],
-['Wer gar zu viel bedenkt, wird wenig leisten.', '思虑过多者，难有作为。', 'Schiller'],
-['Früh übt sich, was ein Meister werden will.', '想成大师，要趁早练习。', 'Schiller'],
-['Mit der Dummheit kämpfen Götter selbst vergebens.', '连神明都斗不过愚蠢。', 'Schiller'],
-['Der Starke ist am mächtigsten allein.', '强者独处时最强大。', 'Schiller'],
-['Was mich nicht umbringt, macht mich stärker.', '杀不死我的，使我更强大。', 'Nietzsche'],
-['Wer ein Warum zu leben hat, erträgt fast jedes Wie.', '知道为何而活的人，能忍受任何活法。', 'Nietzsche'],
-['Man muss noch Chaos in sich haben, um einen tanzenden Stern gebären zu können.', '心中尚有混沌，才能诞生舞动的星辰。', 'Nietzsche'],
-['Ohne Musik wäre das Leben ein Irrtum.', '没有音乐，生命就是一场错误。', 'Nietzsche'],
-['Je höher wir uns erheben, desto kleiner erscheinen wir denen, die nicht fliegen können.', '飞得越高，在不会飞的人眼中越渺小。', 'Nietzsche'],
-['Was aus Liebe getan wird, geschieht immer jenseits von Gut und Böse.', '出于爱所做的事，总在善恶之外。', 'Nietzsche'],
-['Es gibt in der Welt einen einzigen Weg, auf welchem niemand gehen kann, außer dir.', '世界上有一条路，除了你无人能走。', 'Nietzsche'],
-['Die Grenzen meiner Sprache bedeuten die Grenzen meiner Welt.', '语言的边界，就是我世界的边界。', 'Wittgenstein'],
-['Wovon man nicht sprechen kann, darüber muss man schweigen.', '对不可言说之物，必须保持沉默。', 'Wittgenstein'],
-['Habe Mut, dich deines eigenen Verstandes zu bedienen!', '要有勇气运用你自己的理智！', 'Kant'],
-['Der Mensch kann nur Mensch werden durch Erziehung.', '人只有通过教育才能成为人。', 'Kant'],
-['Phantasie ist wichtiger als Wissen, denn Wissen ist begrenzt.', '想象力比知识更重要，因为知识有限。', 'Einstein'],
-['Das Leben ist wie Fahrradfahren. Um die Balance zu halten, musst du in Bewegung bleiben.', '生活像骑自行车，要保持平衡就得一直向前。', 'Einstein'],
-['Logik bringt dich von A nach B. Phantasie bringt dich überall hin.', '逻辑带你从A到B，想象力带你去任何地方。', 'Einstein'],
-['Probleme kann man niemals mit derselben Denkweise lösen, durch die sie entstanden sind.', '无法用制造问题时的思维去解决问题。', 'Einstein'],
-['Wenn du es einem Sechsjährigen nicht erklären kannst, hast du es selbst nicht verstanden.', '如果你不能向六岁孩子解释清楚，说明你自己也没懂。', 'Einstein'],
-['Der Langsamste, der sein Ziel nicht aus den Augen verliert, geht immer noch schneller als der, der ohne Ziel herumirrt.', '不丢失目标的最慢者，也比漫无目的者走得快。', 'Lessing'],
-['Denk ich an Deutschland in der Nacht, dann bin ich um den Schlaf gebracht.', '夜里想起德国，我便再难入眠。', 'Heine'],
-['Das ist ein weites Feld.', '一言难尽。', 'Fontane'],
-['Vater werden ist nicht schwer, Vater sein dagegen sehr.', '当父亲不难，做好父亲很难。', 'Wilhelm Busch'],
-['Musik wird oft nicht schön gefunden, weil sie stets mit Geräusch verbunden.', '音乐常不被觉得美，因为总和噪音相连。', 'Wilhelm Busch'],
-['Ist der Ruf erst ruiniert, lebt es sich ganz ungeniert.', '名声一旦败坏，反而活得自在。', 'Wilhelm Busch'],
-['Das Gute, dieser Satz steht fest, ist stets das Böse, was man lässt.', '所谓善，就是你没做的恶。', 'Wilhelm Busch'],
-['Enthaltsamkeit ist das Vergnügen an Sachen, welche wir nicht kriegen.', '节制，就是对得不到的东西感到愉悦。', 'Wilhelm Busch'],
-['Der Neid ist die aufrichtigste Form der Anerkennung.', '嫉妒是最真诚的认可。', 'Wilhelm Busch'],
-['Es gibt nichts Gutes, außer man tut es.', '没有善，除非你去行善。', 'Erich Kästner'],
-['Wird\'s besser? Wird\'s schlimmer? fragt man alljährlich. Seien wir ehrlich: Leben ist immer lebensgefährlich.', '变好变坏年年问，实话实说：活着总有风险。', 'Erich Kästner'],
-['Humor ist der Knopf, der verhindert, dass uns der Kragen platzt.', '幽默是防止衣领爆开的纽扣。', 'Ringelnatz'],
-['Sicher ist, dass nichts sicher ist. Selbst das nicht.', '唯一确定的是什么都不确定，连这也不确定。', 'Ringelnatz'],
-['Der Vorteil der Klugheit besteht darin, dass man sich dumm stellen kann. Das Gegenteil ist schon schwieriger.', '聪明的优势在于能装傻，反过来就难了。', 'Tucholsky'],
-['Die Philosophen haben die Welt nur verschieden interpretiert; es kommt darauf an, sie zu verändern.', '哲学家只是解释世界，关键在于改变世界。', 'Marx'],
-['Musik ist höhere Offenbarung als alle Weisheit und Philosophie.', '音乐是比一切智慧和哲学更高的启示。', 'Beethoven'],
-['Die Welt ist meine Vorstellung.', '世界是我的表象。', 'Schopenhauer'],
-['Man kann tun, was man will, aber man kann nicht wollen, was man will.', '人能做想做的事，但不能决定自己想什么。', 'Schopenhauer'],
-['Hier stehe ich, ich kann nicht anders.', '我站在这里，别无选择。', 'Luther'],
-['Wer kämpft, kann verlieren. Wer nicht kämpft, hat schon verloren.', '战斗者可能失败，不战斗者已经失败。', 'Brecht'],
-['Man muss das Unmögliche versuchen, um das Mögliche zu erreichen.', '要尝试不可能，才能达成可能。', 'Hesse'],
-['Und jedem Anfang wohnt ein Zauber inne, der uns beschützt und der uns hilft, zu leben.', '每个开端都住着魔法，守护我们，帮助我们生活。', 'Hesse'],
-['Wege entstehen dadurch, dass man sie geht.', '路是走出来的。', 'Kafka'],
-['Leben Sie jetzt die Fragen.', '活在问题之中。', 'Rilke'],
-['Ein Leben ohne Mops ist möglich, aber sinnlos.', '没有巴哥犬的人生可能，但无意义。', 'Loriot'],
-['Den größten Fehler, den man im Leben machen kann, ist, immer Angst zu haben, einen Fehler zu machen.', '人生能犯的最大错误，就是总害怕犯错。', 'Bonhoeffer'],
-['Glück ist, wenn Vorbereitung auf Gelegenheit trifft.', '运气，是准备遇上机会。', 'Seneca'],
-['Der Zufall begünstigt nur den vorbereiteten Geist.', '机会只青睐有准备的头脑。', 'Pasteur'],
-['Der Morgen ist klüger als der Abend.', '睡一觉再决定。', ''],
-['Besser ein Ende mit Schrecken als ein Schrecken ohne Ende.', '长痛不如短痛。', ''],
-['Aufgeschoben ist nicht aufgehoben.', '推迟不是取消。', ''],
-['Der Schein trügt.', '表象骗人。', ''],
-['Es ist nicht alles Gold, was glänzt.', '发光的不都是金子。', ''],
-['Neid muss man sich verdienen, Mitleid bekommt man umsonst.', '嫉妒要靠挣，同情白送。', ''],
-['Wer zuletzt lacht, lacht am besten.', '笑到最后，笑得最好。', ''],
-['Lachen verlängert das Leben.', '笑延长寿命。', ''],
-['Vorbeugen ist besser als heilen.', '预防胜于治疗。', ''],
-['Man kann es nicht allen recht machen.', '无法让所有人满意。', ''],
-['Allen Leuten recht getan, ist eine Kunst, die niemand kann.', '让所有人满意，是无人能会的艺术。', ''],
-['Allein geht man schneller, zusammen kommt man weiter.', '独行快，众行远。', ''],
-['In der Ruhe liegt die Kraft.', '静中有力。', ''],
-['Manchmal ist Schweigen die beste Antwort.', '有时沉默是最好的回答。', ''],
-['Weniger ist mehr.', '少即是多。', ''],
-['Einfachheit ist die höchste Stufe der Vollendung.', '大道至简。', 'Leonardo da Vinci'],
-['Perfektion ist nicht dann erreicht, wenn man nichts mehr hinzufügen kann, sondern wenn man nichts mehr wegnehmen kann.', '完美不是加无可加，而是减无可减。', 'Saint-Exupéry'],
-['Du bist, was du denkst.', '你是你所想。', ''],
-['Ändere deine Gedanken, und du änderst deine Welt.', '改变思想，就改变世界。', ''],
-['Ob du denkst, du kannst es, oder du kannst es nicht: du hast recht.', '觉得行还是不行，你都是对的。', 'Henry Ford'],
-['Scheitern ist nur die Gelegenheit, es noch einmal zu versuchen, diesmal intelligenter.', '失败只是更聪明地再试一次的机会。', 'Henry Ford'],
-['Zusammenkommen ist ein Beginn, Zusammenbleiben ein Fortschritt, Zusammenarbeiten ein Erfolg.', '相聚是开始，坚持是进步，合作是成功。', 'Henry Ford'],
-['Es gibt mehr Leute, die kapitulieren, als solche, die scheitern.', '放弃的人比失败的人多。', 'Henry Ford'],
-['Der einzige Weg, großartige Arbeit zu leisten, ist, zu lieben, was man tut.', '做出伟大工作的唯一方式，是热爱你所做的。', 'Steve Jobs'],
-['Bleib hungrig, bleib verrückt.', '求知若饥，虚心若愚。', 'Steve Jobs'],
-['Sei du selbst die Veränderung, die du dir wünschst für diese Welt.', '成为你想看到的改变。', 'Gandhi'],
-['Die Zukunft hängt davon ab, was wir heute tun.', '未来取决于今天的行动。', 'Gandhi'],
-['Stärke kommt nicht aus körperlicher Kraft, sondern aus unbeugsamem Willen.', '力量不来自身体，来自不屈的意志。', 'Gandhi'],
-['Was dich nicht herausfordert, verändert dich nicht.', '不挑战你的，不能改变你。', ''],
-['Wachstum beginnt am Ende deiner Komfortzone.', '成长始于舒适区边缘。', ''],
-['Das Leben beginnt am Ende deiner Komfortzone.', '生活始于舒适区之外。', ''],
-['Tue jeden Tag etwas, das dir Angst macht.', '每天做一件让你害怕的事。', ''],
-['Mut ist nicht die Abwesenheit von Angst, sondern der Triumph darüber.', '勇气不是没有恐惧，而是战胜恐惧。', 'Mandela'],
-['Es scheint immer unmöglich, bis es vollbracht ist.', '在完成之前，一切都看似不可能。', 'Mandela'],
-['Bildung ist die mächtigste Waffe, um die Welt zu verändern.', '教育是改变世界最有力的武器。', 'Mandela'],
-['Ich verliere nie. Entweder ich gewinne, oder ich lerne.', '我从不失败，要么赢，要么学。', 'Mandela'],
-['Der größte Ruhm im Leben liegt nicht darin, nie zu fallen, sondern jedes Mal wieder aufzustehen.', '人生最大的荣耀不在于不跌倒，而在于每次都能爬起。', '']
-];
 /* 画一层锯齿山脊；snow=true 时给最高的几个峰顶加雪盖 */
-function drawRidge(g, rnd, W, H, baseY, peakY, color, snow) {
-  const n = 9 + Math.floor(rnd() * 4);
-  const pts = [];
-  for (let i = 0; i <= n; i++) {
-    pts.push([(W * i) / n, (i === 0 || i === n) ? baseY : baseY - rnd() * (baseY - peakY)]);
-  }
-  g.fillStyle = color;
-  g.beginPath();
-  g.moveTo(-10, H + 10);
-  g.lineTo(-10, pts[0][1]);
-  for (let i = 0; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]);
-  g.lineTo(W + 10, H + 10);
-  g.closePath();
-  g.fill();
-  if (snow) {
-    // 给最高的几个峰顶戴"贴合山形"的雪盖：顺着两侧山坡走，底部带锯齿
-    const idx = [];
-    for (let i = 1; i < n; i++) {
-      if (pts[i][1] < pts[i - 1][1] && pts[i][1] < pts[i + 1][1]) idx.push(i);
-    }
-    idx.sort((a, b) => pts[a][1] - pts[b][1]);
-    g.fillStyle = 'rgba(238,242,255,.95)';
-    idx.slice(0, 3).forEach(k => {
-      const A = pts[k], L = pts[k - 1], R = pts[k + 1];
-      const B = [A[0] + (L[0] - A[0]) * 0.55, A[1] + (L[1] - A[1]) * 0.55];
-      const C = [A[0] + (R[0] - A[0]) * 0.55, A[1] + (R[1] - A[1]) * 0.55];
-      g.beginPath();
-      g.moveTo(A[0], A[1]);
-      g.lineTo(B[0], B[1]);
-      // 底部走柔和的波浪线，像积雪的边缘
-      const waves = 3;
-      for (let t = 1; t <= waves; t++) {
-        const x0 = B[0] + (C[0] - B[0]) * (t - 1) / waves;
-        const y0 = B[1] + (C[1] - B[1]) * (t - 1) / waves;
-        const x1 = B[0] + (C[0] - B[0]) * t / waves;
-        const y1 = B[1] + (C[1] - B[1]) * t / waves;
-        g.quadraticCurveTo((x0 + x1) / 2, (y0 + y1) / 2 + 10 + rnd() * 8, x1, y1);
-      }
-      g.closePath();
-      g.fill();
-    });
-  }
-}
 /* 折行：德语按词断行，中文按字断行 */
-function wrapLines(g, text, maxW) {
+/* 折行：德语按词断行，中文按字断行；balance=true 时把每行宽度拉齐（避免末行只剩一个标点） */
+function wrapLines(g, text, maxW, balance) {
   const tokens = text.match(/[^\s\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]+|\s+|[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/g) || [];
-  const lines = [];
-  let line = '';
+  const items = [];
   for (const tk of tokens) {
-    if (/^\s+$/.test(tk)) {
-      if (line && !line.endsWith(' ')) line += ' ';
-      continue;
-    }
-    const t = line + tk;
-    if (line && g.measureText(t).width > maxW) { lines.push(line.replace(/\s+$/, '')); line = tk; }
-    else line = t;
+    if (/^\s+$/.test(tk)) { if (items.length && !items[items.length - 1].sp) items.push({ t: ' ', sp: true }); }
+    else items.push({ t: tk, sp: false });
   }
-  if (line) lines.push(line.replace(/\s+$/, ''));
+  const spaceW = g.measureText(' ').width;
+  items.forEach(it => { it.w = it.sp ? spaceW : g.measureText(it.t).width; });
+  const pretty = arr => arr.map(it => it.t).join('').trim();
+  // 贪心：求最少行数 n
+  const greedyCuts = [0];
+  let lw = 0;
+  for (let k = 0; k < items.length; k++) {
+    const it = items[k];
+    if (!it.sp && lw > 0 && lw + it.w > maxW) { greedyCuts.push(k); lw = 0; }
+    lw += it.w;
+  }
+  greedyCuts.push(items.length);
+  const n = greedyCuts.length - 1;
+  if (!balance || n < 2) {
+    const lines = [];
+    for (let i = 0; i < n; i++) lines.push(pretty(items.slice(greedyCuts[i], greedyCuts[i + 1])));
+    return lines;
+  }
+  // 均衡：按累计宽度切成 n 行，每行目标 total/n；标点避让：行尾不留开括号、行首不留闭标点
+  const CLOSE_P = '。？！；：，、）》」…—·';
+  const OPEN_P = '（《「『【';
+  const cum = [0];
+  items.forEach(it => cum.push(cum[cum.length - 1] + it.w));
+  const total = cum[cum.length - 1];
+  const cuts = [0];
+  for (let i = 1; i < n; i++) {
+    const goal = total * i / n;
+    let best = cuts[i - 1] + 1, bd = Infinity;
+    for (let j = cuts[i - 1] + 1; j <= items.length - (n - i); j++) {
+      if (items.slice(cuts[i - 1], j).every(it => it.sp)) continue; // 空行不行
+      const lineW = cum[j] - cum[cuts[i - 1]];
+      const restW = total - cum[j];
+      let d = Math.abs(cum[j] - goal);
+      if (lineW > maxW) d += 1000; // 本行超宽：重罚
+      if (restW > (n - i) * maxW) d += 1000; // 剩下塞不进：重罚
+      const next = items[j], prev = items[j - 1];
+      if (next && !next.sp && CLOSE_P.indexOf(next.t) >= 0) d += 60;
+      if (prev && !prev.sp && OPEN_P.indexOf(prev.t) >= 0) d += 60;
+      if (d < bd) { bd = d; best = j; }
+    }
+    cuts.push(best);
+  }
+  cuts.push(items.length);
+  const lines = [];
+  for (let i = 0; i < n; i++) lines.push(pretty(items.slice(cuts[i], cuts[i + 1])));
+  // 兜底：均衡后仍有空行或超宽（单个词本身超宽除外），退回贪心
+  let ok = true;
+  for (let i = 0; i < n; i++) {
+    if (!lines[i]) { ok = false; break; }
+    let w = 0;
+    for (let k = cuts[i]; k < cuts[i + 1]; k++) w += items[k].w;
+    if (w > maxW + 1) {
+      const widest = Math.max.apply(null, items.slice(cuts[i], cuts[i + 1]).filter(it => !it.sp).map(it => it.w));
+      if (widest <= maxW) { ok = false; break; }
+    }
+  }
+  if (!ok) {
+    const gl = [];
+    for (let i = 0; i < n; i++) gl.push(pretty(items.slice(greedyCuts[i], greedyCuts[i + 1])));
+    return gl;
+  }
   return lines;
 }
-/* 打卡图：手绘阿尔卑斯黄昏 + 每日德语名言，canvas 绘制，可分享或下载 */
+/* 圆角矩形路径（打卡图底部数据浮层用） */
 function roundRectPath(g, x, y, w, h, r) {
   g.beginPath();
   g.moveTo(x + r, y);
@@ -1779,135 +1415,143 @@ function roundRectPath(g, x, y, w, h, r) {
   g.closePath();
 }
 /* 打卡图生成：canvas → PNG File（“今日打卡”按钮和 PWA 长按菜单共用） */
+/* 打卡图：德国风景照片 + 德语名言 + 底部透明数据浮层，canvas 绘制，可分享或下载 */
+const CHECKIN_PHOTOS = [
+  '01-schwarzwald-1.webp', '02-schwarzwald-2.webp', '03-koenigssee-1.webp',
+  '04-koenigssee-2.webp', '05-eibsee-1.webp', '06-eibsee-2.webp',
+  '07-bastei-1.webp', '08-bastei-2.webp', '09-rakotzbruecke-1.webp',
+  '10-rakotzbruecke-2.webp', '11-neuschwanstein-1.webp', '12-neuschwanstein-2.webp',
+  '13-hohenzollern-1.webp', '14-hohenzollern-2.webp', '15-eltz-1.webp',
+  '16-eltz-2.webp', '17-moritzburg-1.webp', '18-moritzburg-2.webp',
+  '19-speicherstadt-1.webp', '20-speicherstadt-2.webp', '21-cologne-1.webp',
+  '22-cologne-2.webp', '23-rothenburg-1.webp', '24-rothenburg-2.webp',
+  '25-bamberg-1.webp', '26-bamberg-2.webp', '27-heidelberg-1.webp',
+  '28-heidelberg-2.webp', '29-dresden-1.webp', '30-dresden-2.webp',
+  '31-brandenburg-1.webp', '32-brandenburg-2.webp', '33-sanssouci-1.webp',
+  '34-sanssouci-2.webp', '35-ruegen-1.webp', '36-ruegen-2.webp',
+  '37-hintersee-1.webp', '38-hintersee-2.webp', '39-lorelei-1.webp',
+  '40-lorelei-2.webp'
+];
 function makeCheckinFile() {
-  return new Promise((resolve, reject) => {
+  return new Promise(async (resolve, reject) => {
   try {
     const u = getUsage();
     const d = dayBucket(u);
     const day = usageDay();
     const W = 900, H = 1180;
+    // 每次打开随机组合：背景照片 + 名言
+    const photo = CHECKIN_PHOTOS[Math.floor(Math.random() * CHECKIN_PHOTOS.length)];
+    const q = CHECKIN_QUOTES[Math.floor(Math.random() * CHECKIN_QUOTES.length)];
     const cv = document.createElement('canvas');
     cv.width = W; cv.height = H;
     const g = cv.getContext('2d');
-    const rnd = mulberry32(hashStr(day));
-    // 黄昏天空
-    const sky = g.createLinearGradient(0, 0, 0, H);
-    sky.addColorStop(0, '#1c1548');
-    sky.addColorStop(0.5, '#5b2a8f');
-    sky.addColorStop(0.78, '#c06a2e');
-    sky.addColorStop(1, '#f2a65a');
-    g.fillStyle = sky;
-    g.fillRect(0, 0, W, H);
-    // 星星
-    for (let i = 0; i < 60; i++) {
-      g.fillStyle = 'rgba(255,255,255,' + (0.25 + rnd() * 0.6).toFixed(2) + ')';
-      g.beginPath();
-      g.arc(rnd() * W, rnd() * 360, 0.8 + rnd() * 1.8, 0, 7);
-      g.fill();
+    try {
+      const img = await new Promise((res, rej) => {
+        const im = new Image();
+        im.onload = () => res(im);
+        im.onerror = rej;
+        im.src = 'img/checkin/' + photo;
+      });
+      // cover 铺满
+      const s = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+      const dw = img.naturalWidth * s, dh = img.naturalHeight * s;
+      g.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+    } catch (e) {
+      g.fillStyle = '#2b2148'; g.fillRect(0, 0, W, H); // 图片加载失败兜底
     }
-    // 月亮（夜空配星星，放在高处不被山挡住）
-    const moonX = 745, moonY = 160, moonR = 68;
-    const mglow = g.createRadialGradient(moonX, moonY, 12, moonX, moonY, 150);
-    mglow.addColorStop(0, 'rgba(245,240,215,.5)');
-    mglow.addColorStop(1, 'rgba(245,240,215,0)');
-    g.fillStyle = mglow;
-    g.fillRect(moonX - 150, moonY - 150, 300, 300);
-    g.fillStyle = '#faf7ea';
-    g.beginPath();
-    g.arc(moonX, moonY, moonR, 0, 7);
-    g.fill();
-    // 环形山（小斑点点缀）
-    g.fillStyle = 'rgba(0,0,0,.08)';
-    [[-19, -11, 9], [14, 8, 11], [-3, 27, 7], [25, -22, 6], [-30, 12, 5]].forEach(c => {
-      g.beginPath();
-      g.arc(moonX + c[0], moonY + c[1], c[2], 0, 7);
-      g.fill();
-    });
-    // 远山、雪山
-    drawRidge(g, rnd, W, H, 430, 230, '#7a5fae', true);
-    drawRidge(g, rnd, W, H, 540, 320, '#4e3670', true);
-    // 标题
+    // 底部罩（柔和过渡；名言与数据都在底部透明框内，顶部不再压字）
+    let bgr = g.createLinearGradient(0, H - 560, 0, H);
+    bgr.addColorStop(0, 'rgba(8,6,20,0)');
+    bgr.addColorStop(1, 'rgba(8,6,20,.55)');
+    g.fillStyle = bgr; g.fillRect(0, H - 560, W, 560);
+    // 名言 + 打卡数据：底部同一透明框（名言字号自适应：德语斜体衬线 → 作者 → 中文）
     g.textAlign = 'center';
-    g.shadowColor = 'rgba(0,0,0,.35)';
-    g.shadowBlur = 12;
-    g.fillStyle = '#fff';
-    g.font = '700 66px system-ui, sans-serif';
-    g.fillText('德语练习打卡', W / 2, 120);
-    g.font = '400 36px system-ui, sans-serif';
-    g.fillStyle = 'rgba(255,255,255,.85)';
-    g.fillText(day, W / 2, 178);
-    g.shadowBlur = 0;
-    // 白色数据卡
-    roundRectPath(g, 60, 360, W - 120, 435, 36);
-    g.fillStyle = '#fff';
-    g.fill();
-    const rows = [
-      ['今日聊天', (d.chatRounds || 0) + ' 次'],
-      ['今日听原声', (d.ttsCalls || 0) + ' 句'],
-      ['今日录音练习', (d.assessCalls || 0) + ' 次']
-    ];
-    g.textAlign = 'left';
-    rows.forEach((r, i) => {
-      const y = 360 + 105 * (i + 1);
-      g.font = '400 34px system-ui, sans-serif';
-      g.fillStyle = '#6b7280';
-      g.fillText(r[0], 110, y);
-      g.font = '700 36px system-ui, sans-serif';
-      g.fillStyle = '#111827';
-      g.textAlign = 'right';
-      g.fillText(r[1], W - 110, y);
-      g.textAlign = 'left';
-      if (i < rows.length - 1) {
-        g.strokeStyle = '#e5e7eb'; g.lineWidth = 2;
-        g.beginPath(); g.moveTo(110, y + 42); g.lineTo(W - 110, y + 42); g.stroke();
-      }
-    });
-    // 近山（卡片下方，峰顶抬高给名言区留出深色底）
-    drawRidge(g, rnd, W, H, 1180, 900, '#2b2148', false);
-    // 底部渐隐罩：保证名言在任何山形下都清晰可读
-    const scrim = g.createLinearGradient(0, 900, 0, H);
-    scrim.addColorStop(0, 'rgba(20,12,45,0)');
-    scrim.addColorStop(1, 'rgba(20,12,45,.55)');
-    g.fillStyle = scrim;
-    g.fillRect(0, 900, W, H - 900);
-    // 每日德语名言
-    const doy = Math.floor((new Date(day + 'T00:00:00') - new Date(+day.slice(0, 4), 0, 1)) / 864e5);
-    const q = CHECKIN_QUOTES[((doy % CHECKIN_QUOTES.length) + CHECKIN_QUOTES.length) % CHECKIN_QUOTES.length];
-    g.textAlign = 'center';
-    g.shadowColor = 'rgba(0,0,0,.4)';
-    g.shadowBlur = 10;
-    // 版式：德语原句 → 作者 → 中文翻译；过长时自动缩小字号，保证完整画下
-    const ZT = 920, ZB = 1120;
-    let qfs = 34, glines, clines, blockH;
+    g.shadowColor = 'rgba(0,0,0,.45)'; g.shadowBlur = 10;
+    let qfs = 40, glines, clines, qBlockH;
     while (true) {
-      g.font = '700 ' + qfs + 'px system-ui, sans-serif';
-      glines = wrapLines(g, '„' + q[0] + '"', 780);
+      g.font = 'italic 700 ' + qfs + 'px Georgia, "Times New Roman", serif';
+      glines = wrapLines(g, q[0], 740, true);
       g.font = '400 30px system-ui, sans-serif';
-      clines = wrapLines(g, q[1], 780);
-      blockH = glines.length * (qfs + 14) + (q[2] ? 46 : 0) + 10 + clines.length * 42;
-      if ((glines.length <= 3 && blockH <= ZB - ZT) || qfs <= 22) break;
+      clines = wrapLines(g, q[1], 740, true);
+      qBlockH = glines.length * (qfs + 16) + (q[2] ? 50 : 0) + 12 + clines.length * 44;
+      if ((glines.length <= 4 && qBlockH <= 470) || qfs <= 24) break;
       qfs -= 2;
     }
-    const qlh = qfs + 14;
-    let qy = ZT + Math.max(0, (ZB - ZT - blockH) / 2) + qlh * 0.8;
+    const qlh = qfs + 16;
+    // 面板：上垫44 + 名言块 + 分隔34 + 标题46 + 标签50 + 数字68 + 下垫40
+    const px = 48, pw = W - 96;
+    const ph = 44 + qBlockH + 34 + 46 + 50 + 68 + 40 + Math.ceil(qlh * 0.8); // 补回首行基线 qlh*0.8 的上偏移，否则数字会被框底切掉
+    const py = H - 48 - ph;
+    roundRectPath(g, px, py, pw, ph, 30);
+    g.fillStyle = 'rgba(12,10,28,.5)';
+    g.fill();
+    // 名言
+    let qy = py + 44 + qlh * 0.8;
     g.fillStyle = '#fff';
-    g.font = '700 ' + qfs + 'px system-ui, sans-serif';
+    g.font = 'italic 700 ' + qfs + 'px Georgia, "Times New Roman", serif';
     glines.forEach(l => { g.fillText(l, W / 2, qy); qy += qlh; });
     if (q[2]) {
-      g.font = '400 28px system-ui, sans-serif';
-      g.fillStyle = 'rgba(255,255,255,.8)';
-      qy += 6;
-      g.fillText('—— ' + q[2], W / 2, qy);
-      qy += 40;
+      // 作者行超宽时自动缩小字号（兜底 18px），保证单行不溢出
+      let afs = 27;
+      const authorText = '—— ' + q[2];
+      g.font = '400 ' + afs + 'px system-ui, sans-serif';
+      const aw = g.measureText(authorText).width;
+      if (aw > 740) afs = Math.max(18, Math.floor(afs * 740 / aw));
+      g.font = '400 ' + afs + 'px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.78)';
+      qy += 8;
+      g.fillText(authorText, W / 2, qy);
+      qy += 42;
     }
     g.font = '400 30px system-ui, sans-serif';
-    g.fillStyle = 'rgba(255,255,255,.88)';
-    qy += 10;
-    clines.forEach(l => { g.fillText(l, W / 2, qy); qy += 42; });
+    g.fillStyle = 'rgba(255,255,255,.9)';
+    qy += 12;
+    clines.forEach(l => { g.fillText(l, W / 2, qy); qy += 44; });
     g.shadowBlur = 0;
+    // 分隔线
+    const divY = qy + 34;
+    g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 2;
+    g.beginPath(); g.moveTo(px + 44, divY); g.lineTo(px + pw - 44, divY); g.stroke();
+    // 打卡标题
+    const ds = day.replace(/-/g, '.');
+    g.textAlign = 'center';
+    g.font = '400 28px system-ui, sans-serif';
+    g.fillStyle = 'rgba(255,255,255,.88)';
+    g.fillText(ds, W / 2, divY + 46);
+    const stats = [
+      ['对话', (d.chatRounds || 0), '次'],
+      ['听原声', (d.ttsCalls || 0), '句'],
+      ['录音练习', (d.assessCalls || 0), '次']
+    ];
+    const colW = pw / 3;
+    const labY = divY + 46 + 50, numY = labY + 68;
+    stats.forEach((st, i) => {
+      const cx = px + colW * (i + 0.5);
+      g.font = '400 28px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.9)';
+      g.fillText(st[0], cx, labY);
+      const num = String(st[1]);
+      g.font = '700 54px system-ui, sans-serif';
+      const nw = g.measureText(num).width;
+      g.font = '400 26px system-ui, sans-serif';
+      const uw = g.measureText(st[2]).width;
+      const tot = nw + 10 + uw;
+      g.textAlign = 'left';
+      g.font = '700 54px system-ui, sans-serif';
+      g.fillStyle = '#fff';
+      g.fillText(num, cx - tot / 2, numY);
+      g.font = '400 26px system-ui, sans-serif';
+      g.fillStyle = 'rgba(255,255,255,.72)';
+      g.fillText(st[2], cx - tot / 2 + nw + 10, numY);
+      g.textAlign = 'center';
+      if (i < 2) {
+        g.strokeStyle = 'rgba(255,255,255,.28)'; g.lineWidth = 2;
+        g.beginPath(); g.moveTo(px + colW * (i + 1), labY - 28); g.lineTo(px + colW * (i + 1), numY + 14); g.stroke();
+      }
+    });
     cv.toBlob(blob => {
       if (!blob) { reject(new Error('图片生成失败')); return; }
-      resolve(new File([blob], 'deutsch-checkin-' + usageDay() + '.png', { type: 'image/png' }));
+      resolve(new File([blob], 'deutsch-checkin-' + day + '.png', { type: 'image/png' }));
     }, 'image/png');
     } catch (e) { reject(e); }
   });
