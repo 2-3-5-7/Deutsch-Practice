@@ -170,8 +170,7 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .spinner{width:15px;height:15px;flex:none;border:2px solid #e9e4f5;border-top-color:var(--pri);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 .settings-btn{margin-left:auto}
-.backbtn{display:block;width:100%;text-align:left;border:none;background:none;color:#b3aec7;font-size:32px;font-weight:300;line-height:1;padding:2px 14px 6px 0;cursor:pointer;margin-bottom:2px}
-.backbtn:active{opacity:.6}
+.nav-back{font-size:32px;font-weight:300;line-height:1}
 .key-guide{display:flex;align-items:center;gap:10px;background:#f3efff;border:1px solid #e2d9fb;border-radius:14px;padding:12px 14px;margin-bottom:12px}
 .key-guide-text{flex:1;min-width:0}
 .key-guide-text b{display:block;font-size:14px;margin-bottom:2px}
@@ -207,8 +206,8 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .check-row label{display:flex!important;align-items:center;gap:8px;font-size:14px!important;color:var(--ink)!important;cursor:pointer}
 .check-row .hint{font-size:12px;color:var(--mut);font-weight:400}
 .check-row input{width:16px;height:16px;accent-color:var(--pri)}
-.dlg-ov{position:fixed;inset:0;background:rgba(30,27,46,.5);z-index:200;display:flex;align-items:center;justify-content:center;padding:24px;animation:dlgIn .18s ease-out}
-.dlg-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:340px;box-shadow:0 16px 48px rgba(0,0,0,.28)}
+.dlg-ov{position:fixed;inset:0;background:rgba(30,27,46,.5);z-index:200;display:flex;padding:24px;overflow-y:auto;overscroll-behavior:contain;animation:dlgIn .18s ease-out}
+.dlg-card{background:var(--card);border-radius:16px;padding:20px;width:100%;max-width:340px;margin:auto;box-shadow:0 16px 48px rgba(0,0,0,.28)}
 .dlg-input{width:100%;border:1px solid var(--line);border-radius:10px;padding:9px 12px;font-size:14px;font-family:inherit;margin:2px 0 16px;background:#fff;color:var(--ink)}
 .dlg-input:focus{outline:none;border-color:var(--pri)}
 .dlg-title{font-size:16px;font-weight:700;margin:0 0 8px;color:var(--ink)}
@@ -258,6 +257,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 <body>
 <header class="appbar">
   <button id="menuBtn" class="iconbtn" aria-label="对话列表">☰</button>
+  <button id="navBackBtn" class="iconbtn nav-back hidden" aria-label="返回">‹</button>
   <div><h1>德语口语练习</h1><p>聊天 → 点句听原声 → 录音纠音</p></div>
   <button id="settingsBtn" class="iconbtn settings-btn" aria-label="设置"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </header>
@@ -346,7 +346,6 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
   </section>
 
   <section id="view-settings" class="hidden">
-    <button id="backBtn" class="backbtn" aria-label="返回">‹</button>
     <div class="card">
       <h2>用量统计</h2>
       <div class="day-box">
@@ -504,7 +503,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261006-12</div>
+    <div class="ver">版本 v20261006-16</div>
   </section>
 </main>
 <script src="quotes.js"></script>
@@ -1134,9 +1133,14 @@ function revealActiveConv(smooth) {
      alertDlg(message, okText?)    信息提示（紫色按钮，如"知道了"）
      confirmDlg(message, okText?) 删除确认（红色按钮 + 取消按钮）
      promptDlg(title, message?, defaultValue?, placeholder?) 输入框（确定返回输入内容，取消返回 null） */
+/* 弹窗滚动锁：打开弹窗时锁住背景滚动（计数，支持嵌套弹窗），关闭恢复 */
+window.__scrollLocks = window.__scrollLocks || 0;
+function lockScroll() { if (window.__scrollLocks++ === 0) document.body.style.overflow = 'hidden'; }
+function unlockScroll() { if (window.__scrollLocks > 0 && --window.__scrollLocks === 0) document.body.style.overflow = ''; }
 function dlg(o) {
   o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false, input: false, inputValue: '', inputPlaceholder: '' }, o);
   return new Promise(resolve => {
+    lockScroll(); // 弹窗期间锁住背景滚动
     const ov = document.createElement('div');
     ov.className = 'dlg-ov';
     const card = document.createElement('div');
@@ -1159,6 +1163,7 @@ function dlg(o) {
     const done = v => {
       document.removeEventListener('keydown', onKey);
       if (ov.parentNode) ov.parentNode.removeChild(ov);
+      unlockScroll();
       resolve(o.input ? (v && inputEl ? inputEl.value.trim() : null) : v);
     };
     let inputEl = null;
@@ -1570,7 +1575,8 @@ function previewCheckinCard() {
       '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button>' +
       '<button type="button" class="dlg-ok pri">分享</button></div></div>';
     ov.querySelector('img').src = url;
-    const close = () => { URL.revokeObjectURL(url); ov.remove(); };
+    lockScroll(); // 预览期间锁住背景滚动
+    const close = () => { URL.revokeObjectURL(url); ov.remove(); unlockScroll(); };
     ov.querySelector('.dlg-cancel').onclick = close;
     ov.querySelector('.dlg-ok').onclick = () => {
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -1588,8 +1594,13 @@ function previewCheckinCard() {
 
 /* ================= 设置页进出（右上角齿轮） ================= */
 function openSettings() {
+  // 返回键宽度与汉堡菜单实测对齐，标题不左右跳
+  if ($('menuBtn').offsetWidth > 0) $('navBackBtn').style.width = $('menuBtn').offsetWidth + 'px';
   $('view-practice').classList.add('hidden');
   $('view-settings').classList.remove('hidden');
+  $('menuBtn').classList.add('hidden');
+  $('navBackBtn').classList.remove('hidden');
+  $('settingsBtn').classList.add('hidden');
   refreshStorageStats(); // 每次打开设置页刷新占用统计
   refreshUsageUI(); // 刷新用量统计
   window.scrollTo(0, 0);
@@ -1597,6 +1608,9 @@ function openSettings() {
 function closeSettings() {
   $('view-settings').classList.add('hidden');
   $('view-practice').classList.remove('hidden');
+  $('menuBtn').classList.remove('hidden');
+  $('navBackBtn').classList.add('hidden');
+  $('settingsBtn').classList.remove('hidden');
   refreshConvPromptSel(); // 返回练习页时刷新顶部模板下拉框（设置里增删改了模板）
   refreshKeyGuide(); // 填完 Key 回来后，新手引导自动消失
   window.scrollTo(0, 0);
@@ -1611,7 +1625,7 @@ function refreshKeyGuide() {
 }
 function initSettingsNav() {
   $('settingsBtn').onclick = openSettings;
-  $('backBtn').onclick = closeSettings;
+  $('navBackBtn').onclick = closeSettings;
   $('keyGuideBtn').onclick = openSettings;
   $('keyGuideX').onclick = () => { keyGuideDismissed = true; refreshKeyGuide(); };
   refreshKeyGuide();
