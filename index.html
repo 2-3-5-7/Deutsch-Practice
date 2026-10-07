@@ -517,13 +517,25 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261007-16</div>
+    <div class="ver">版本 v20261007-17</div>
   </section>
 </main>
-<script src="quotes.js"></script>
-<script src="qrgen.js"></script>
 <script>
 'use strict';
+/* 按需加载本地脚本：手机浏览器首屏只下 index.html，用到打卡/二维码时才下对应库（PWA 安装时 SW 仍会全部预缓存） */
+function loadScript(src) {
+  loadScript.cache = loadScript.cache || {};
+  if (!loadScript.cache[src]) {
+    loadScript.cache[src] = new Promise((resolve, reject) => {
+      const el = document.createElement('script');
+      el.src = src;
+      el.onload = () => resolve();
+      el.onerror = () => { delete loadScript.cache[src]; reject(new Error('脚本加载失败，请检查网络')); };
+      document.head.appendChild(el);
+    });
+  }
+  return loadScript.cache[src];
+}
 /* ================= 工具 ================= */
 const $ = id => document.getElementById(id);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -1476,7 +1488,7 @@ function drawSyncQr(canvas, text) {
   }
 }
 /* “生成同步码”弹窗 */
-function showSyncQr() {
+async function showSyncQr() {
   const ov = document.createElement('div');
   ov.className = 'dlg-ov';
   ov.innerHTML = '<div class="dlg-card">' +
@@ -1489,6 +1501,7 @@ function showSyncQr() {
   document.body.appendChild(ov);
   lockScroll();
   try {
+    await loadScript('qrgen.js');
     drawSyncQr(ov.querySelector('.sync-qr'), syncPayload());
   } catch (e) {
     ov.querySelector('.sync-qr').remove();
@@ -1798,6 +1811,7 @@ const CHECKIN_PHOTOS = [
 function makeCheckinFile() {
   return new Promise(async (resolve, reject) => {
   try {
+    await loadScript('quotes.js');
     const md = mergedDayCounts(); // 打卡三项含已同步远端
     const day = usageDay();
     const W = 900, H = 1180;
