@@ -520,7 +520,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261007-28 · <a class="ver-link" href="https://github.com/2-3-5-7/Deutsch-Practice" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver">版本 v20261008-03 · <a class="ver-link" href="https://github.com/2-3-5-7/Deutsch-Practice" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -1938,15 +1938,24 @@ function makeCheckinFile() {
     });
     cv.toBlob(blob => {
       if (!blob) { reject(new Error('图片生成失败')); return; }
-      resolve(new File([blob], 'deutsch-checkin-' + day + '.png', { type: 'image/png' }));
-    }, 'image/png');
+      // 优先 WebP：编码比 PNG 快得多，同体积下画质又比 JPEG 好；不支持的浏览器会自动回退成 PNG
+      const ext = blob.type === 'image/webp' ? 'webp' : 'png';
+      resolve(new File([blob], 'deutsch-checkin-' + day + '.' + ext, { type: blob.type }));
+    }, 'image/webp', 0.9);
     } catch (e) { reject(e); }
   });
 }
 
 /* “今日打卡”（按钮 & PWA 长按菜单共用）：生成打卡图 → 弹窗预览 → 点“分享”调系统面板 */
+let checkinBusy = false;
 function previewCheckinCard() {
+  if (checkinBusy) return; // 生成中连点直接忽略，不叠多个预览框
+  checkinBusy = true;
+  const btn = $('shareCardBtn');
+  btn.disabled = true; btn.style.cursor = 'wait'; // 生成中：禁用防连点，鼠标等待指针给反馈（文字不变）
+  const done = () => { checkinBusy = false; btn.disabled = false; btn.style.cursor = ''; };
   makeCheckinFile().then(file => {
+    done();
     const url = URL.createObjectURL(file);
     const ov = document.createElement('div');
     ov.className = 'dlg-ov';
@@ -1969,7 +1978,7 @@ function previewCheckinCard() {
     };
     ov.addEventListener('click', e => { if (e.target === ov) close(); });
     document.body.appendChild(ov);
-  }).catch(e => alertDlg('图片生成失败：' + e.message));
+  }).catch(e => { done(); alertDlg('图片生成失败：' + e.message); });
 }
 
 /* ================= 设置页进出（右上角齿轮） ================= */
