@@ -78,6 +78,7 @@ textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px
 .result{border:1px solid var(--line);border-radius:12px;padding:14px;margin-top:6px;background:#fbfaff}
 .retrybox p{margin:0 0 10px;font-size:14px;color:var(--ink)}
 .ver{margin-top:10px;font-size:11px;color:#9aa0a6;text-align:center}
+.ver-link{color:#9aa0a6;text-decoration:underline;text-underline-offset:2px}
 /* 用量统计 */
 .quota2{display:flex;gap:12px}
 .quota2 .quota{flex:1;min-width:0}
@@ -519,7 +520,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261007-26</div>
+    <div class="ver">版本 v20261007-28 · <a class="ver-link" href="https://github.com/2-3-5-7/Deutsch-Practice" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -1145,10 +1146,16 @@ function renderSearchHits(q) {
 
 /* ================= 抽屉 ================= */
 function openDrawer() {
+  if ($('drawer').classList.contains('open')) return;
   $('drawer').classList.add('open'); $('scrim').classList.remove('hidden');
+  lockScroll(); // 抽屉打开时锁住背景滚动，手指在列表上滑动不再带动主页面
   revealActiveConv(false); // 打开就定位到当前选中的对话
 }
-function closeDrawer() { $('drawer').classList.remove('open'); $('scrim').classList.add('hidden'); }
+function closeDrawer() {
+  if (!$('drawer').classList.contains('open')) return;
+  $('drawer').classList.remove('open'); $('scrim').classList.add('hidden');
+  unlockScroll();
+}
 /* 把当前选中的对话滚到列表可见区（已在可视区内则不动） */
 function revealActiveConv(smooth) {
   const el = document.querySelector('#convList .conv.active');
