@@ -34,7 +34,9 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 24px}
 .msg{display:flex;flex-direction:column;max-width:88%}
 .msg.user{align-self:flex-end;align-items:flex-end}
 .msg.assistant{align-self:flex-start;align-items:flex-start}
-.bubble{padding:9px 12px;border-radius:14px;white-space:pre-wrap;word-break:break-word;font-size:14px;cursor:pointer}
+.bubble{padding:9px 12px;border-radius:14px;white-space:pre-wrap;word-break:break-word;font-size:14px;cursor:pointer;-webkit-touch-callout:none;-webkit-user-select:none;user-select:none}
+/* iOS 长按只进编辑，不弹系统选词菜单；编辑框内的 textarea 保持可选 */
+.msg .bubble .edit-box{-webkit-touch-callout:default;-webkit-user-select:text;user-select:text}
 .msg.user .bubble{background:var(--pri);color:#fff;border-bottom-right-radius:4px}
 .msg.assistant .bubble{background:#f1edfd;border-bottom-left-radius:4px}
 .bubble:active{opacity:.75}
@@ -517,7 +519,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261007-17</div>
+    <div class="ver">版本 v20261007-26</div>
   </section>
 </main>
 <script>
@@ -3546,6 +3548,35 @@ async function init() {
     setTimeout(() => { suppressBubbleClick = false; }, 600);
     enterEditMode(msgEl, idx);
   });
+  // iOS 长按：Safari 长按基本不触发 contextmenu，手动用 touch 计时补上（550ms；与 Android 的 contextmenu 互斥，谁先进编辑另一个就返回）
+  let lpTimer = 0, lpX = 0, lpY = 0;
+  const cancelLp = () => { if (lpTimer) { clearTimeout(lpTimer); lpTimer = 0; } };
+  $('chatList').addEventListener('touchstart', e => {
+    if (e.touches.length !== 1) return;
+    const msgEl = e.target.closest('.msg');
+    if (!msgEl || msgEl.querySelector('.edit-wrap')) return;
+    const t = e.touches[0];
+    lpX = t.clientX; lpY = t.clientY;
+    lpTimer = setTimeout(() => {
+      lpTimer = 0;
+      if (msgEl.querySelector('.edit-wrap')) return; // Android 的 contextmenu 已处理
+      const idx = +msgEl.dataset.idx;
+      const c = activeConv();
+      const m = c && c.messages[idx];
+      if (!m || !m.content || m.failed) return;
+      if ($('sendBtn').disabled) return; // 流式输出中不编辑
+      suppressBubbleClick = true;
+      setTimeout(() => { suppressBubbleClick = false; }, 600);
+      enterEditMode(msgEl, idx);
+    }, 550);
+  }, { passive: true });
+  $('chatList').addEventListener('touchmove', e => {
+    if (!lpTimer) return;
+    const t = e.touches[0];
+    if (Math.abs(t.clientX - lpX) > 12 || Math.abs(t.clientY - lpY) > 12) cancelLp(); // 滚动不触发
+  }, { passive: true });
+  $('chatList').addEventListener('touchend', cancelLp);
+  $('chatList').addEventListener('touchcancel', cancelLp);
   $('scrim').onclick = closeDrawer;
   $('exportAllBtn').onclick = exportAllConvs;
   $('newChatBtn2').onclick = newConversation;

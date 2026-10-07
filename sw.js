@@ -3,7 +3,7 @@
  * 策略：本站 GET 请求走网络优先，失败时读缓存；API 与 CDN 请求不拦截。
  * 注意：更新 index.html 后刷新页面即生效，无需手动清缓存。
  */
-const CACHE = 'deutsch-practice-v2';
+const CACHE = 'deutsch-practice-v3';
 const ASSETS = ['./', 'index.html', 'quotes.js', 'qrgen.js', 'qr-scanner-worker.min.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 const PHOTOS = [
