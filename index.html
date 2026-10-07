@@ -96,8 +96,14 @@ textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px
 .day-table{width:100%;border-collapse:collapse;font-size:12.5px}
 .day-table th{font-weight:400;color:var(--mut);font-size:12px;padding:4px 4px;text-align:center;white-space:nowrap;vertical-align:middle}
 .day-table td{padding:5px 4px;text-align:center;border-top:1px solid var(--line);font-variant-numeric:tabular-nums;white-space:nowrap;font-weight:700}
-.th-share{border:none;background:#f0ebfd;color:var(--pri);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;padding:12px 10px;border-radius:10px;white-space:nowrap;width:100%;box-sizing:border-box}
+.th-share{border:none;background:#f0ebfd;color:var(--pri);font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;padding:12px 10px;border-radius:10px;white-space:nowrap;width:100%;min-height:78px;box-sizing:border-box}
 .th-share:active{opacity:.6}
+.day-table td.sync-cell{border-top:1px solid var(--line);padding:9px 4px 3px;text-align:center;font-weight:400;white-space:normal}
+.sync-btn{border:1px solid var(--line);background:#f7f4ff;color:var(--pri);border-radius:8px;padding:5px 12px;font-size:12px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.sync-btn:active{opacity:.6}
+.sync-sub{font-size:12px;color:var(--mut);text-align:center;margin:0 0 10px;line-height:1.5}
+.sync-qr{display:block;width:100%;max-width:300px;height:auto;margin:4px auto 12px;border-radius:8px}
+.sync-video{display:block;width:100%;max-height:320px;object-fit:cover;border-radius:12px;background:#000;margin:4px 0 12px}
 .day-table td.rowbtn{text-align:center;vertical-align:middle;border-top:none;font-weight:400;padding:4px}
 .bubble hr{border:none;border-top:1px solid var(--line);margin:8px 0}
 .btn-pri{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:11px 22px;font-size:14px;font-weight:700}
@@ -352,7 +358,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <table class="day-table">
           <tbody>
             <tr>
-              <td rowspan="2" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share">今日打卡</button></td>
+              <td rowspan="3" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share">今日打卡</button></td>
               <th>对话</th><th>听原声</th><th>录音练习</th><th>花费</th>
             </tr>
             <tr>
@@ -360,6 +366,14 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
               <td id="uqDayTts">0句</td>
               <td id="uqDayAssess">0次</td>
               <td id="uqDayCost">0.00</td>
+            </tr>
+            <tr>
+              <td colspan="2" class="sync-cell">
+                <button id="syncGenBtn" type="button" class="sync-btn">生成同步码</button>
+              </td>
+              <td colspan="2" class="sync-cell">
+                <button id="syncScanBtn" type="button" class="sync-btn">扫码同步</button>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -503,10 +517,11 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261006-16</div>
+    <div class="ver">版本 v20261007-16</div>
   </section>
 </main>
 <script src="quotes.js"></script>
+<script src="qrgen.js"></script>
 <script>
 'use strict';
 /* ================= 工具 ================= */
@@ -795,6 +810,8 @@ function initSettings() {
     refreshUsageUI();
   };
   $('shareCardBtn').onclick = previewCheckinCard;
+  $('syncGenBtn').onclick = showSyncQr;
+  $('syncScanBtn').onclick = showSyncScan;
   // PWA 长按菜单“今日打卡”：带 ?checkin=1 启动时自动生成并预览（参数用完即清，刷新不再触发）
   try {
     if (new URLSearchParams(location.search).get('checkin') === '1') {
@@ -1135,8 +1152,19 @@ function revealActiveConv(smooth) {
      promptDlg(title, message?, defaultValue?, placeholder?) 输入框（确定返回输入内容，取消返回 null） */
 /* 弹窗滚动锁：打开弹窗时锁住背景滚动（计数，支持嵌套弹窗），关闭恢复 */
 window.__scrollLocks = window.__scrollLocks || 0;
-function lockScroll() { if (window.__scrollLocks++ === 0) document.body.style.overflow = 'hidden'; }
-function unlockScroll() { if (window.__scrollLocks > 0 && --window.__scrollLocks === 0) document.body.style.overflow = ''; }
+function lockScroll() {
+  if (window.__scrollLocks++ === 0) {
+    const sw = window.innerWidth - document.documentElement.clientWidth; // 滚动条宽度
+    if (sw > 0) document.body.style.paddingRight = sw + 'px'; // 补上消失的滚动条，页面不左右跳
+    document.body.style.overflow = 'hidden';
+  }
+}
+function unlockScroll() {
+  if (window.__scrollLocks > 0 && --window.__scrollLocks === 0) {
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+  }
+}
 function dlg(o) {
   o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false, input: false, inputValue: '', inputPlaceholder: '' }, o);
   return new Promise(resolve => {
@@ -1325,10 +1353,340 @@ function refreshUsageUI() {
   $('uqCached').textContent = fmtInt(u.chatCached);
   $('uqCost').textContent = fmtCost(chatCost(u.chatIn, u.chatOut, u.chatCached, s));
   const dToday = dayBucket(u); // 今日小表只看今天
-  $('uqDayTts').textContent = (dToday.ttsCalls || 0) + '句';
-  $('uqDayAssess').textContent = (dToday.assessCalls || 0) + '次';
-  $('uqDayChat').textContent = (dToday.chatRounds || 0) + '次';
+  const md = mergedDayCounts(); // 本机 + 已同步远端设备
+  $('uqDayTts').textContent = (md.ttsCalls || 0) + '句';
+  $('uqDayAssess').textContent = (md.assessCalls || 0) + '次';
+  $('uqDayChat').textContent = (md.chatRounds || 0) + '次';
   $('uqDayCost').textContent = fmtCost(chatCost(dToday.chatIn, dToday.chatOut, dToday.chatCached, s));
+}
+/* ================= 多设备同步（二维码） =================
+   只同步今日三项计数（对话/听原声/录音练习）。本机数据结构不动，
+   远端各设备的 section 按 id 存 localStorage，展示时按当天求和。
+   同一码扫多次是覆盖不是累加，不会翻倍。 */
+const LS_DEVICE = 'deutsch.device.v1';
+function deviceId() {
+  let id = null;
+  try { id = localStorage.getItem(LS_DEVICE); } catch (e) {}
+  if (!id) {
+    try {
+      const r = new Uint32Array(2);
+      crypto.getRandomValues(r);
+      id = 'd' + Date.now().toString(36) + r[0].toString(36) + r[1].toString(36);
+    } catch (e) {
+      id = 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+    }
+    try { localStorage.setItem(LS_DEVICE, id); } catch (e) {}
+  }
+  return id;
+}
+const LS_SYNC = 'deutsch.sync.v1';
+function loadRemoteSync() {
+  let o = {};
+  try { o = JSON.parse(localStorage.getItem(LS_SYNC) || '{}'); } catch (e) {}
+  const t = usageDay(), remote = (o && o.remote) || {};
+  let dirty = false;
+  Object.keys(remote).forEach(k => { if (!remote[k] || remote[k].d !== t) { delete remote[k]; dirty = true; } });
+  if (dirty) { try { localStorage.setItem(LS_SYNC, JSON.stringify({ remote })); } catch (e) {} }
+  return remote;
+}
+function saveRemoteSync(remote) {
+  try { localStorage.setItem(LS_SYNC, JSON.stringify({ remote })); } catch (e) {}
+}
+/* 合并后的今日三项：本机 + 各远端当天 */
+function mergedDayCounts() {
+  const d0 = dayBucket(getUsage()), t = usageDay(), myId = deviceId();
+  let cr = d0.chatRounds || 0, tc = d0.ttsCalls || 0, ac = d0.assessCalls || 0;
+  const remote = loadRemoteSync();
+  Object.keys(remote).forEach(k => {
+    if (k === myId) return;
+    const r = remote[k];
+    if (r && r.d === t && Array.isArray(r.c)) {
+      cr += +r.c[0] || 0; tc += +r.c[1] || 0; ac += +r.c[2] || 0;
+    }
+  });
+  return { chatRounds: cr, ttsCalls: tc, assessCalls: ac };
+}
+/* 本机今日同步载荷：{id, d: 日期, c: [对话, 听原声, 录音练习]} */
+function syncPayload() {
+  const d0 = dayBucket(getUsage());
+  return JSON.stringify({ id: deviceId(), d: usageDay(), c: [d0.chatRounds || 0, d0.ttsCalls || 0, d0.assessCalls || 0] });
+}
+/* 应用扫到的同步码：ok / self（本机）/ bad（不是同步码） */
+function applySyncCode(raw) {
+  let o;
+  try { o = JSON.parse(raw); } catch (e) { return 'bad'; }
+  if (!o || typeof o.id !== 'string' || typeof o.d !== 'string' || !Array.isArray(o.c) || o.c.length !== 3) return 'bad';
+  if (o.id === deviceId()) return 'self';
+  const remote = loadRemoteSync();
+  remote[o.id] = { d: o.d, c: [+o.c[0] || 0, +o.c[1] || 0, +o.c[2] || 0] };
+  saveRemoteSync(remote);
+  refreshUsageUI();
+  return 'ok';
+}
+/* App 主题色二维码渲染（canvas）：深紫模块 + 浅紫底，定位角核心用墨色；
+   明暗结构严格符合 QR 规范（定位角深-浅-深），已用解码器验证可扫 */
+function drawSyncQr(canvas, text) {
+  const qr = qrcode(0, 'M');
+  qr.addData(text);
+  qr.make();
+  const n = qr.getModuleCount();
+  const S = 10, QZ = 4;
+  const W = (n + QZ * 2) * S;
+  canvas.width = W; canvas.height = W;
+  const g = canvas.getContext('2d');
+  let seed = 0;
+  for (let i = 0; i < text.length; i++) seed = (seed * 31 + text.charCodeAt(i)) >>> 0;
+  const rnd = () => { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; };
+  const rgb = c => 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
+  const shade = (c, f) => c.map(v => Math.max(0, Math.min(255, Math.round(v * f))));
+  const jit = (c, amt) => c.map(v => Math.max(0, Math.min(255, v + Math.floor((rnd() * 2 - 1) * amt))));
+  const LIGHT = [245, 243, 255], DARK = [109, 40, 217]; // 浅紫 / 深紫（定位角核心也用深紫，更柔和）
+  g.fillStyle = rgb(LIGHT);
+  g.fillRect(0, 0, W, W);
+  const inFinder = (r, c) => {
+    const zones = [[0, 0], [0, n - 7], [n - 7, 0]];
+    for (let i = 0; i < 3; i++) {
+      const zr = zones[i][0], zc = zones[i][1];
+      if (r >= zr && r < zr + 7 && c >= zc && c < zc + 7) return [r - zr, c - zc];
+    }
+    return null;
+  };
+  for (let r = 0; r < n; r++) {
+    for (let c = 0; c < n; c++) {
+      const x = (c + QZ) * S, y = (r + QZ) * S;
+      const fz = inFinder(r, c);
+      let base;
+      if (fz) {
+        const fr = fz[0], fc = fz[1];
+        const darkCell = fr === 0 || fr === 6 || fc === 0 || fc === 6 || (fr >= 2 && fr <= 4 && fc >= 2 && fc <= 4);
+        base = darkCell ? DARK : LIGHT; // 定位角：深紫边框 + 深紫核心，浅紫环分隔
+      } else {
+        base = qr.isDark(r, c) ? DARK : LIGHT;
+      }
+      const b = jit(base, 6);
+      g.fillStyle = rgb(b);
+      g.fillRect(x, y, S, S);
+      g.fillStyle = rgb(shade(b, 1.25));
+      g.fillRect(x, y, S, 1);
+      g.fillStyle = rgb(shade(b, 0.75));
+      g.fillRect(x, y + S - 1, S, 1);
+      g.fillStyle = rgb(shade(b, 1.12));
+      g.fillRect(x, y, 1, S);
+    }
+  }
+}
+/* “生成同步码”弹窗 */
+function showSyncQr() {
+  const ov = document.createElement('div');
+  ov.className = 'dlg-ov';
+  ov.innerHTML = '<div class="dlg-card">' +
+    '<p class="sync-sub">用其它设备扫码以加入此设备的今日学习数据</p>' +
+    '<canvas class="sync-qr"></canvas>' +
+    '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button></div></div>';
+  const close = () => { ov.remove(); unlockScroll(); };
+  ov.querySelector('.dlg-cancel').onclick = close;
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  document.body.appendChild(ov);
+  lockScroll();
+  try {
+    drawSyncQr(ov.querySelector('.sync-qr'), syncPayload());
+  } catch (e) {
+    ov.querySelector('.sync-qr').remove();
+    ov.querySelector('.sync-sub').textContent = '二维码生成失败：' + e.message;
+  }
+}
+/* 统一解码器：永远用我们自己的 worker 引擎（qr-scanner-worker.min.js），不依赖各浏览器的原生 BarcodeDetector；
+   全平台同一套流程、行为一致，也好验证。worker 只在第一次解码时加载一次。 */
+const UniDecoder = {
+  _worker: null, _nextId: 1, _pending: {},
+  _load() {
+    if (!this._worker) {
+      this._worker = import('./qr-scanner-worker.min.js').then(m => {
+        const w = m.createWorker();
+        w.onmessage = e => {
+          const p = this._pending[e.data.id];
+          if (p) { delete this._pending[e.data.id]; p(e.data); }
+        };
+        w.onerror = () => {
+          Object.keys(this._pending).forEach(id => { this._pending[id]({ data: null }); delete this._pending[id]; });
+          try { w.terminate(); } catch (e2) {}
+          this._worker = null; // 下次解码时重新加载
+        };
+        return w;
+      });
+      this._worker.catch(() => { this._worker = null; }); // 加载失败下次重试
+    }
+    return this._worker;
+  },
+  /* 输入 ImageData，返回解出的文本（无码返回 null） */
+  async decode(imageData) {
+    let w = null;
+    try { w = await this._load(); } catch (e) {}
+    if (!w) return null;
+    const id = this._nextId++;
+    return new Promise(resolve => {
+      const to = setTimeout(() => { delete this._pending[id]; resolve(null); }, 8000);
+      this._pending[id] = msg => { clearTimeout(to); resolve(msg && msg.data ? msg.data : null); };
+      try { w.postMessage({ id, type: 'decode', data: { data: imageData.data, width: imageData.width, height: imageData.height } }); }
+      catch (e) { clearTimeout(to); delete this._pending[id]; resolve(null); }
+    });
+  }
+};
+/* 扫码能力：只要能开摄像头就行，不再要求原生 BarcodeDetector（iOS 也能扫了） */
+function canUseCamera() {
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+}
+/* “扫码同步”入口：有摄像头走摄像头扫码，否则直接从剪贴板粘贴同步 */
+function showSyncScan() {
+  if (!window.__noCamera && canUseCamera()) showCameraScan();
+  else pasteFromClipboard();
+}
+/* 标记为无摄像头：按钮文案切换为“从剪贴板同步” */
+function markNoCamera() {
+  window.__noCamera = true;
+  const btn = $('syncScanBtn');
+  if (btn) { btn.textContent = '从剪贴板同步'; btn.title = '粘贴剪贴板中的同步码，图片或文本均可'; }
+}
+/* 恢复为有摄像头：按钮文案切回“扫码同步”（比如用户后来允许了权限） */
+function restoreCameraBtn() {
+  window.__noCamera = false;
+  const btn = $('syncScanBtn');
+  if (btn) { btn.textContent = '扫码同步'; btn.title = ''; }
+}
+/* 根据有无摄像头自适应按钮文案（无摄像头时变成“从剪贴板同步”） */
+function adaptSyncScanBtn() {
+  if (!canUseCamera()) { markNoCamera(); return; }
+  if (navigator.mediaDevices.enumerateDevices) {
+    navigator.mediaDevices.enumerateDevices().then(devs => {
+      if (devs.length > 0 && !devs.some(d => d.kind === 'videoinput')) markNoCamera();
+      else if (devs.some(d => d.kind === 'videoinput')) restoreCameraBtn();
+    }).catch(() => {});
+  } else restoreCameraBtn();
+}
+/* “扫码同步”弹窗（摄像头版）：抓视频帧送统一解码器 */
+function showCameraScan() {
+  const ov = document.createElement('div');
+  ov.className = 'dlg-ov';
+  ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">扫码同步</div>' +
+    '<video class="sync-video" playsinline muted></video>' +
+    '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button></div></div>';
+  const video = ov.querySelector('.sync-video');
+  const cap = document.createElement('canvas');
+  const cg = cap.getContext('2d', { willReadFrequently: true });
+  let stream = null, timer = 0, done = false, busy = false;
+  const close = () => {
+    done = true;
+    if (timer) clearInterval(timer);
+    if (stream) stream.getTracks().forEach(t => { try { t.stop(); } catch (e) {} });
+    if (ov.parentNode) ov.remove();
+    unlockScroll();
+  };
+  const finish = text => {
+    const r = applySyncCode(text);
+    close();
+    if (r === 'ok') alertDlg('已合并今日打卡数据');
+    else if (r === 'self') alertDlg('这是本机自己的同步码，换一台设备试试');
+    else alertDlg('这个码不是同步码，请确认');
+  };
+  ov.querySelector('.dlg-cancel').onclick = close;
+  ov.addEventListener('click', e => { if (e.target === ov) close(); });
+  document.body.appendChild(ov);
+  lockScroll();
+  navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(s => {
+    if (done) { s.getTracks().forEach(t => { try { t.stop(); } catch (e) {} }); return; }
+    stream = s;
+    video.srcObject = s;
+    video.play().catch(() => {});
+    timer = setInterval(async () => {
+      if (done || busy || video.readyState < 2 || !video.videoWidth) return;
+      busy = true;
+      try {
+        const sc = Math.min(1, 800 / video.videoWidth);
+        cap.width = Math.max(1, Math.round(video.videoWidth * sc));
+        cap.height = Math.max(1, Math.round(video.videoHeight * sc));
+        cg.drawImage(video, 0, 0, cap.width, cap.height);
+        const d = cg.getImageData(0, 0, cap.width, cap.height);
+        const text = await UniDecoder.decode(d);
+        if (done) return;
+        if (text) finish(text);
+      } catch (e) {}
+      busy = false;
+    }, 600);
+  }).catch(err => {
+    close();
+    const name = err && err.name;
+    if (name === 'NotFoundError' || name === 'OverconstrainedError') {
+      // 真的没有摄像头硬件：才切换按钮，以后都走剪贴板
+      markNoCamera();
+      pasteFromClipboard();
+    } else if (name === 'NotAllowedError' || name === 'SecurityError') {
+      // 只是权限被拒绝：不改按钮，提示用户去开权限后重试
+      alertDlg('摄像头权限被拒绝，请点浏览器地址栏的摄像头图标允许后重试');
+    } else if (name === 'NotReadableError' || name === 'AbortError') {
+      alertDlg('摄像头正被其它应用占用，请关闭后重试');
+    } else {
+      alertDlg('摄像头打不开，请检查后重试');
+    }
+  });
+}
+/* 从剪贴板粘贴：先判断类型——图片走解码流程，文本走 JSON 流程，各自失败各自提示 */
+function pasteFromClipboard() {
+  if (navigator.clipboard && navigator.clipboard.read) {
+    navigator.clipboard.read().then(async items => {
+      let imgItem = null, imgType = null;
+      for (const item of items) {
+        const t = item.types.find(x => x.indexOf('image/') === 0);
+        if (t) { imgItem = item; imgType = t; break; }
+      }
+      if (imgType) {
+        let text = null;
+        try { text = await decodeQrBlob(await imgItem.getType(imgType)); } catch (e) {}
+        if (text) finishPaste(text);
+        else alertDlg('图片里没有识别到二维码，请确认复制的是同步码截图');
+        return;
+      }
+      pasteTextFlow();
+    }).catch(() => alertDlg('剪贴板权限被拒绝，请点浏览器地址栏左侧图标，在网站设置中允许后重试'));
+  } else pasteTextFlow();
+}
+/* 剪贴板文本流程：直接按同步码 JSON 解析 */
+function pasteTextFlow() {
+  if (navigator.clipboard && navigator.clipboard.readText) {
+    navigator.clipboard.readText().then(t => {
+      t = (t || '').trim();
+      if (!t) { alertDlg('剪贴板是空的，请先复制同步码'); return; }
+      finishPaste(t, close);
+    }).catch(() => alertDlg('剪贴板权限被拒绝，请点浏览器地址栏左侧图标，在网站设置中允许后重试'));
+  } else alertDlg('当前浏览器不支持剪贴板读取');
+}
+/* 用统一解码器从图片 blob 里解二维码，返回文本或 null */
+function decodeQrBlob(blob) {
+  return new Promise(resolve => {
+    const url = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = async () => {
+      URL.revokeObjectURL(url);
+      try {
+        const maxD = 1000;
+        const sc = Math.min(1, maxD / Math.max(img.width, img.height));
+        const cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(img.width * sc));
+        cv.height = Math.max(1, Math.round(img.height * sc));
+        const g = cv.getContext('2d', { willReadFrequently: true });
+        g.drawImage(img, 0, 0, cv.width, cv.height);
+        const d = g.getImageData(0, 0, cv.width, cv.height);
+        resolve(await UniDecoder.decode(d));
+      } catch (e) { resolve(null); }
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); resolve(null); };
+    img.src = url;
+  });
+}
+function finishPaste(text) {
+  const r = applySyncCode(text);
+  if (r === 'ok') alertDlg('已合并今日打卡数据');
+  else if (r === 'self') alertDlg('这是本机自己的同步码');
+  else alertDlg('内容不是有效的同步码，请确认复制的是同步码');
 }
 /* 打卡图小工具：按日期稳定的伪随机数（同一天同一片风景） */
 function hashStr(s) {
@@ -1440,8 +1798,7 @@ const CHECKIN_PHOTOS = [
 function makeCheckinFile() {
   return new Promise(async (resolve, reject) => {
   try {
-    const u = getUsage();
-    const d = dayBucket(u);
+    const md = mergedDayCounts(); // 打卡三项含已同步远端
     const day = usageDay();
     const W = 900, H = 1180;
     // 每次打开随机组合：背景照片 + 名言
@@ -1526,9 +1883,9 @@ function makeCheckinFile() {
     g.fillText(ds, W / 2, divY + 46);
     g.letterSpacing = '0px';
     const stats = [
-      ['对话', (d.chatRounds || 0), '次'],
-      ['听原声', (d.ttsCalls || 0), '句'],
-      ['录音练习', (d.assessCalls || 0), '次']
+      ['对话', (md.chatRounds || 0), '次'],
+      ['听原声', (md.ttsCalls || 0), '句'],
+      ['录音练习', (md.assessCalls || 0), '次']
     ];
     const colW = pw / 3;
     const labY = divY + 46 + 50, numY = labY + 68;
@@ -1603,6 +1960,7 @@ function openSettings() {
   $('settingsBtn').classList.add('hidden');
   refreshStorageStats(); // 每次打开设置页刷新占用统计
   refreshUsageUI(); // 刷新用量统计
+  adaptSyncScanBtn(); // 无摄像头时“扫码同步”按钮变成“从剪贴板同步”
   window.scrollTo(0, 0);
 }
 function closeSettings() {

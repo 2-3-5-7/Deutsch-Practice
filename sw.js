@@ -4,7 +4,7 @@
  * 注意：更新 index.html 后刷新页面即生效，无需手动清缓存。
  */
 const CACHE = 'deutsch-practice-v2';
-const ASSETS = ['./', 'index.html', 'quotes.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
+const ASSETS = ['./', 'index.html', 'quotes.js', 'qrgen.js', 'qr-scanner-worker.min.js', 'manifest.json', 'icon-192.png', 'icon-512.png'];
 
 const PHOTOS = [
   'img/checkin/01-schwarzwald-1.webp',
