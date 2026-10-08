@@ -4,7 +4,11 @@
 >
 > Chat with AI in 23 languages → one-tap native audio → record & shadow → Azure pronunciation scoring. Pure-static PWA, all data stays local.
 
-在线体验 Demo：https://sprechmate.308611.xyz/ 仓库 Repo：https://github.com/2-3-5-7/SprechMate
+在线体验 Demo：https://sprechmate.308611.xyz/
+
+![en0](en0.png)
+
+![en1](en1.png)
 
 ---
 
@@ -20,6 +24,8 @@
 - 📊 **用量统计**：Azure TTS 字符 / 语音秒数按自然月统计，聊天 token 统计 + 花费估算，今日打卡图生成（40 张本地实拍背景 + 400 句谚语库）
 - 🔗 **多设备同步**：二维码同步今日练习计数，无需后端
 - 📱 **PWA**：可安装到手机主屏幕，离线可用
+  - 🤖 安卓小技巧：在别的 App 里选中句子 → 系统"分享" → 发给芯语伴，会自动朗读出来；长按桌面图标可直接"今日打卡"
+  - 🍎 iOS 建议直接用网页版：安装成 PWA 后在部分系统版本上可能没有声音（iOS 系统限制）
 
 ### 快速开始
 
@@ -35,7 +41,9 @@ python3 -m http.server 8000
 
 1. **聊天接口**：Base URL、模型、API Key（OpenAI 兼容渠道）→ 点「测试连接」
 2. **Azure Speech**：填 Speech Key + Region（33 个区可选，默认 `westus2`，以你建资源时选的区域为准），选声音 → 点「测试 TTS」应能听到对应语言
-3. **学习语言 / 界面语言**：「语言与显示」卡片内切换，提示词模板、声音、打分 locale 自动跟随
+   - ⚠️ 建资源时**定价层一定要选 Free F0（免费层）**，不要选 Standard S0（标准版要收费）。F0 每月有 50 万字符神经语音 + 5 小时语音识别免费额度，个人练习完全够用
+   - 🎬 新手视频教程（YouTube，葡萄牙语但全程录屏跟着点就行）：https://www.youtube.com/watch?v=3jh2w1JLlQ4
+3. **学习语言 / 界面语言**：在「语言与显示」中切换，提示词、发音与评分语言自动跟随
 4. 所有 Key 和聊天记录只保存在你自己的浏览器里，不会上传
 
 ### 部署到 Cloudflare Pages（网页后台上传，无需命令行）
@@ -94,6 +102,8 @@ python3 -m http.server 8000
 - 📊 **Usage stats**: Azure TTS characters / speech seconds per calendar month, chat token stats + cost estimate, daily check-in card (40 local photos + 400-quote library)
 - 🔗 **Multi-device sync**: sync today's practice counts via QR code, no backend needed
 - 📱 **PWA**: installable to the home screen, works offline
+  - 🤖 Android tips: select a sentence in any app → system "Share" → send it to SprechMate and it reads it aloud; long-press the home-screen icon for one-tap daily check-in
+  - 🍎 iOS: we recommend the web version — the installed PWA may have no sound on some iOS versions (OS limitation)
 
 ### Quick start
 
@@ -109,7 +119,9 @@ Open http://localhost:8000 (localhost counts as a secure context, so the mic wor
 
 1. **Chat API**: Base URL, model, API key (any OpenAI-compatible provider) → "Test connection"
 2. **Azure Speech**: Speech Key + Region (33 regions available, default `westus2` — use the one your resource was created in), pick a voice → "Test TTS" should speak
-3. **Learning / UI language**: switch in the "Language & Display" card; prompt templates, voices and scoring locale follow automatically
+   - ⚠️ When creating the resource, choose the **Free F0 pricing tier** — NOT Standard S0 (which is billed). F0 includes 500K neural-voice characters + 5 speech hours free per month, plenty for personal practice
+   - 🎬 Video walkthrough for beginners (YouTube, in Portuguese but easy to follow along visually): https://www.youtube.com/watch?v=3jh2w1JLlQ4
+3. **Learning / UI language**: Set in "Language & Display"; prompts, voices, and scoring locales update automatically
 4. Keys and chats live only in your own browser — never uploaded
 
 ### Deploy to Cloudflare Pages (web upload, no CLI needed)
