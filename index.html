@@ -546,7 +546,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver"><span data-i18n="set.version">版本</span> v20261008-31 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261008-37 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -585,18 +585,26 @@ function buildDefaultPrompt(learnLang, uiLang) {
     return 'You are a patient ' + target + ' speaking coach, helping a beginner practice spoken ' + target + '.\n' +
       'Rules:\n' +
       '- Converse mainly in ' + target + '; keep topics light and daily (self-introduction, hobbies, weather, food, travel, etc.).\n' +
-      '- Keep your ' + target + ' simple: short sentences, few subordinate clauses, beginner-level vocabulary.\n' +
-      '- End each reply with one English line as a quote (start the line with "> "): a brief translation or hint to aid understanding.\n' +
-      '- When the user makes a mistake in ' + target + ', gently point it out in English with the correct form, then continue.\n' +
-      '- Ask only one follow-up question at a time to keep the conversation flowing.';
+      '- Keep your ' + target + ' simple: short sentences, beginner-level vocabulary.\n' +
+      '- When the user makes a mistake, point it out gently with the correct form, then continue.\n' +
+      '- End each reply with one English quote line (start with "> "): a brief translation or hint to aid understanding.\n' +
+      'Don\'t:\n' +
+      '- Don\'t use subordinate clauses or above-beginner vocabulary.\n' +
+      '- Don\'t ask more than one question at a time.\n' +
+      '- Don\'t write English outside quote lines.\n' +
+      '- Don\'t put quote lines between ' + target + ' paragraphs.';
   }
   return '你是一位耐心的' + target + '口语教练，陪伴一位中文母语的' + target + '初学者练习口语。\n' +
     '规则：\n' +
     '- 主要用' + target + '和用户对话，话题日常轻松（自我介绍、爱好、天气、食物、旅行等）。\n' +
-    '- 你的' + target + '要简单：短句为主，少用从句，生词控制在初学水平。\n' +
-    '- 每条回复末尾加一行简体中文作为引用（行首加 "> "）：简短翻译或提示，帮助理解。\n' +
-    '- 用户' + target + '说错时，用中文温和指出错误并给出正确说法，再继续对话。\n' +
-    '- 一次只问一个跟进问题，保持对话流动。';
+    '- ' + target + '要简单：短句为主，生词控制在初学水平。\n' +
+    '- 用户说错时，温和指出错误并给出正确说法，再继续对话。\n' +
+    '- 每条回复末尾加一行中文引用（行首加 "> "）：简短翻译或提示，帮助理解。\n' +
+    '不要做的事：\n' +
+    '- 不要用从句和超纲词汇。\n' +
+    '- 不要一次问多个问题。\n' +
+    '- 不要在引用行之外写中文。\n' +
+    '- 不要把引用行插进' + target + '段落中间。';
 }
 /* 内置默认模板的名字（跟随界面语言）：德语口语陪练 / German Speaking Coach */
 function defaultPromptName(learnLang, uiLang) {
@@ -624,14 +632,20 @@ function buildCustomsPrompt(learnLang, uiLang) {
       '- Converse entirely in ' + target + ' at natural speed; do not simplify for beginners.\n' +
       '- You doubt my purpose of entry: keep pressing for details, challenge vague answers, and call out contradictions on the spot.\n' +
       '- My goal is to convince you to let me in; only let me through when genuinely convinced, then write a quote line: > cleared.\n' +
-      '- At the end, briefly review as quote lines (each starting with "> "): which expressions were natural, where I made mistakes.';
+      '- At the end, briefly review as quote lines (each starting with "> "): which expressions were natural, where I made mistakes.\n' +
+      'Don\'t:\n' +
+      '- Don\'t write English outside quote lines.\n' +
+      '- Don\'t put quote lines between ' + target + ' paragraphs.';
   }
   return '你是一名严格的' + target + '海关官员，正在对我进行入境盘问。\n' +
     '规则：\n' +
     '- 全程用' + target + '和我对话，语速正常，不要迁就初学者。\n' +
     '- 你怀疑我的入境目的：不断追问细节，质疑含糊的回答，发现前后矛盾要当场指出。\n' +
     '- 我的目标是说服你让我入境；只有当你真正被说服时才放行，然后写一行引用：> 过关。\n' +
-    '- 结束后用中文引用行（每行以 "> " 开头）简要点评：哪些表达地道、哪里出了错。';
+    '- 结束后用中文引用行（每行以 "> " 开头）简要点评：哪些表达地道、哪里出了错。\n' +
+    '不要做的事：\n' +
+    '- 不要在引用行之外写中文。\n' +
+    '- 不要把引用行插进' + target + '段落中间。';
 }
 function customsPromptName(learnLang, uiLang) {
   const lang = langOf(learnLang);
@@ -809,6 +823,12 @@ zh: {
   'sent.pause': '暂停',
   'sent.playTitle': '播放原声 (S)',
   'sent.genFail': '原声生成失败',
+  'err.network': '网络好像不通，检查一下网络或 VPN 再试一次',
+  'err.timeout': '请求超时了，网络有点慢，再试一次吧',
+  'err.badKey': 'Azure Key 或 Region 可能不对，去设置里检查一下',
+  'err.quota': 'Azure 配额用完了（免费额度按月重置）',
+  'err.internal': '出了点小问题，再试一次；如果一直这样请反馈',
+  'err.unknown': '生成失败，再试一次吧',
   'sent.langMismatchTitle': '语言不匹配',
   'sent.langMismatchMsg': '这段文本看起来是{tl}，但当前学习语言是{cl}。去设置里切换学习语言后再生成？',
   'sent.goSettings': '去设置',
@@ -1072,6 +1092,12 @@ en: {
   'sent.pause': 'Pause',
   'sent.playTitle': 'Play native audio (S)',
   'sent.genFail': 'Native audio generation failed',
+  'err.network': 'Network seems unreachable — check your connection or VPN and try again',
+  'err.timeout': 'Request timed out — the network is slow, try again',
+  'err.badKey': 'Azure Key or Region may be wrong — check Settings',
+  'err.quota': 'Azure quota exhausted (free tier resets monthly)',
+  'err.internal': 'Something went wrong — try again, and report it if it persists',
+  'err.unknown': 'Generation failed — try again',
   'sent.langMismatchTitle': 'Language mismatch',
   'sent.langMismatchMsg': 'This text looks like {tl}, but your learning language is {cl}. Switch the learning language in Settings first?',
   'sent.goSettings': 'Go to Settings',
@@ -1379,13 +1405,12 @@ function getSettings() {
     if (!Array.isArray(s.promptTemplates) || !s.promptTemplates.length) {
       const oldCustom = s.systemPrompt; // 远古备份里的自定义提示词
       s.promptTemplates = [
-        { id: 'default', name: defaultPromptName(s.learnLang, s.uiLang), content: oldCustom || buildDefaultPrompt(s.learnLang, s.uiLang), auto: !oldCustom },
-        { id: 'customs', name: customsPromptName(s.learnLang, s.uiLang), content: buildCustomsPrompt(s.learnLang, s.uiLang), auto: true }
+        { id: 'default', name: defaultPromptName(s.learnLang, s.uiLang), content: oldCustom || buildDefaultPrompt(s.learnLang, s.uiLang) },
+        { id: 'customs', name: customsPromptName(s.learnLang, s.uiLang), content: buildCustomsPrompt(s.learnLang, s.uiLang) }
       ];
     } else {
       // 存量 default 模板：内容还是出厂默认（没被用户改过）→ 标记 auto，语言切换时自动跟随
       const d = s.promptTemplates.find(x => x.id === 'default');
-      if (d && d.auto === undefined) d.auto = (d.content === DEFAULT_SYSTEM_PROMPT);
       // 存量 customs 模板：名字是旧硬编码且内容没被改过 → 标记 auto，跟随语言
       const c = s.promptTemplates.find(x => x.id === 'customs');
       if (c && c.auto === undefined) {
@@ -1400,17 +1425,18 @@ function getSettings() {
 /* 显示德语的实际生效值：没开自动朗读时强制显示（否则既听不到又看不到） */
 function effShowDe(s) { s = s || getSettings(); return s.autoSpeak ? s.showDe : true; }
 /* 语言切换时：如果默认模板没被用户改过内容（auto），自动跟随新语言 */
+/* 启动时无脑覆盖两个内置模板为最新版；想自定义请新建模板 */
 function refreshDefaultPrompt() {
   const s = getSettings();
   let changed = false;
   const d = (s.promptTemplates || []).find(x => x.id === 'default');
-  if (d && d.auto) {
+  if (d) {
     d.name = defaultPromptName(s.learnLang, s.uiLang);
     d.content = buildDefaultPrompt(s.learnLang, s.uiLang);
     changed = true;
   }
   const c = (s.promptTemplates || []).find(x => x.id === 'customs');
-  if (c && c.auto) {
+  if (c) {
     c.name = customsPromptName(s.learnLang, s.uiLang);
     c.content = buildCustomsPrompt(s.learnLang, s.uiLang);
     changed = true;
@@ -1569,16 +1595,16 @@ async function initSettings() {
   });
   $('setPrompt').addEventListener('change', () => {
     const s2 = getSettings();
-    const t = (s2.promptTemplates || []).find(x => x.id === s2.activePromptId);
-    if (t) { t.content = $('setPrompt').value; t.auto = false; saveSettings(s2); } // 手动改过内容：不再自动跟随语言
+    const ct = (s2.promptTemplates || []).find(x => x.id === s2.activePromptId);
+    if (ct) { ct.content = $('setPrompt').value; saveSettings(s2); }
   });
   $('newTplBtn').onclick = async () => {
     const name = await promptDlg(t('set.tplNewTitle'), t('set.tplNewDesc'), '', t('set.tplNameLabel'));
     if (!name) return;
     const s2 = getSettings();
-    const t = { id: 'p' + Date.now(), name: name, content: '' };
-    s2.promptTemplates.push(t);
-    s2.activePromptId = t.id;
+    const nt = { id: 'p' + Date.now(), name: name, content: '' };
+    s2.promptTemplates.push(nt);
+    s2.activePromptId = nt.id;
     saveSettings(s2);
     refreshPromptUI();
     $('setPrompt').focus();
@@ -1588,8 +1614,8 @@ async function initSettings() {
     const name = await promptDlg(t('set.tplRenameTitle'), '', ap.name, t('set.tplNameLabel'));
     if (!name) return;
     const s2 = getSettings();
-    const t = s2.promptTemplates.find(x => x.id === ap.id);
-    if (t) { t.name = name; saveSettings(s2); refreshPromptUI(); }
+    const rt = s2.promptTemplates.find(x => x.id === ap.id);
+    if (rt) { rt.name = name; saveSettings(s2); refreshPromptUI(); }
   };
   $('delTplBtn').onclick = async () => {
     const s2 = getSettings();
@@ -1711,8 +1737,8 @@ function activeConv() {
 /* 对话实际使用的提示词：模板还在就取最新（改名改内容都跟随），模板删了就用对话里的快照兜底 */
 function convPrompt(c) {
   const ts = getSettings().promptTemplates || [];
-  const t = ts.find(x => x.id === c.promptId);
-  if (t) return { id: t.id, name: t.name || t('set.tplUnnamed'), content: t.content || '', deleted: false };
+  const tp = ts.find(x => x.id === c.promptId);
+  if (tp) return { id: tp.id, name: tp.name || t('set.tplUnnamed'), content: tp.content || '', deleted: false };
   return { id: c.promptId, name: (c.promptName || t('set.tplUnknown')) + t('set.tplDeleted'), content: c.promptContent || activePrompt().content, deleted: true };
 }
 /* 老对话补字段：没有 promptId 就按当前默认模板补一份快照 */
@@ -3190,10 +3216,10 @@ async function sendChatCore(c) {
       body: JSON.stringify({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs, stream_options: { include_usage: true } })
     });
     if (!res.ok || !res.body) {
-      const t = await res.text().catch(() => '');
+      const txt = await res.text().catch(() => '');
       let em = t('chat.reqFail');
-      try { const j = JSON.parse(t); em = j.error ? (j.error.message || JSON.stringify(j.error)) : t; }
-      catch (e) { if (t) em = t; }
+      try { const j = JSON.parse(txt); em = j.error ? (j.error.message || JSON.stringify(j.error)) : txt; }
+      catch (e) { if (txt) em = txt; }
       throw new Error('HTTP ' + res.status + t('misc.colon') + String(em).slice(0, 200));
     }
     const reader = res.body.getReader();
@@ -3460,13 +3486,13 @@ let lastRefBlob = null, lastRefUrl = null;
 async function ttsBlob(text, voice) {
   const s = getSettings();
   if (!s.azureKey || !s.azureRegion) throw new Error(t('sent.noKey'));
-  const t = String(text || '').trim();
-  if (!t) throw new Error(t('sent.noText'));
+  const txt = String(text || '').trim();
+  if (!txt) throw new Error(t('sent.noText'));
   const v = voice || s.voice;
   const url = 'https://' + s.azureRegion + '.tts.speech.microsoft.com/cognitiveservices/v1';
   const vLocale = String(v || '').split('-').slice(0, 2).join('-') || learnLocale(); // 从声音名取 locale（如 de-DE-KatjaNeural → de-DE）
   const ssml = "<speak version='1.0' xml:lang='" + vLocale + "'><voice xml:lang='" + vLocale + "' name='" +
-    esc(v) + "'>" + escapeXml(t) + "</voice></speak>";
+    esc(v) + "'>" + escapeXml(txt) + "</voice></speak>";
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -3532,20 +3558,30 @@ async function ttsFindByTextOtherLocale(t, curLocale) {
     });
   } catch (e) { return null; }
 }
+/* 把技术性错误翻译成人话，避免把 "t is not a function" 这类报错直接甩给用户 */
+function friendlyErr(e) {
+  const m = String((e && e.message) || '');
+  if (/network|fetch|load failed|offline|ERR_/i.test(m)) return t('err.network');
+  if (/abort|timeout|timed out/i.test(m)) return t('err.timeout');
+  if (/\b401\b|\b403\b|unauthorized|forbidden|access denied/i.test(m)) return t('err.badKey');
+  if (/\b429\b|too many requests|quota|rate limit/i.test(m)) return t('err.quota');
+  if (/not a function|is not defined|reading .* of (undefined|null)|referenceerror|typeerror|syntaxerror/i.test(m)) return t('err.internal');
+  return m || t('err.unknown');
+}
 async function ttsCached(rawText, voice) {
-  const t = targetLangText(rawText); // 统一过滤：去译文行、去 emoji
-  if (!t) throw new Error(t('sent.emptyBox'));
+  const txt = targetLangText(rawText); // 统一过滤：去译文行、去 emoji
+  if (!txt) throw new Error(t('sent.emptyBox'));
   const v = voice || getSettings().voice;
-  const key = 'tts:' + v + ':' + hashStr(t);
+  const key = 'tts:' + v + ':' + hashStr(txt);
   const hit = await idbGet(key).catch(() => null);
-  if (hit && isValidAudioBlob(hit.blob) && hit.text === t) return { blob: hit.blob, text: t, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段/空 blob 视为未命中，重新生成一次即自愈
+  if (hit && isValidAudioBlob(hit.blob) && hit.text === txt) return { blob: hit.blob, text: txt, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段/空 blob 视为未命中，重新生成一次即自愈
   // 跨语言兜底：当前声音 miss 时，找同一句话其他 locale 声音的缓存直接用（不调 API、不计费）；
   // 同 locale 只是换了声音时不兜底——用户想听新声音，重新生成
   const curLocale = String(v).split('-').slice(0, 2).join('-');
-  const anyHit = await ttsFindByTextOtherLocale(t, curLocale);
-  if (anyHit && isValidAudioBlob(anyHit.blob)) return { blob: anyHit.blob, text: t, cached: true };
+  const anyHit = await ttsFindByTextOtherLocale(txt, curLocale);
+  if (anyHit && isValidAudioBlob(anyHit.blob)) return { blob: anyHit.blob, text: txt, cached: true };
   // 都没命中：按文本语言和当前声音是否匹配——不匹配时弹窗提示去设置切换，不默默生成
-  const guessed = guessLangByScript(t);
+  const guessed = guessLangByScript(txt);
   const vLang = String(v).split('-')[0];
   if (guessed && guessed !== vLang) {
     const s0 = getSettings();
@@ -3563,14 +3599,14 @@ async function ttsCached(rawText, voice) {
     if (go) openSettings();
     throw abort;
   }
-  const blob = await ttsBlob(t, v);
-  trackUsage({ ttsChars: t.length, ttsCalls: 1 }); // 只有真正调了 API 才计费：缓存命中不计
+  const blob = await ttsBlob(txt, v);
+  trackUsage({ ttsChars: txt.length, ttsCalls: 1 }); // 只有真正调了 API 才计费：缓存命中不计
   const lim = getSettings().ttsCacheLimit; // 已钳制 0–500；0 = 关闭缓存
   if (lim > 0) {
-    idbSet(key, { blob: blob, t: Date.now(), text: t }).catch(() => {});
+    idbSet(key, { blob: blob, t: Date.now(), text: txt }).catch(() => {});
     trimTtsCache(lim).catch(() => {});
   }
-  return { blob: blob, text: t, cached: false };
+  return { blob: blob, text: txt, cached: false };
 }
 /* TTS 缓存淘汰：只保留最新的 limit 条 */
 async function trimTtsCache(limit) {
@@ -3606,7 +3642,7 @@ async function genRefAudio(text, autoplay) {
     refPlayer.load(lastRefUrl, autoplay !== false);
     return true;
   } catch (e) {
-    if (!e || !e.silent) dlg({ title: t('sent.genFail'), message: e.message });
+    if (!e || !e.silent) dlg({ title: t('sent.genFail'), message: friendlyErr(e) });
     return false;
   }
 }
@@ -3629,7 +3665,7 @@ async function downloadRefAudio() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-  } catch (e) { if (!e || !e.silent) dlg({ title: t('sent.dlFail'), message: e.message }); }
+  } catch (e) { if (!e || !e.silent) dlg({ title: t('sent.dlFail'), message: friendlyErr(e) }); }
 }
 
 async function testTts() {
@@ -3943,8 +3979,8 @@ async function assessPcm(pcm16, referenceText) {
   if (res.status === 401 || res.status === 403) throw new Error(t('rec.badKey'));
   if (res.status === 429) throw new Error(t('rec.quota'));
   if (!res.ok) {
-    const t = await res.text().catch(() => '');
-    throw new Error(t('rec.serverErr', { status: res.status, msg: t ? t('misc.colon') + t.slice(0, 120) : '' }));
+    const txt = await res.text().catch(() => '');
+    throw new Error(t('rec.serverErr', { status: res.status, msg: txt ? t('misc.colon') + txt.slice(0, 120) : '' }));
   }
   let json;
   try { json = await res.json(); }
@@ -4445,6 +4481,7 @@ if ('launchQueue' in window) {
 async function init() {
   applyI18n(); // 先应用界面语言（静态文本）
   await initSettings();
+  refreshDefaultPrompt(); // 启动时把两个内置模板覆盖为最新版
   initSettingsNav();
   handleSharedText();
   await initConvsStore(); // 对话数据从 IndexedDB 加载（含 localStorage 老数据迁移）
@@ -4515,11 +4552,11 @@ async function init() {
   $('newChatBtn2').onclick = newConversation;
   $('convPromptSel').addEventListener('change', () => {
     const c = activeConv();
-    const t = (getSettings().promptTemplates || []).find(x => x.id === $('convPromptSel').value);
-    if (!c || !t) return; // 删了模板的旧对话停留在"（已删除）"上，不动
-    c.promptId = t.id;
-    c.promptName = t.name;
-    c.promptContent = t.content;
+    const pt = (getSettings().promptTemplates || []).find(x => x.id === $('convPromptSel').value);
+    if (!c || !pt) return; // 删了模板的旧对话停留在"（已删除）"上，不动
+    c.promptId = pt.id;
+    c.promptName = pt.name;
+    c.promptContent = pt.content;
     persistConv(c);
     refreshConvPromptSel();
   });
