@@ -1,62 +1,161 @@
-AI 对目前这个工具的局限、改进和评价，我对 AI 五个方法的解决方案。
+# 芯语伴 SprechMate
 
-- 方法一，可以用 vCaptions 配合 Youtube EasyGerman 做影子跟读，然后挑选部分好的句子，用这个工具做精细的纠音或放入 Anki 背诵
-- 方法二，通过设置 System Prompt 来实现不同任务的对话，这个工具已支持切换
-- 方法 3-5 ，通过目前的 AI chat 模式（比如用 Gemini）上传自己的录音、视频字幕来实现，不需要依赖我这个工具
+> 和 AI 用 23 种语言聊天 → 一键生成母语原声 → 录音跟读 → Azure 发音打分。纯静态 PWA，数据全在本地。
+>
+> Chat with AI in 23 languages → one-tap native audio → record & shadow → Azure pronunciation scoring. Pure-static PWA, all data stays local.
 
----
-
-你目前使用的这套 **“语音对话 + 提示词控制 + 影子跟读 + 录音评分”**系统，已经是一个非常前沿且高效的AI辅助学习闭环了。它完美契合了二语习得（Second Language Acquisition, SLA）中的**“可理解性输出（Comprehensible Output）”**和**“刻意练习（Deliberate Practice）”** 理论。
-
-但是，正如你所察觉到的，**它确实缺少了真实语料（如YouTube视频、播客）的影子跟读，以及真实人类交流中的复杂性**。AI的语音无论多逼真，往往在语调（Intonation）、连读（Liaison）、情绪起伏和非语言信号（如肢体语言、口型）上，与真实的母语者还有差距。
-
-在语言学和二语习得（SLA）学术界，关于口语练习并没有一个绝对唯一的“标准分类”，但综合**Paul Nation（语言教学泰斗）、Merrill Swain（输出假说提出者）**等权威学者的研究，口语练习的核心目的分为**准确度（Accuracy）、流利度（Fluency）和复杂度（Complexity）**。
-
-基于学术界共识，权威的口语练习方式主要可以归纳为以下**五种核心模式**。你可以在你的系统中加入这些元素：
-
-### 1. 影子跟读与回音法 (Shadowing & Echo Method)
-
-**针对：语音、语调、肌肉记忆、语感（Accuracy）**
-
-* **权威背书：**
-	* **Shadowing（影子跟读）** 由语言学家 Alexander Argüelles 教授推广。它要求在听到音频后滞后零点几秒，像影子一样模仿说话者的语音、语调和节奏，甚至要模仿说话者的情绪和步伐（边走边读）。
-	* **Echo Method（回音法）** 由台大外文系史嘉琳教授（Prof. Karen Chung）提出。强调听完一句原音后，**不要马上跟读**，而是在脑海中让那个声音“回荡（Echo）”一下，再去模仿那个脑海中的真实回音。
-
-* **你缺失的短板：** 你目前的AI跟读是针对AI生成的标准音。**建议引入YouTube或电影原声导入功能。** 真实语料包含丰富的吞音、连读、弱读和情绪起伏，这是AI难以完美复刻的。通过看视频，还能观察母语者的口型和面部表情。
-
-### 2. 任务型对话与意义协商 (Task-Based Interaction & Negotiation of Meaning)
-**针对：交际能力、应变能力（Complexity & Fluency）**
-*   **权威背书：** 任务型语言教学（TBLT，代表人物 David Nunan）。学术界认为，真正的口语能力是在“意义协商（Negotiation of Meaning）”中产生的。比如：你没听懂对方，你需要换个方式问；你需要说服对方；你需要和对方共同完成一个解谜任务。
-*   **与你目前系统的关系：** 你的“语音输入聊天”就属于这一类。
-*   **升级建议：** 你可以通过 System Prompt 设定具体的**冲突或任务场景**。例如：“你现在是一个难搞的海关官员，我必须在3分钟内说服你让我入境，你需要不断质疑我的材料。” 这种带有“任务目标”的对话，比漫无目的的闲聊对口语的提升大得多。
-
-### 3. 4-3-2 流利度训练法 (The 4/3/2 Technique)
-**针对：流利度、降低认知负荷、减少停顿（Fluency）**
-*   **权威背书：** 由国际著名词汇学、二语教学泰斗 Paul Nation 提出。
-*   **具体操作：** 学习者就同一个话题（如“我最难忘的一次旅行”），对着第一位听众说4分钟；然后面对第二位听众，把刚才的内容压缩到3分钟说完；最后面对第三位听众，用2分钟说完同样的信息。
-*   **学术原理：** 每次重复时，大脑对内容的构思负担减轻，从而把更多的认知资源分配给“如何说得快、说得顺”，这被学术界公认是提升流利度（消除“呃”、“啊”等停顿）最快的方法。
-*   **升级建议：** 你的应用可以加一个 **“4-3-2 演讲模式”** 。让用户录音4分钟，然后强迫他们在3分钟、2分钟内重新录音表达同样的观点。AI可以统计语速（WPM）和停顿次数。
-
-### 4. 听后复述与重构 (Dictogloss & Retelling)
-**针对：词汇激活、语法重构、发现盲区（Accuracy & Complexity）**
-*   **权威背书：** Merrill Swain 教授的**输出假说（Output Hypothesis）**。她认为，仅仅“听懂”（输入）是不够的，强制的“输出”能让学习者**注意到差距（Noticing the gap）**——即“我想表达的意思”和“我实际能用外语表达的意思”之间的差距。
-*   **具体操作：** 听一段中等长度的音频（比如一分钟的新闻或故事），听的时候记笔记（记关键词），然后**不看原文，用自己的话把内容复述出来**。
-*   **升级建议：** 你的应用可以增加“复述模式”。给用户播放一段YouTube切片或AI播报，然后要求用户复述。**最关键的一步是：AI需要对比【原文本】和【用户的复述本】**，指出用户本可以用哪些更高级的地道词汇（Vocabulary Upgrade），纠正用户在重构时犯的语法错误。
-
-### 5. 独白与自我对话 (Monologue / Think-Aloud)
-**针对：用外语思考的能力、摆脱母语翻译（Fluency）**
-*   **权威背书：** 心理语言学中的“内部言语（Inner Speech）”理论。著名多语者（Polyglots）普遍使用的技巧。
-*   **具体操作：** 描述你正在做的事情，或者对某件事发表长篇大论的独白。
-*   **与你目前系统的关系：** AI可以作为一个优秀的“倾听者和记录者”。你可以开启一个“树洞模式”，用户滔滔不绝地讲5分钟，AI不插话，只在最后生成一份《表达优化报告》（包括哪里chinglish了，哪里可以用更地道的习语）。
+在线体验 Demo：https://sprechmate.308611.xyz/ 仓库 Repo：https://github.com/2-3-5-7/SprechMate
 
 ---
 
-### 💡 总结与对你的产品/练习流程建议
+## 中文
 
-如果你想把现在的系统打造/优化成一个**完美的、符合学术权威标准的口语训练营**，建议构建以下三大模块：
+### 功能
 
-1.  **实战对话模块 (Interactive Mode)：** 保持你现有的功能，利用Prompt设计高强度的Role-play（任务型对话）。
-2.  **真实语料跟读模块 (Shadowing Mode)：** 允许导入YouTube短视频或播客片段。加入 **回音法（Echo Method）** 的概念，播放原音 -> 停顿2秒（让脑海回音） -> 用户录音 -> AI比对声纹/音调评分。
-3.  **流利度与复述模块 (Fluency & Output Mode)：** 加入 **4/3/2限时训练**（逼迫语速）和 **听后复述练习**（逼迫词汇激活）。
+- 💬 **多语言 AI 聊天**：OpenAI 兼容接口，SSE 流式输出；23 种学习语言（德 / 英 / 日 / 法 / 西 / 韩 / 意 / 俄 / 葡 / 阿 / 泰 / 越 / 荷 / 波 / 瑞 / 丹 / 芬 / 挪 / 印地 / 马来 / 泰米尔 / 加泰 / 中文），提示词模板按语言自动切换
+- 🔊 **一键原声**：点击聊天里的任意一句话，自动生成 Azure 神经网络语音并播放；同一句话 + 同一声音只调一次 API，本地缓存（IndexedDB）
+- 🎙️ **录音打分**：总分 / 准确度 / 流利度 / 完整度（英语另有韵律分），单词按颜色标出读错、漏读、多读，点击单词看音素得分（英语为真实 IPA）
+- 🌐 **中英双语界面**：界面语言独立于学习语言，一键切换；小屏幕（iPhone SE）专门优化
+- 📝 **提示词模板**：可保存多个 system prompt 模板（如"海关官员"场景任务），切换即时生效；译文约定用 `>` 引用块，可单独隐藏、双击切换显隐
+- 📊 **用量统计**：Azure TTS 字符 / 语音秒数按自然月统计，聊天 token 统计 + 花费估算，今日打卡图生成（40 张本地实拍背景 + 400 句谚语库）
+- 🔗 **多设备同步**：二维码同步今日练习计数，无需后端
+- 📱 **PWA**：可安装到手机主屏幕，离线可用
 
-你目前的系统已经做得很棒了，解决了“没有陪练”的问题；如果再加上“真实语料（YouTube）的输入”和“强制流利度输出（4-3-2）”，就涵盖了目前二语习得领域公认最高效的所有口语练习手段。
+### 快速开始
+
+不要直接双击用 `file://` 打开（麦克风在 file 协议下可能被浏览器限制）。在项目目录执行：
+
+```bash
+python3 -m http.server 8000
+```
+
+浏览器打开 http://localhost:8000 即可（localhost 算安全上下文，麦克风可用）。
+
+### 首次配置（App 内「设置」）
+
+1. **聊天接口**：Base URL、模型、API Key（OpenAI 兼容渠道）→ 点「测试连接」
+2. **Azure Speech**：填 Speech Key + Region（33 个区可选，默认 `westus2`，以你建资源时选的区域为准），选声音 → 点「测试 TTS」应能听到对应语言
+3. **学习语言 / 界面语言**：「语言与显示」卡片内切换，提示词模板、声音、打分 locale 自动跟随
+4. 所有 Key 和聊天记录只保存在你自己的浏览器里，不会上传
+
+### 部署到 Cloudflare Pages（网页后台上传，无需命令行）
+
+1. 登录 https://dash.cloudflare.com → 左侧 **Workers & Pages** → 右上 **创建应用程序** → 切换到 **Pages** 选项卡 → **上传资产（Upload assets）**
+2. 把项目整个目录内容拖进上传框（`index.html`、`manifest.json`、`sw.js`、图标、`quotes.js`、`qrgen.js`、`qr-scanner-worker.min.js`、`img/checkin/` 等，确保都在站点根目录）
+3. 点 **Deploy**，得到 `https://xxx.pages.dev`（可再绑定自己的域名）
+4. 手机浏览器打开 → 「安装应用」/「添加到主屏幕」，即可以全屏 App 形态使用
+
+备选：`npx wrangler pages deploy .`，或 GitHub 仓库关联自动部署。
+
+### 使用流程（一个页面走完）
+
+1. **聊天**：和 AI 用目标语言对话；点击任意一句话 → 自动提取目标语言文本（跳过译文引用块），生成原声并播放，句子填入跟读框
+2. **跟读**：跟读框（标题随学习语言变化，如"德语跟读"）+「生成原声」+ 播放器（可拖进度条、0.5x–1.5x 变速）+ 下载原声
+3. **录音打分**：点红色录音键开始 → 说完点停止 → 自动打分；网络失败可"重新打分"不用重录
+4. **看历史**：点某条练习记录，完整还原打分明细、原声、你的录音
+
+注意：麦克风需要 HTTPS（Pages 默认提供）+ 浏览器授权。切换会话时跟读区自动回到初始状态。
+
+### 技术特点
+
+- **纯静态**：`index.html` 单文件（内联 CSS/JS）+ PWA 资源，无构建、无依赖、无 CDN、无外部字体，离线可用
+- **无 SDK**：聊天、TTS、发音评估全部浏览器原生 `fetch` + REST 直调
+- **数据全在本地**：设置放 localStorage，对话、录音、原声缓存放 IndexedDB（GB 级），不经过任何服务器
+- **33 个 Azure 区**、46 个内置语音（已用真 Key 逐个核对）
+
+### 文件说明
+
+| 文件 | 说明 |
+|---|---|
+| `index.html` | 应用本体（HTML/CSS/JS 全内联） |
+| `manifest.json` | PWA 安装清单 |
+| `sw.js` | Service Worker（离线缓存本站资源，不拦截 API） |
+| `icon-192.png` / `icon-512.png` | PWA 图标 |
+| `favicon-32.png` | 浏览器标签页图标 |
+| `quotes.js` | 400 句谚语库（打卡图用） |
+| `qrgen.js` / `qr-scanner-worker.min.js` | 二维码生成 / 扫码（多设备同步用） |
+| `img/checkin/` | 40 张打卡背景图（本地 Unsplash 实拍） |
+
+### 隐私
+
+放心用：所有数据（Key、聊天记录、录音）只存在你的手机 / 浏览器里，App 没有服务器，不会保存或上传任何东西。换个浏览器或清理数据后需要重新填写。重要数据请用「导出」功能备份。
+
+---
+
+## English
+
+### Features
+
+- 💬 **Multilingual AI chat**: OpenAI-compatible API with SSE streaming; 23 learning languages (German, English, Japanese, French, Spanish, Korean, Italian, Russian, Portuguese, Arabic, Thai, Vietnamese, Dutch, Polish, Swedish, Danish, Finnish, Norwegian, Hindi, Malay, Tamil, Catalan, Chinese); prompt templates follow the language automatically
+- 🔊 **One-tap native audio**: tap any chat message to generate Azure neural TTS and play it; same text + same voice hits the API only once, cached locally (IndexedDB)
+- 🎙️ **Pronunciation scoring**: overall / accuracy / fluency / completeness (plus prosody for English); words color-coded for mispronunciation, omission, insertion; tap a word for phoneme scores (real IPA for English)
+- 🌐 **Bilingual UI**: UI language independent from learning language, one-tap switch; optimized for small screens (iPhone SE)
+- 📝 **Prompt templates**: save multiple system-prompt templates (e.g. a "customs officer" role-play task), switch takes effect immediately; translations use the `>` quote convention — hideable, double-tap to toggle
+- 📊 **Usage stats**: Azure TTS characters / speech seconds per calendar month, chat token stats + cost estimate, daily check-in card (40 local photos + 400-quote library)
+- 🔗 **Multi-device sync**: sync today's practice counts via QR code, no backend needed
+- 📱 **PWA**: installable to the home screen, works offline
+
+### Quick start
+
+Don't open it via `file://` (browsers may block the microphone on the file protocol). In the project directory:
+
+```bash
+python3 -m http.server 8000
+```
+
+Open http://localhost:8000 (localhost counts as a secure context, so the mic works).
+
+### First-time setup (in-app "Settings")
+
+1. **Chat API**: Base URL, model, API key (any OpenAI-compatible provider) → "Test connection"
+2. **Azure Speech**: Speech Key + Region (33 regions available, default `westus2` — use the one your resource was created in), pick a voice → "Test TTS" should speak
+3. **Learning / UI language**: switch in the "Language & Display" card; prompt templates, voices and scoring locale follow automatically
+4. Keys and chats live only in your own browser — never uploaded
+
+### Deploy to Cloudflare Pages (web upload, no CLI needed)
+
+1. Log in to https://dash.cloudflare.com → **Workers & Pages** → **Create application** → **Pages** tab → **Upload assets**
+2. Drag the whole project directory in (`index.html`, `manifest.json`, `sw.js`, icons, `quotes.js`, `qrgen.js`, `qr-scanner-worker.min.js`, `img/checkin/`, … — all at the site root)
+3. **Deploy** → you get `https://xxx.pages.dev` (custom domain optional)
+4. Open on your phone → "Install app" / "Add to Home Screen" for the full-screen app experience
+
+Alternative: `npx wrangler pages deploy .`, or connect the GitHub repo for auto-deploy.
+
+### Typical flow (one page, start to finish)
+
+1. **Chat**: talk with the AI in your target language; tap any message → target-language text is extracted (translation quote blocks skipped), native audio generated and played, sentence filled into the shadowing box
+2. **Shadow**: shadowing box (title follows the learning language, e.g. "German Shadowing") + "Generate audio" + player (seekable, 0.5x–1.5x) + download
+3. **Record & score**: hit the red record button → stop when done → auto-scored; "re-score" on network failure without re-recording
+4. **History**: tap a practice record to fully restore its score breakdown, native audio and your recording
+
+Note: the microphone needs HTTPS (Pages provides it) + browser permission. The practice area resets when you switch conversations.
+
+### Technical notes
+
+- **Pure static**: single-file `index.html` (inline CSS/JS) + PWA assets — no build, no dependencies, no CDN, no external fonts; works offline
+- **No SDKs**: chat, TTS and pronunciation assessment all go through native browser `fetch` + REST
+- **All data local**: settings in localStorage; conversations, recordings and audio cache in IndexedDB (GB-scale); no server in the loop
+- **33 Azure regions**, 46 built-in voices (each verified against the live API)
+
+### File map
+
+| File | Purpose |
+|---|---|
+| `index.html` | The app (HTML/CSS/JS inline) |
+| `manifest.json` | PWA manifest |
+| `sw.js` | Service Worker (caches site assets offline; never intercepts APIs) |
+| `icon-192.png` / `icon-512.png` | PWA icons |
+| `favicon-32.png` | Browser tab icon |
+| `quotes.js` | 400-quote library (check-in cards) |
+| `qrgen.js` / `qr-scanner-worker.min.js` | QR generation / scanning (multi-device sync) |
+| `img/checkin/` | 40 check-in background photos (local Unsplash shots) |
+
+### Privacy
+
+Everything (keys, chats, recordings) stays in your phone / browser. The app has no server and never saves or uploads anything. You'll need to re-enter settings on a new browser or after clearing data — use the in-app Export to back up important data.
+
+---
+
+## 开源协议 License
+
+MIT. 欢迎自用、魔改、分享。Feel free to use, hack and share.

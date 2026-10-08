@@ -11,7 +11,7 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png"/>
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png"/>
 <link rel="apple-touch-icon" href="icon-192.png"/>
-<title>德语口语练习</title>
+<title>芯语伴 SprechMate</title>
 <style>
 :root{--bg:#f5f3ff;--card:#fff;--ink:#1e1b2e;--mut:#6b7280;--pri:#6d28d9;--pri-d:#5b21b6;--line:#e9e4f5;--ok:#16a34a;--warn:#d97706;--bad:#dc2626}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -26,10 +26,10 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 24px}
 .card h3{margin:14px 0 8px;font-size:14px;color:var(--mut)}
 .hint{color:var(--mut);font-size:13px}
 .hidden{display:none!important}
-.chat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.chat-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;gap:8px}
 .chat-head h2{margin:0}
-.conv-prompt-sel{max-width:62%;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:15px;font-weight:700;font-family:inherit;background:#fff;color:var(--ink)}
-.linkbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:13px;color:var(--pri);cursor:pointer}
+.conv-prompt-sel{flex:0 1 auto;min-width:0;max-width:72%;border:1px solid var(--line);border-radius:10px;padding:7px 10px;font-size:15px;font-weight:700;font-family:inherit;background:#fff;color:var(--ink);text-overflow:ellipsis;white-space:nowrap}
+.linkbtn{border:1px solid var(--line);background:#fff;border-radius:20px;padding:5px 12px;font-size:13px;color:var(--pri);cursor:pointer;white-space:nowrap;flex:none}
 .chat-list{max-height:380px;overflow-y:auto;display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
 .msg{display:flex;flex-direction:column;max-width:88%}
 .msg.user{align-self:flex-end;align-items:flex-end}
@@ -88,6 +88,13 @@ textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px
 .qbar-t{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
 .qbar-t-dark{color:#fff}
 .qbar-t-light{color:#5b21b6}
+/* 小屏幕：用量统计文字收紧防溢出 */
+@media (max-width:400px){
+  .q-label{font-size:12px}
+  .th-share{font-size:13px;padding:8px 6px}
+  .s6 span{font-size:10px}
+  .s6 b,.s6 input{font-size:12px}
+}
 .stat6{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:14px}
 .s6{background:#f8f7ff;border:1px solid var(--line);border-radius:8px;padding:6px 2px;text-align:center;min-width:0}
 .s6 span{display:block;font-size:11px;color:var(--mut);white-space:nowrap}
@@ -117,7 +124,7 @@ textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px
 .ring-fg{fill:none;stroke:var(--pri);stroke-width:10;stroke-linecap:round;transform:rotate(-90deg);transform-origin:60px 60px;transition:stroke-dashoffset .6s}
 .ring-num{font-size:26px;font-weight:800;fill:var(--ink);text-anchor:middle}
 .subs{flex:1;display:flex;flex-direction:column;gap:8px}
-.sub{display:grid;grid-template-columns:52px 1fr 34px;align-items:center;gap:8px;font-size:13px}
+.sub{display:grid;grid-template-columns:86px 1fr 34px;align-items:center;gap:8px;font-size:13px}
 .sub .bar{height:8px;background:#e9e4f5;border-radius:4px;overflow:hidden}
 .sub .bar i{display:block;height:100%;border-radius:4px}
 i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--bad)}
@@ -146,6 +153,10 @@ i.ok{background:var(--ok)}i.warn{background:var(--warn)}i.bad{background:var(--b
 .hist span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hist small{color:var(--mut);font-size:11px;flex:none}
 .field{margin-bottom:12px}
+.field-row{display:flex;gap:12px}
+.field-row .field.half{flex:1;min-width:0}
+.field-row .field.half select{width:70%}
+.field-row .field.half label{margin-bottom:8px}
 .field label{display:block;font-size:13px;color:var(--mut);margin-bottom:4px}
 .field input,.field select,.field textarea{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:14px;font-family:inherit;background:#fff}
 .field textarea{resize:vertical}
@@ -265,21 +276,21 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 </head>
 <body>
 <header class="appbar">
-  <button id="menuBtn" class="iconbtn" aria-label="对话列表">☰</button>
-  <button id="navBackBtn" class="iconbtn nav-back hidden" aria-label="返回">‹</button>
-  <div><h1>德语口语练习</h1><p>聊天 → 点句听原声 → 录音纠音</p></div>
-  <button id="settingsBtn" class="iconbtn settings-btn" aria-label="设置"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+  <button id="menuBtn" class="iconbtn" data-i18n-aria="drawer.title" aria-label="对话列表">☰</button>
+  <button id="navBackBtn" class="iconbtn nav-back hidden" data-i18n-aria="nav.back" aria-label="返回">‹</button>
+  <div><h1 data-i18n="app.name">芯语伴</h1><p data-i18n="app.tagline">聊天 → 点句听原声 → 录音纠音</p></div>
+  <button id="settingsBtn" class="iconbtn settings-btn" data-i18n-aria="nav.settings" aria-label="设置"><svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
 </header>
 
 <aside id="drawer" class="drawer">
-  <div class="drawer-head"><b>对话列表</b><button id="closeDrawer">✕</button></div>
-  <div class="search-row"><input id="convSearch" type="search" placeholder="搜索对话" autocomplete="off"/></div>
-  <button id="exportAllBtn"><svg class="ic-dl" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg> 导出所有对话</button>
+  <div class="drawer-head"><b data-i18n="drawer.title">对话列表</b><button id="closeDrawer">✕</button></div>
+  <div class="search-row"><input id="convSearch" type="search" data-i18n-ph="drawer.searchPh" placeholder="搜索对话" autocomplete="off"/></div>
+  <button id="exportAllBtn"><svg class="ic-dl" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg> <span data-i18n="drawer.exportAll">导出所有对话</span></button>
   <div id="convList"></div>
   <div class="drawer-btns">
-    <button id="delOldBtn" class="danger">删除 10 天前的对话</button>
-    <button id="delOld30Btn" class="danger">删除 30 天前的对话</button>
-    <button id="delAllBtn" class="danger">删除所有对话</button>
+    <button id="delOldBtn" class="danger" data-i18n="drawer.del10">删除 10 天前的对话</button>
+    <button id="delOld30Btn" class="danger" data-i18n="drawer.del30">删除 30 天前的对话</button>
+    <button id="delAllBtn" class="danger" data-i18n="drawer.delAll">删除所有对话</button>
   </div>
 </aside>
 <div id="scrim" class="scrim hidden"></div>
@@ -287,27 +298,27 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 <main>
   <section id="view-practice">
     <div id="keyGuide" class="key-guide hidden">
-      <div class="key-guide-text"><b>还没配置聊天接口</b><span>点右上角齿轮，填好 Base URL、模型和 Key 就能开始聊天。</span></div>
-      <button id="keyGuideBtn" class="key-guide-go">去设置</button>
+      <div class="key-guide-text"><b data-i18n="guide.title">还没配置聊天接口</b><span data-i18n="guide.desc">点右上角齿轮，填好 Base URL、模型和 Key 就能开始聊天。</span></div>
+      <button id="keyGuideBtn" class="key-guide-go" data-i18n="guide.go">去设置</button>
       <button id="keyGuideX" class="key-guide-x" aria-label="关闭">✕</button>
     </div>
     <div class="card">
-      <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn">＋ 新对话</button></div>
+      <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" data-i18n-title="chat.promptTitle" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn" data-i18n="chat.new">＋ 新对话</button></div>
       <div id="chatList" class="chat-list"></div>
       <div class="chat-input">
         <textarea id="chatInput" rows="2" placeholder="用德语说点什么…"></textarea>
-        <button id="micBtn" class="micbtn" aria-label="语音输入" title="语音输入 (Alt+A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
-        <button id="sendBtn">发送</button>
+        <button id="micBtn" class="micbtn" data-i18n-aria="chat.dict" aria-label="语音输入" data-i18n-title="chat.dictTitle" title="语音输入 (Alt+A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
+        <button id="sendBtn" data-i18n="chat.send">发送</button>
       </div>
 
     </div>
 
     <div class="card" id="sentenceCard">
-      <h2>原声跟读</h2>
-      <textarea id="sentenceText" rows="2" placeholder="点击上方对话中的一句话，这里会自动填入"></textarea>
+      <h2 id="sentenceTitle"></h2>
+      <textarea id="sentenceText" rows="2" data-i18n-ph="sent.ph" placeholder="点击上方对话中的一句话，这里会自动填入"></textarea>
       <div class="btn-row">
-        <button id="genBtn" class="primary">生成原声</button>
-        <button id="dlRefBtn">下载原声</button>
+        <button id="genBtn" class="primary" data-i18n="sent.gen">生成原声</button>
+        <button id="dlRefBtn" data-i18n="sent.dl">下载原声</button>
       </div>
       <div class="player">
         <div class="rate-row" id="refRateRow">
@@ -323,15 +334,15 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           <span class="time" id="refDur">0:00</span>
         </div>
         <div class="player-ctrl">
-          <button id="refPlayBtn" class="playbtn pill" title="播放原声 (S)" disabled><span class="ic-play"></span><span>播放</span></button>
+          <button id="refPlayBtn" class="playbtn pill" data-i18n-title="sent.playTitle" title="播放原声 (S)" disabled><span class="ic-play"></span><span data-i18n="sent.play">播放</span></button>
         </div>
       </div>
 
     </div>
 
     <div class="card" id="recordCard">
-      <h2>录音打分</h2>
-      <button id="recBtn" class="recbtn" title="开始录音 (D)"><span class="recdot"></span><span id="recLabel">开始录音</span></button>
+      <h2 data-i18n="rec.title">录音打分</h2>
+      <button id="recBtn" class="recbtn" data-i18n-title="rec.startTitle" title="开始录音 (D)"><span class="recdot"></span><span id="recLabel" data-i18n="rec.start">开始录音</span></button>
       <div id="recStatus" class="hidden">
         <div class="meter"><i id="meterFill"></i></div>
         <div class="recphase"><span id="recSpin" class="spinner hidden"></span><span id="recPhase"></span></div>
@@ -343,12 +354,12 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           <span class="time" id="myDur">0:00</span>
         </div>
         <div class="player-ctrl">
-          <button id="myPlayBtn" class="playbtn pill" title="播放我的录音 (F)" disabled><span class="ic-play"></span><span>播放</span></button>
+          <button id="myPlayBtn" class="playbtn pill" data-i18n-title="rec.playTitle" title="播放我的录音 (F)" disabled><span class="ic-play"></span><span data-i18n="sent.play">播放</span></button>
         </div>
       </div>
       <div id="recHint" class="hint"></div>
       <div id="resultCard" class="result hidden"></div>
-      <h3>练习历史（本对话）</h3>
+      <h3 data-i18n="rec.history">练习历史（本对话）</h3>
 
       <div id="historyList"></div>
     </div>
@@ -356,26 +367,26 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
 
   <section id="view-settings" class="hidden">
     <div class="card">
-      <h2>用量统计</h2>
+      <h2 data-i18n="set.usage">用量统计</h2>
       <div class="day-box">
         <table class="day-table">
           <tbody>
             <tr>
-              <td rowspan="3" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share">今日打卡</button></td>
-              <th>对话</th><th>听原声</th><th>录音练习</th><th>花费</th>
+              <td rowspan="3" class="rowbtn"><button id="shareCardBtn" type="button" class="th-share" data-i18n="set.todayCheckin">今日打卡</button></td>
+              <th data-i18n="set.dayChat">对话</th><th data-i18n="set.dayTts">听原声</th><th data-i18n="set.dayAssess">录音练习</th><th data-i18n="set.dayCost">花费</th>
             </tr>
             <tr>
-              <td id="uqDayChat">0次</td>
-              <td id="uqDayTts">0句</td>
-              <td id="uqDayAssess">0次</td>
+              <td id="uqDayChat">0</td>
+              <td id="uqDayTts">0</td>
+              <td id="uqDayAssess">0</td>
               <td id="uqDayCost">0.00</td>
             </tr>
             <tr>
               <td colspan="2" class="sync-cell">
-                <button id="syncGenBtn" type="button" class="sync-btn">生成同步码</button>
+                <button id="syncGenBtn" type="button" class="sync-btn" data-i18n="set.genSync">生成同步码</button>
               </td>
               <td colspan="2" class="sync-cell">
-                <button id="syncScanBtn" type="button" class="sync-btn">扫码同步</button>
+                <button id="syncScanBtn" type="button" class="sync-btn" data-i18n="set.scanSync">扫码同步</button>
               </td>
             </tr>
           </tbody>
@@ -383,7 +394,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
       </div>
       <div class="quota2">
         <div class="quota">
-          <span class="q-label">原声生成（本月）</span>
+          <span class="q-label" data-i18n="set.ttsQuota">原声生成（本月）</span>
           <div class="qbar">
             <i id="uqTtsBar"></i>
             <span class="qbar-t qbar-t-dark" id="uqTtsTextA">–</span>
@@ -391,7 +402,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
           </div>
         </div>
         <div class="quota">
-          <span class="q-label">发音评估（本月）</span>
+          <span class="q-label" data-i18n="set.assessQuota">发音评估（本月）</span>
           <div class="qbar">
             <i id="uqSpeechBar"></i>
             <span class="qbar-t qbar-t-dark" id="uqSpeechTextA">–</span>
@@ -400,65 +411,79 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         </div>
       </div>
       <div class="stat6">
-        <div class="s6"><span>输入量</span><b id="uqIn">0</b></div>
-        <div class="s6"><span>百万单价</span><input id="setPriceIn" type="text" inputmode="decimal" placeholder="0"/></div>
-        <div class="s6"><span>输出量</span><b id="uqOut">0</b></div>
-        <div class="s6"><span>百万单价</span><input id="setPriceOut" type="text" inputmode="decimal" placeholder="0"/></div>
-        <div class="s6"><span>缓存量</span><b id="uqCached">0</b></div>
-        <div class="s6"><span>百万单价</span><input id="setPriceCached" type="text" inputmode="decimal" placeholder="0"/></div>
+        <div class="s6"><span data-i18n="set.inTokens">输入量</span><b id="uqIn">0</b></div>
+        <div class="s6"><span data-i18n="set.pricePerM">百万单价</span><input id="setPriceIn" type="text" inputmode="decimal" placeholder="0"/></div>
+        <div class="s6"><span data-i18n="set.outTokens">输出量</span><b id="uqOut">0</b></div>
+        <div class="s6"><span data-i18n="set.pricePerM">百万单价</span><input id="setPriceOut" type="text" inputmode="decimal" placeholder="0"/></div>
+        <div class="s6"><span data-i18n="set.cachedTokens">缓存量</span><b id="uqCached">0</b></div>
+        <div class="s6"><span data-i18n="set.pricePerM">百万单价</span><input id="setPriceCached" type="text" inputmode="decimal" placeholder="0"/></div>
       </div>
       <div class="cost-row">
-        <span>预估花费：<b id="uqCost">0.00</b></span>
-        <button id="resetChatBtn" type="button" class="danger">重置聊天统计</button>
+        <span><span data-i18n="set.estCost">预估花费：</span><b id="uqCost">0.00</b></span>
+        <button id="resetChatBtn" type="button" class="danger" data-i18n="set.resetChat">重置聊天统计</button>
       </div>
     </div>
     <div class="card">
-      <h2>聊天设置</h2>
+      <h2 data-i18n="set.langDisplay">语言与显示</h2>
+      <div class="field-row">
+      <div class="field half">
+        <label data-i18n="set.learnLang">学习语言</label>
+        <select id="setLearnLang"></select>
+      </div>
+      <div class="field half">
+        <label data-i18n="set.uiLang">界面语言</label>
+        <select id="setUiLang">
+          <option value="zh" data-i18n="set.uiLangZh">中文</option>
+          <option value="en" data-i18n="set.uiLangEn">English</option>
+        </select>
+      </div>
+      </div>
       <div class="field check-row">
-        <label><input id="setAutoSpeak" type="checkbox"/> 自动朗读回复</label>
+        <label><input id="setAutoSpeak" type="checkbox"/> <span data-i18n="set.autoSpeak">自动朗读回复</span></label>
       </div>
       <div class="field check-row sub-row" id="showDeRow">
-        <label><input id="setShowDe" type="checkbox"/> 显示德语 <span class="hint">双击切换显隐</span></label>
+        <label><input id="setShowDe" type="checkbox"/> <span id="showDeLabel">显示德语</span> <span class="hint" data-i18n="set.dblHint">双击切换显隐</span></label>
       </div>
       <div class="field check-row">
-        <label><input id="setShowZh" type="checkbox"/> 显示中文 <span class="hint">双击切换显隐</span></label>
+        <label><input id="setShowZh" type="checkbox"/> <span id="showZhLabel">显示中文</span> <span class="hint" data-i18n="set.dblHint">双击切换显隐</span></label>
       </div>
       <div class="tpl-box">
-        <label>提示词模板</label>
-        <p class="desc">新对话用这里选中的模板；当前对话在聊天页顶部切换。</p>
+        <label data-i18n="set.tpl">提示词模板</label>
+        <p class="desc" data-i18n="set.tplDesc">新对话用这里选中的模板；当前对话在聊天页顶部切换。</p>
+        <p class="desc" data-i18n="set.tplQuoteTip">约定：让 AI 把译文写成引用行（行首加 &gt; ），App 会自动识别为译文，可单独隐藏、双击切换显隐，朗读和打分时也会跳过。</p>
         <div class="tpl-row">
           <select id="setPromptSel"></select>
-          <button id="newTplBtn" type="button" class="mini-btn">＋新建</button>
+          <button id="newTplBtn" type="button" class="mini-btn" data-i18n="set.tplNew">＋新建</button>
         </div>
-        <textarea id="setPrompt" rows="6" placeholder="在这里写提示词…"></textarea>
+        <textarea id="setPrompt" rows="6" data-i18n-ph="set.tplPh" placeholder="在这里写提示词…"></textarea>
         <div class="tpl-actions">
-          <button id="renameTplBtn" type="button" class="tpl-btn">重命名</button>
-          <button id="delTplBtn" type="button" class="tpl-btn danger">删除</button>
+          <button id="renameTplBtn" type="button" class="tpl-btn" data-i18n="set.tplRename">重命名</button>
+          <button id="delTplBtn" type="button" class="tpl-btn danger" data-i18n="set.tplDel">删除</button>
         </div>
       </div>
     </div>
     <div class="card">
-      <h2>聊天接口（OpenAI 兼容）</h2>
+      <h2 data-i18n="set.chatApi">聊天接口（OpenAI 兼容）</h2>
       <div class="field">
         <label>Base URL（Endpoint）</label>
         <input id="setBaseUrl" type="text" placeholder="https://openrouter.ai/api/v1"/>
       </div>
       <div class="field">
-        <label>模型</label>
-        <input id="setModel" type="text" placeholder="例如 openai/gpt-4o-mini"/>
+        <label data-i18n="set.model">模型</label>
+        <input id="setModel" type="text" data-i18n-ph="set.modelPh" placeholder="例如 openai/gpt-4o-mini"/>
       </div>
       <div class="field">
         <label>API Key</label>
         <input id="setKey" type="password" autocomplete="off" placeholder="sk-..."/>
       </div>
       <div class="test-row">
-        <button id="testChatBtn">测试连接</button>
+        <button id="testChatBtn" data-i18n="set.testConn">测试连接</button>
         <span id="chatTestMsg" class="test-msg"></span>
       </div>
     </div>
 
     <div class="card">
-      <h2>Azure Speech（发音评估 + 原声 TTS）</h2>
+      <h2 data-i18n="set.azure">Azure Speech（发音评估 + 原声 TTS）</h2>
       <div class="field">
         <label>Speech Key</label>
         <input id="setAzKey" type="password" autocomplete="off" placeholder="Azure Speech Key 1"/>
@@ -468,59 +493,60 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <select id="setRegion"></select>
       </div>
       <div class="field">
-        <label>德语原声声音</label>
+        <label id="voiceLabel">德语原声声音</label>
         <select id="setVoice"></select>
+        <p class="desc" data-i18n="set.voiceHint">声音列表跟随学习语言</p>
       </div>
       <div class="test-row">
-        <button id="testTtsBtn">测试 TTS</button>
+        <button id="testTtsBtn" data-i18n="set.testTts">测试 TTS</button>
         <span id="ttsTestMsg" class="test-msg"></span>
       </div>
     </div>
 
     <div class="card">
-      <h2>本地存储</h2>
+      <h2 data-i18n="set.storage">本地存储</h2>
       <div class="field">
-        <label>聊天记录保留条数（1–200）</label>
+        <label data-i18n="set.chatLimit">聊天记录保留条数（1–200）</label>
         <input id="setChatLimit" type="number" min="1" max="200" step="1"/>
-        <p class="desc">发给 AI 的消息条数，含你当前这句。设为 1 则 AI 不看历史。改小立即生效，删掉的消息找不回来。</p>
+        <p class="desc" data-i18n="set.chatLimitDesc">发给 AI 的消息条数，含你当前这句。设为 1 则 AI 不看历史。改小立即生效，删掉的消息找不回来。</p>
       </div>
       <div class="field">
-        <label>练习记录保留条数（1–200）</label>
+        <label data-i18n="set.recLimit">练习记录保留条数（1–200）</label>
         <input id="setRecLimit" type="number" min="1" max="200" step="1"/>
-        <p class="desc">每个对话保留最近 N 条练习，超出的连录音一起删。改小立即生效。</p>
+        <p class="desc" data-i18n="set.recLimitDesc">每个对话保留最近 N 条练习，超出的连录音一起删。改小立即生效。</p>
       </div>
       <div class="field">
-        <label>原声缓存条数（0–500，0 = 关闭）</label>
+        <label data-i18n="set.ttsLimit">原声缓存条数（0–500，0 = 关闭）</label>
         <input id="setTtsLimit" type="number" min="0" max="500" step="1"/>
-        <p class="desc">同一句话 + 同一声音只生成一次，之后读本地。设为 0 关闭缓存。</p>
+        <p class="desc" data-i18n="set.ttsLimitDesc">同一句话 + 同一声音只生成一次，之后读本地。设为 0 关闭缓存。</p>
       </div>
       <div class="field">
-        <label>对话保留个数（10–1000）</label>
+        <label data-i18n="set.convLimit">对话保留个数（10–1000）</label>
         <input id="setConvLimit" type="number" min="10" max="1000" step="1"/>
-        <p class="desc">只保留最近 N 个对话，超出的连记录和录音一起删。改小立即生效。</p>
+        <p class="desc" data-i18n="set.convLimitDesc">只保留最近 N 个对话，超出的连记录和录音一起删。改小立即生效。</p>
       </div>
     </div>
 
     <div class="card">
-      <h2>存储占用</h2>
-      <div class="stat-row"><span>本地已用空间</span><b id="statUsage">…</b></div>
-      <div class="stat-row"><span>对话个数</span><b id="statConvs">…</b></div>
-      <div class="stat-row"><span>原声缓存个数</span><b id="statTts">…</b></div>
-      <p class="foot">所有数据和设置只存在你的浏览器里，不会上传。重要数据请用“导出所有对话”“导出设置”备份。</p>
+      <h2 data-i18n="set.storageUsage">存储占用</h2>
+      <div class="stat-row"><span data-i18n="set.usedSpace">本地已用空间</span><b id="statUsage">…</b></div>
+      <div class="stat-row"><span data-i18n="set.convCount">对话个数</span><b id="statConvs">…</b></div>
+      <div class="stat-row"><span data-i18n="set.ttsCount">原声缓存个数</span><b id="statTts">…</b></div>
+      <p class="foot" data-i18n="set.privacy">所有数据和设置只存在你的浏览器里，不会上传。重要数据请用“导出所有对话”“导出设置”备份。</p>
     </div>
 
     <div class="card">
-      <h2>设置管理</h2>
+      <h2 data-i18n="set.manage">设置管理</h2>
       <div class="btn-row">
-        <button id="exportSettingsBtn" type="button" class="ghost-btn">导出设置</button>
-        <button id="importSettingsBtn" type="button" class="ghost-btn">导入设置</button>
+        <button id="exportSettingsBtn" type="button" class="ghost-btn" data-i18n="set.exportSet">导出设置</button>
+        <button id="importSettingsBtn" type="button" class="ghost-btn" data-i18n="set.importSet">导入设置</button>
         <input id="importSettingsFile" type="file" accept="application/json,.json" class="hidden"/>
       </div>
       <div class="btn-row">
-        <button id="resetSettingsBtn" type="button" class="danger">还原默认设置</button>
+        <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver">版本 v20261008-03 · <a class="ver-link" href="https://github.com/2-3-5-7/Deutsch-Practice" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261008-31 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -533,7 +559,7 @@ function loadScript(src) {
       const el = document.createElement('script');
       el.src = src;
       el.onload = () => resolve();
-      el.onerror = () => { delete loadScript.cache[src]; reject(new Error('脚本加载失败，请检查网络')); };
+      el.onerror = () => { delete loadScript.cache[src]; reject(new Error(t('misc.scriptFail'))); };
       document.head.appendChild(el);
     });
   }
@@ -550,6 +576,35 @@ const LS_HISTORY  = 'deutsch.history.v1';
 const LS_CONVS    = 'deutsch.convs.v1';
 const LS_ACTIVE   = 'deutsch.activeConv.v1';
 
+/* 默认提示词模板：按（学习语言 × 界面语言）生成。英文界面时翻译行要求用引用格式（> 开头），方便界面识别为译文 */
+/* 默认提示词：中/英两套模板，{target} 按学习语言替换，不再为每种语言存一份 */
+function buildDefaultPrompt(learnLang, uiLang) {
+  const lang = langOf(learnLang);
+  const target = uiLang === 'en' ? lang.en : lang.zh;
+  if (uiLang === 'en') {
+    return 'You are a patient ' + target + ' speaking coach, helping a beginner practice spoken ' + target + '.\n' +
+      'Rules:\n' +
+      '- Converse mainly in ' + target + '; keep topics light and daily (self-introduction, hobbies, weather, food, travel, etc.).\n' +
+      '- Keep your ' + target + ' simple: short sentences, few subordinate clauses, beginner-level vocabulary.\n' +
+      '- End each reply with one English line as a quote (start the line with "> "): a brief translation or hint to aid understanding.\n' +
+      '- When the user makes a mistake in ' + target + ', gently point it out in English with the correct form, then continue.\n' +
+      '- Ask only one follow-up question at a time to keep the conversation flowing.';
+  }
+  return '你是一位耐心的' + target + '口语教练，陪伴一位中文母语的' + target + '初学者练习口语。\n' +
+    '规则：\n' +
+    '- 主要用' + target + '和用户对话，话题日常轻松（自我介绍、爱好、天气、食物、旅行等）。\n' +
+    '- 你的' + target + '要简单：短句为主，少用从句，生词控制在初学水平。\n' +
+    '- 每条回复末尾加一行简体中文作为引用（行首加 "> "）：简短翻译或提示，帮助理解。\n' +
+    '- 用户' + target + '说错时，用中文温和指出错误并给出正确说法，再继续对话。\n' +
+    '- 一次只问一个跟进问题，保持对话流动。';
+}
+/* 内置默认模板的名字（跟随界面语言）：德语口语陪练 / German Speaking Coach */
+function defaultPromptName(learnLang, uiLang) {
+  const lang = langOf(learnLang);
+  const target = uiLang === 'en' ? lang.en : lang.zh;
+  return uiLang === 'en' ? target + ' Speaking Coach' : target + '口语陪练';
+}
+/* 兼容老版本：之前写死的德语默认提示词（用于识别用户是否改过） */
 const DEFAULT_SYSTEM_PROMPT =
 '你是一位耐心的德语口语陪练，陪伴一位中文母语的德语初学者练习口语。\n' +
 '规则：\n' +
@@ -559,13 +614,30 @@ const DEFAULT_SYSTEM_PROMPT =
 '- 用户德语说错时，用中文温和指出错误并给出正确说法，再继续对话。\n' +
 '- 一次只问一个跟进问题，保持对话流动。';
 
-const DEFAULT_CUSTOMS_PROMPT =
-'你是一名严格的德国海关官员，正在对我进行入境盘问。\n' +
-'规则：\n' +
-'- 全程用德语和我对话，语速正常，不要迁就初学者。\n' +
-'- 你怀疑我的入境目的：不断追问细节，质疑含糊的回答，发现前后矛盾要当场指出。\n' +
-'- 我的目标是说服你让我入境；只有当你真正被说服时才放行，并用中文说"过关"。\n' +
-'- 结束后用中文简要点评：哪些表达地道、哪里出了错。';
+/* 海关官员模板：中/英两套，{target} 按学习语言替换；译文走引用块约定（> ）做示范 */
+function buildCustomsPrompt(learnLang, uiLang) {
+  const lang = langOf(learnLang);
+  const target = uiLang === 'en' ? lang.en : lang.zh;
+  if (uiLang === 'en') {
+    return 'You are a strict ' + target + ' customs officer interrogating me at border control.\n' +
+      'Rules:\n' +
+      '- Converse entirely in ' + target + ' at natural speed; do not simplify for beginners.\n' +
+      '- You doubt my purpose of entry: keep pressing for details, challenge vague answers, and call out contradictions on the spot.\n' +
+      '- My goal is to convince you to let me in; only let me through when genuinely convinced, then write a quote line: > cleared.\n' +
+      '- At the end, briefly review as quote lines (each starting with "> "): which expressions were natural, where I made mistakes.';
+  }
+  return '你是一名严格的' + target + '海关官员，正在对我进行入境盘问。\n' +
+    '规则：\n' +
+    '- 全程用' + target + '和我对话，语速正常，不要迁就初学者。\n' +
+    '- 你怀疑我的入境目的：不断追问细节，质疑含糊的回答，发现前后矛盾要当场指出。\n' +
+    '- 我的目标是说服你让我入境；只有当你真正被说服时才放行，然后写一行引用：> 过关。\n' +
+    '- 结束后用中文引用行（每行以 "> " 开头）简要点评：哪些表达地道、哪里出了错。';
+}
+function customsPromptName(learnLang, uiLang) {
+  const lang = langOf(learnLang);
+  const target = uiLang === 'en' ? lang.en : lang.zh;
+  return uiLang === 'en' ? target + ' Customs Officer (Task)' : target + '海关官员（任务）';
+}
 
 const DEFAULTS = {
   chatBaseUrl: 'https://openrouter.ai/api/v1',
@@ -574,6 +646,8 @@ const DEFAULTS = {
   azureKey: '',
   azureRegion: 'westus2',
   voice: 'de-DE-KatjaNeural',
+  uiLang: '', // 界面语言：'zh'/'en'，空=首次按浏览器语言自动定
+  learnLang: 'de', // 学习语言：'de'/'en'
   chatHistoryLimit: 30, // 聊天记录保留条数
   practiceHistoryLimit: 30, // 练习记录保留条数
   convLimit: 200, // 对话保留个数
@@ -589,24 +663,692 @@ const DEFAULTS = {
 };
 
 const REGIONS = [
-  ['westus2', '美国西部 2'],
-  ['southeastasia', '东南亚（新加坡）'],
-  ['eastasia', '东亚（香港）'],
-  ['japaneast', '日本东'],
-  ['koreacentral', '韩国中部'],
-  ['westeurope', '西欧'],
-  ['northeurope', '北欧'],
-  ['eastus', '美国东部'],
-  ['westus', '美国西部'],
-  ['australiaeast', '澳大利亚东']
+  ['westus2', '美国西部 2', 'West US 2'],
+  ['southeastasia', '东南亚（新加坡）', 'Southeast Asia, Singapore'],
+  ['eastasia', '东亚（香港）', 'East Asia, Hong Kong'],
+  ['japaneast', '日本东', 'Japan East'],
+  ['japanwest', '日本西', 'Japan West'],
+  ['koreacentral', '韩国中部', 'Korea Central'],
+  ['centralindia', '印度中部', 'Central India'],
+  ['australiaeast', '澳大利亚东', 'Australia East'],
+  ['westeurope', '西欧', 'West Europe'],
+  ['northeurope', '北欧', 'North Europe'],
+  ['francecentral', '法国中部', 'France Central'],
+  ['germanywestcentral', '德国西部中心', 'Germany West Central'],
+  ['italynorth', '意大利北', 'Italy North'],
+  ['norwayeast', '挪威东', 'Norway East'],
+  ['swedencentral', '瑞典中部', 'Sweden Central'],
+  ['switzerlandnorth', '瑞士北', 'Switzerland North'],
+  ['switzerlandwest', '瑞士西', 'Switzerland West'],
+  ['uksouth', '英国南', 'UK South'],
+  ['ukwest', '英国西', 'UK West'],
+  ['uaenorth', '阿联酋北', 'UAE North'],
+  ['qatarcentral', '卡塔尔中部', 'Qatar Central'],
+  ['southafricanorth', '南非北', 'South Africa North'],
+  ['brazilsouth', '巴西南', 'Brazil South'],
+  ['canadacentral', '加拿大中部', 'Canada Central'],
+  ['canadaeast', '加拿大东部', 'Canada East'],
+  ['eastus', '美国东部', 'East US'],
+  ['eastus2', '美国东部 2', 'East US 2'],
+  ['westus', '美国西部', 'West US'],
+  ['westus3', '美国西部 3', 'West US 3'],
+  ['centralus', '美国中部', 'Central US'],
+  ['northcentralus', '美国中北部', 'North Central US'],
+  ['southcentralus', '美国中南部', 'South Central US'],
+  ['westcentralus', '美国中西部', 'West Central US']
 ];
 
-const VOICES = [
-  ['de-DE-KatjaNeural', 'Katja（女声）'],
-  ['de-DE-ConradNeural', 'Conrad（男声）'],
-  ['de-DE-AmalaNeural', 'Amala（女声）'],
-  ['de-DE-KillianNeural', 'Killian（男声）']
+/* 学习语言注册表：微软发音评估 GA 支持的 33 种语言去重后 23 种，德语第一、英语第二，其余按常见度排序 */
+const LANGS = [
+  { code: 'de', locale: 'de-DE', zh: '德语', en: 'German' },
+  { code: 'en', locale: 'en-US', zh: '英语', en: 'English' },
+  { code: 'ja', locale: 'ja-JP', zh: '日语', en: 'Japanese' },
+  { code: 'fr', locale: 'fr-FR', zh: '法语', en: 'French' },
+  { code: 'es', locale: 'es-ES', zh: '西班牙语', en: 'Spanish' },
+  { code: 'ko', locale: 'ko-KR', zh: '韩语', en: 'Korean' },
+  { code: 'it', locale: 'it-IT', zh: '意大利语', en: 'Italian' },
+  { code: 'ru', locale: 'ru-RU', zh: '俄语', en: 'Russian' },
+  { code: 'pt', locale: 'pt-BR', zh: '葡萄牙语', en: 'Portuguese' },
+  { code: 'ar', locale: 'ar-SA', zh: '阿拉伯语', en: 'Arabic' },
+  { code: 'th', locale: 'th-TH', zh: '泰语', en: 'Thai' },
+  { code: 'vi', locale: 'vi-VN', zh: '越南语', en: 'Vietnamese' },
+  { code: 'nl', locale: 'nl-NL', zh: '荷兰语', en: 'Dutch' },
+  { code: 'pl', locale: 'pl-PL', zh: '波兰语', en: 'Polish' },
+  { code: 'sv', locale: 'sv-SE', zh: '瑞典语', en: 'Swedish' },
+  { code: 'da', locale: 'da-DK', zh: '丹麦语', en: 'Danish' },
+  { code: 'fi', locale: 'fi-FI', zh: '芬兰语', en: 'Finnish' },
+  { code: 'no', locale: 'nb-NO', zh: '挪威语', en: 'Norwegian' },
+  { code: 'hi', locale: 'hi-IN', zh: '印地语', en: 'Hindi' },
+  { code: 'ms', locale: 'ms-MY', zh: '马来语', en: 'Malay' },
+  { code: 'ta', locale: 'ta-IN', zh: '泰米尔语', en: 'Tamil' },
+  { code: 'ca', locale: 'ca-ES', zh: '加泰罗尼亚语', en: 'Catalan' },
+  { code: 'zh', locale: 'zh-CN', zh: '中文', en: 'Chinese' }
 ];
+function langOf(code) { return LANGS.find(l => l.code === code) || LANGS[0]; }
+
+/* 内置声音列表（手动维护；微软改声音时再更新，不调 voices/list 实时接口）：[ShortName, 显示名, 性别] */
+const VOICES = {
+  de: [['de-DE-KatjaNeural', 'Katja', 'f'], ['de-DE-ConradNeural', 'Conrad', 'm'], ['de-DE-AmalaNeural', 'Amala', 'f'], ['de-DE-KillianNeural', 'Killian', 'm'], ['de-DE-GiselaNeural', 'Gisela', 'f'], ['de-DE-KlausNeural', 'Klaus', 'm']],
+  en: [['en-US-AvaNeural', 'Ava', 'f'], ['en-US-AndrewNeural', 'Andrew', 'm'], ['en-US-EmmaNeural', 'Emma', 'f'], ['en-US-BrianNeural', 'Brian', 'm'], ['en-US-JennyNeural', 'Jenny', 'f'], ['en-US-GuyNeural', 'Guy', 'm']],
+  ja: [['ja-JP-NanamiNeural', 'Nanami', 'f'], ['ja-JP-KeitaNeural', 'Keita', 'm']],
+  fr: [['fr-FR-DeniseNeural', 'Denise', 'f'], ['fr-FR-HenriNeural', 'Henri', 'm']],
+  es: [['es-ES-ElviraNeural', 'Elvira', 'f'], ['es-ES-AlvaroNeural', 'Alvaro', 'm']],
+  ko: [['ko-KR-SunHiNeural', 'SunHi', 'f'], ['ko-KR-InJoonNeural', 'InJoon', 'm']],
+  it: [['it-IT-IsabellaNeural', 'Isabella', 'f'], ['it-IT-DiegoNeural', 'Diego', 'm']],
+  ru: [['ru-RU-SvetlanaNeural', 'Svetlana', 'f'], ['ru-RU-DmitryNeural', 'Dmitry', 'm']],
+  pt: [['pt-BR-FranciscaNeural', 'Francisca', 'f'], ['pt-BR-AntonioNeural', 'Antonio', 'm']],
+  ar: [['ar-SA-ZariyahNeural', 'Zariyah', 'f'], ['ar-SA-HamedNeural', 'Hamed', 'm']],
+  th: [['th-TH-PremwadeeNeural', 'Premwadee', 'f'], ['th-TH-NiwatNeural', 'Niwat', 'm']],
+  vi: [['vi-VN-HoaiMyNeural', 'HoaiMy', 'f'], ['vi-VN-NamMinhNeural', 'NamMinh', 'm']],
+  nl: [['nl-NL-ColetteNeural', 'Colette', 'f'], ['nl-NL-MaartenNeural', 'Maarten', 'm']],
+  pl: [['pl-PL-AgnieszkaNeural', 'Agnieszka', 'f'], ['pl-PL-MarekNeural', 'Marek', 'm']],
+  sv: [['sv-SE-SofieNeural', 'Sofie', 'f'], ['sv-SE-MattiasNeural', 'Mattias', 'm']],
+  da: [['da-DK-ChristelNeural', 'Christel', 'f'], ['da-DK-JeppeNeural', 'Jeppe', 'm']],
+  fi: [['fi-FI-NooraNeural', 'Noora', 'f'], ['fi-FI-HarriNeural', 'Harri', 'm']],
+  no: [['nb-NO-PernilleNeural', 'Pernille', 'f'], ['nb-NO-FinnNeural', 'Finn', 'm']],
+  hi: [['hi-IN-SwaraNeural', 'Swara', 'f'], ['hi-IN-MadhurNeural', 'Madhur', 'm']],
+  ms: [['ms-MY-YasminNeural', 'Yasmin', 'f'], ['ms-MY-OsmanNeural', 'Osman', 'm']],
+  ta: [['ta-IN-PallaviNeural', 'Pallavi', 'f'], ['ta-IN-ValluvarNeural', 'Valluvar', 'm']],
+  ca: [['ca-ES-JoanaNeural', 'Joana', 'f'], ['ca-ES-EnricNeural', 'Enric', 'm']],
+  zh: [['zh-CN-XiaoxiaoNeural', 'Xiaoxiao', 'f'], ['zh-CN-YunxiNeural', 'Yunxi', 'm']]
+};
+
+/* ================= i18n：界面中英双语 ================= */
+const STR = {
+zh: {
+  'app.title': '芯语伴 SprechMate',
+  'app.name': '芯语伴',
+  'app.tagline': '聊天 → 点句听原声 → 录音纠音',
+  'nav.settings': '设置',
+  'nav.back': '返回',
+  'drawer.title': '对话列表',
+  'drawer.searchPh': '搜索对话',
+  'drawer.exportAll': '导出所有对话',
+  'drawer.del10': '删除 10 天前的对话',
+  'drawer.del30': '删除 30 天前的对话',
+  'drawer.delAll': '删除所有对话',
+  'drawer.empty': '暂无对话',
+  'drawer.noMatch': '没有匹配的对话',
+  'drawer.delTitle': '删除',
+  'drawer.exportTitle': '导出为 Markdown',
+  'drawer.delOneConfirm': '确定删除这个对话吗？相关的练习记录和音频也会一并清除。',
+  'drawer.delAllConfirm': '确定删除所有对话吗？相关的练习记录和音频也会一并清除。',
+  'drawer.delOldConfirm': '确定删除 {n} 个 {days} 天前的对话吗？相关的练习记录和录音也会一并清除，删了找不回来。',
+  'drawer.delOldNone': '没有 {days} 天前的对话',
+  'guide.title': '还没配置聊天接口',
+  'guide.desc': '点右上角齿轮，填好 Base URL、模型和 Key 就能开始聊天。',
+  'guide.go': '去设置',
+  'chat.new': '＋ 新对话',
+  'chat.promptTitle': '当前对话使用的提示词模板',
+  'chat.inputPh': '用{lang}说点什么…',
+  'chat.send': '发送',
+  'chat.dict': '语音输入',
+  'chat.dictStop': '停止语音输入',
+  'chat.dictTitle': '语音输入 (Alt+A)',
+  'chat.emptyHint': '还没有对话，在下面用{lang}和 AI 聊起来吧。',
+  'chat.sendFail': '发送失败：{msg}',
+  'chat.retry': '↻ 重试',
+  'chat.clickAudio': '点击生成这句的原声',
+  'chat.editSave': '保存',
+  'chat.editCancel': '取消',
+  'chat.editEmpty': '内容不能为空',
+  'chat.noKey': '请先点右上角齿轮，填写聊天接口的 Base URL、模型和 Key',
+  'chat.testAsk': '请只回复 OK',
+  'chat.testOk': '连接成功',
+  'chat.testOkReply': '连接成功，模型回复：{reply}',
+  'chat.testFail': '失败：{msg}',
+  'chat.testing': '测试中…',
+  'chat.netErr': '网络错误',
+  'chat.reqFail': '请求失败',
+  'chat.emptyResp': '接口返回为空',
+  'sent.title': '{lang}跟读',
+  'sent.ph': '点击上方对话中的一句话，这里会自动填入',
+  'sent.gen': '生成原声',
+  'sent.dl': '下载原声',
+  'sent.play': '播放',
+  'sent.pause': '暂停',
+  'sent.playTitle': '播放原声 (S)',
+  'sent.genFail': '原声生成失败',
+  'sent.langMismatchTitle': '语言不匹配',
+  'sent.langMismatchMsg': '这段文本看起来是{tl}，但当前学习语言是{cl}。去设置里切换学习语言后再生成？',
+  'sent.goSettings': '去设置',
+  'sent.dlFail': '下载失败',
+  'sent.noKey': '请先点右上角齿轮，填写 Azure Speech Key 和 Region',
+  'sent.noText': '没有可朗读的文本',
+  'sent.ttsFail': 'TTS 失败（{status}）：{msg}',
+  'sent.emptyBox': '文本框是空的，点击对话中的一句话可自动填入',
+  'sent.synthesizing': '合成中…',
+  'sent.ttsOk': 'TTS 正常，已播放测试语音',
+  'sent.playFail': '播放失败',
+  'rec.title': '录音打分',
+  'rec.start': '开始录音',
+  'rec.startTitle': '开始录音 (D)',
+  'rec.stop': '■ 停止',
+  'rec.scoring': '打分中…',
+  'rec.preparing': '准备中…',
+  'rec.phase': '录音中 {time}',
+  'rec.phaseScoring': '正在打分，请稍候…',
+  'rec.playTitle': '播放我的录音 (F)',
+  'rec.history': '练习历史（本对话）',
+  'rec.noHistory': '暂无练习记录',
+  'rec.noText': '请先点击对话中的一句话，或在文本框输入要练习的{lang}句子',
+  'rec.noKey': '请先点右上角齿轮，填写 Azure Speech Key 和 Region',
+  'rec.noAudio': '没有录到声音，请检查麦克风后重试',
+  'rec.autoSilence': '连续 10 秒没有检测到说话声，已自动停止',
+  'rec.auto30': '录音达到 30 秒，已自动停止（微软发音评估仅支持 30 秒内音频）',
+  'rec.cantStart': '无法开始录音',
+  'rec.scoreFail': '打分失败',
+  'rec.timeout': '打分请求超时，请检查网络后重试',
+  'rec.netFail': '网络连接失败，请检查网络后重试',
+  'rec.badKey': 'Azure Key 或 Region 不正确，请点右上角齿轮检查',
+  'rec.quota': '请求太频繁或配额用完，稍后再试',
+  'rec.serverErr': '打分服务异常（{status}{msg}）',
+  'rec.badResponse': '打分服务返回异常，请重试',
+  'rec.noSpeech': '没有识别到语音，请靠近麦克风、完整读一遍再试',
+  'rec.noResult': '打分服务没有返回结果，请重试',
+  'rec.noAssess': '打分服务未返回发音评估（只返回了转写），请重试',
+  'rec.retryKept': '{msg}。你的录音已保留，网络恢复后可直接重新打分，无需重录。',
+  'rec.retry': '重新打分',
+  'rec.accuracy': '准确度',
+  'rec.fluency': '流利度',
+  'rec.completeness': '完整度',
+  'rec.prosody': '韵律',
+  'rec.heard': '系统听到：{text}',
+  'rec.heardNone': '（无）',
+  'rec.noWordDetail': '无单词明细',
+  'rec.noPhDetail': '无音素明细',
+  'rec.wordHint': '点单词看音素得分{phNote}。单词：红=读错，灰=漏读，橙=多读。',
+  'rec.phNoteEst': '（音标为估算值）',
+  'rec.phNoteReal': '（真实音标）',
+  'rec.phEstTitle': '按{lang}发音规则估算',
+  'rec.heardAs': '读成{sym}',
+  'dict.noSupport': '当前浏览器不支持语音输入，可以用 Gboard 的语音输入代替',
+  'dict.noPerm': '麦克风权限被拒绝，请在浏览器设置里允许后重试',
+  'dict.noMic': '没有找到麦克风',
+  'dict.netNeeded': '语音识别需要联网，请检查网络后重试',
+  'set.usage': '用量统计',
+  'set.todayCheckin': '今日打卡',
+  'set.dayChat': '对话',
+  'set.dayTts': '听原声',
+  'set.dayAssess': '录音练习',
+  'set.dayCost': '花费',
+  'set.ttsQuota': '原声生成（本月）',
+  'set.assessQuota': '发音评估（本月）',
+  'set.chars': '{used} / {quota} 字符',
+  'set.minutes': '{used} / 300 分钟',
+  'set.inTokens': '输入量',
+  'set.outTokens': '输出量',
+  'set.cachedTokens': '缓存量',
+  'set.pricePerM': '百万单价',
+  'set.estCost': '预估花费：',
+  'set.resetChat': '重置聊天统计',
+  'set.resetChatConfirm': '确定清空聊天统计吗？Azure 用量按月自动清零，不受影响。',
+  'set.genSync': '生成同步码',
+  'set.scanSync': '扫码同步',
+  'set.scanClipboard': '从剪贴板同步',
+  'set.scanClipboardTitle': '粘贴剪贴板中的同步码，图片或文本均可',
+  'set.syncMerged': '已合并今日打卡数据',
+  'set.syncSelf': '这是本机自己的同步码，换一台设备试试',
+  'set.syncSelf2': '这是本机自己的同步码',
+  'set.syncBad': '这个码不是同步码，请确认',
+  'set.syncBad2': '内容不是有效的同步码，请确认复制的是同步码',
+  'set.syncQrTitle': '生成同步码',
+  'set.syncQrSub': '用其它设备扫码，合并今日学习数据',
+  'set.syncQrFail': '二维码生成失败：{msg}',
+  'set.scanTitle': '扫码同步',
+  'set.camDenied': '摄像头权限被拒绝，请点浏览器地址栏的摄像头图标允许后重试',
+  'set.camBusy': '摄像头正被其它应用占用，请关闭后重试',
+  'set.camFail': '摄像头打不开，请检查后重试',
+  'set.clipNoQr': '图片里没有识别到二维码，请确认复制的是同步码截图',
+  'set.clipDenied': '剪贴板权限被拒绝，请点浏览器地址栏左侧图标，在网站设置中允许后重试',
+  'set.clipEmpty': '剪贴板是空的，请先复制同步码',
+  'set.clipNoSupport': '当前浏览器不支持剪贴板读取',
+  'set.dlgClose': '关闭',
+  'set.dlgShare': '分享',
+  'set.checkinTitle': '今日打卡',
+  'set.checkinImgAlt': '今日打卡图',
+  'set.checkinFail': '图片生成失败：{msg}',
+  'set.checkinGenFail': '图片生成失败',
+  'set.shareTitle': '芯语伴打卡',
+  'set.langDisplay': '语言与显示',
+  'set.uiLang': '界面语言',
+  'set.uiLangZh': '中文',
+  'set.uiLangEn': 'English',
+  'set.learnLang': '学习语言',
+  'set.autoSpeak': '自动朗读回复',
+  'set.showLang': '显示{lang}',
+  'set.showTargetDup': '显示{lang}（学习）',
+  'set.showTransDup': '显示{lang}（译文）',
+  'set.dblHint': '双击切换显隐',
+  'set.tpl': '提示词模板',
+  'set.tplDesc': '新对话用这里选中的模板；当前对话在聊天页顶部切换。',
+  'set.tplQuoteTip': '约定：让 AI 把译文写成引用行（行首加 > ），App 会自动识别为译文，可单独隐藏、双击切换显隐，朗读和打分时也会跳过。',
+  'set.tplNew': '＋新建',
+  'set.tplRename': '重命名',
+  'set.tplDel': '删除',
+  'set.tplPh': '在这里写提示词…',
+  'set.tplNewTitle': '新建提示词模板',
+  'set.tplNewDesc': '起个名字，比如"面试官"或"餐厅点餐"。',
+  'set.tplNameLabel': '模板名称',
+  'set.tplRenameTitle': '重命名模板',
+  'set.tplMinOne': '至少保留一个提示词模板。',
+  'set.tplDelConfirm': '确定删除提示词模板「{name}」吗？',
+  'set.tplUnnamed': '未命名',
+  'set.tplUnknown': '未知模板',
+  'set.tplDeleted': '（已删除）',
+  'set.chatApi': '聊天接口（OpenAI 兼容）',
+  'set.model': '模型',
+  'set.modelPh': '例如 openai/gpt-4o-mini',
+  'set.testConn': '测试连接',
+  'set.azure': 'Azure Speech（发音评估 + 原声 TTS）',
+  'set.voiceLabel': '{lang}原声声音',
+  'set.voiceHint': '声音列表跟随学习语言',
+  'set.testTts': '测试 TTS',
+  'set.female': '女声',
+  'set.male': '男声',
+  'set.storage': '本地存储',
+  'set.chatLimit': '聊天记录保留条数（1–200）',
+  'set.chatLimitDesc': '发给 AI 的消息条数，含你当前这句。设为 1 则 AI 不看历史。改小立即生效，删掉的消息找不回来。',
+  'set.recLimit': '练习记录保留条数（1–200）',
+  'set.recLimitDesc': '每个对话保留最近 N 条练习，超出的连录音一起删。改小立即生效。',
+  'set.ttsLimit': '原声缓存条数（0–500，0 = 关闭）',
+  'set.ttsLimitDesc': '同一句话 + 同一声音只生成一次，之后读本地。设为 0 关闭缓存。',
+  'set.convLimit': '对话保留个数（10–1000）',
+  'set.convLimitDesc': '只保留最近 N 个对话，超出的连记录和录音一起删。改小立即生效。',
+  'set.storageUsage': '存储占用',
+  'set.usedSpace': '本地已用空间',
+  'set.convCount': '对话个数',
+  'set.ttsCount': '原声缓存个数',
+  'set.countUnit': '{n} / {limit} 个',
+  'set.itemUnit': '{n} / {limit} 条',
+  'set.quotaAbout': '（配额约 {q}）',
+  'set.noEstimate': '浏览器不支持统计',
+  'set.privacy': '所有数据和设置只存在你的浏览器里，不会上传。重要数据请用"导出所有对话""导出设置"备份。',
+  'set.manage': '设置管理',
+  'set.exportSet': '导出设置',
+  'set.importSet': '导入设置',
+  'set.resetSet': '还原默认设置',
+  'set.exportFail': '导出失败：{msg}',
+  'set.importNotObj': '文件内容不是设置',
+  'set.importBadTpl': '模板格式不对',
+  'set.importBadTplItem': '模板条目格式不对',
+  'set.importConfirm': '导入将覆盖当前全部设置（含提示词模板），确定吗？',
+  'set.imported': '设置已导入。',
+  'set.importFail': '导入失败：{msg}',
+  'set.importParseFail': '文件无法解析',
+  'set.importReadFail': '导入失败：文件读取出错',
+  'set.resetConfirm': '确定要还原所有设置为默认值吗？自定义的提示词模板会被删除，恢复成初始的两个模板。',
+  'set.resetDone': '已还原为默认设置。',
+  'set.version': '版本',
+  'lang.english': '英语',
+  'lang.chinese': '中文',
+  'dlg.ok': '知道了',
+  'dlg.confirm': '确定',
+  'dlg.cancel': '取消',
+  'dlg.delete': '删除',
+  'dlg.clear': '清空',
+  'dlg.import': '导入',
+  'dlg.restore': '还原',
+  'dlg.delAll': '全部删除',
+  'dlg.exportFail': '导出失败',
+  'misc.storageFull': '手机本地存满了，这次的内容可能没保存上。删掉一些不用的旧对话，就能继续存了。',
+  'misc.colon': '：',
+  'misc.scriptFail': '脚本加载失败，请检查网络',
+  'misc.newConv': '新对话',
+  'misc.times': '次',
+  'misc.sentUnit': '句',
+  'misc.convName': '{lang}对话',
+  'misc.exportTime': '导出时间：',
+  'misc.you': '你',
+  'misc.ai': 'AI',
+  'misc.practiceRec': '练习记录',
+  'misc.mdTime': '时间',
+  'misc.mdScore': '分数',
+  'misc.mdAcc': '准确度',
+  'misc.mdFlu': '流利度',
+  'misc.mdComp': '完整度',
+  'misc.mdSentence': '句子',
+  'misc.noConvExport': '暂无对话可导出',
+  'misc.allConvTitle': '{lang}对话合集（共 {n} 个对话）',
+  'misc.fileConv': '{lang}对话-{title}.md',
+  'misc.fileAll': '{lang}对话-全部-{stamp}.md',
+  'ck.chat': '对话',
+  'ck.tts': '听原声',
+  'ck.assess': '录音练习',
+  'ck.times': '次',
+  'ck.sent': '句'
+},
+en: {
+  'app.title': 'SprechMate',
+  'app.name': 'SprechMate',
+  'app.tagline': 'Chat → listen → score',
+  'nav.settings': 'Settings',
+  'nav.back': 'Back',
+  'drawer.title': 'Conversations',
+  'drawer.searchPh': 'Search conversations',
+  'drawer.exportAll': 'Export all conversations',
+  'drawer.del10': 'Delete chats 10+ days old',
+  'drawer.del30': 'Delete chats 30+ days old',
+  'drawer.delAll': 'Delete all chats',
+  'drawer.empty': 'No conversations yet',
+  'drawer.noMatch': 'No matching conversations',
+  'drawer.delTitle': 'Delete',
+  'drawer.exportTitle': 'Export as Markdown',
+  'drawer.delOneConfirm': 'Delete this conversation? Practice records and audio will be removed too.',
+  'drawer.delAllConfirm': 'Delete all conversations? Practice records and audio will be removed too.',
+  'drawer.delOldConfirm': 'Delete {n} conversations older than {days} days? Practice records and recordings will be removed too and cannot be recovered.',
+  'drawer.delOldNone': 'No conversations older than {days} days',
+  'guide.title': 'Chat API not configured',
+  'guide.desc': 'Tap the gear icon (top right) and fill in Base URL, model and Key to start chatting.',
+  'guide.go': 'Go to settings',
+  'chat.new': '＋ New chat',
+  'chat.promptTitle': 'Prompt template used by this conversation',
+  'chat.inputPh': 'Say something in {lang}…',
+  'chat.send': 'Send',
+  'chat.dict': 'Voice input',
+  'chat.dictStop': 'Stop voice input',
+  'chat.dictTitle': 'Voice input (Alt+A)',
+  'chat.emptyHint': 'No conversation yet. Start chatting with AI in {lang} below.',
+  'chat.sendFail': 'Send failed: {msg}',
+  'chat.retry': '↻ Retry',
+  'chat.clickAudio': 'Tap to generate native audio for this line',
+  'chat.editSave': 'Save',
+  'chat.editCancel': 'Cancel',
+  'chat.editEmpty': 'Content cannot be empty',
+  'chat.noKey': 'Please tap the gear icon (top right) and fill in the chat API Base URL, model and Key first',
+  'chat.testAsk': 'Please reply with OK only',
+  'chat.testOk': 'Connected',
+  'chat.testOkReply': 'Connected. Model replied: {reply}',
+  'chat.testFail': 'Failed: {msg}',
+  'chat.testing': 'Testing…',
+  'chat.netErr': 'Network error',
+  'chat.reqFail': 'Request failed',
+  'chat.emptyResp': 'Empty response from API',
+  'sent.title': '{lang} Shadowing',
+  'sent.ph': 'Tap a line in the chat above and it will appear here',
+  'sent.gen': 'Generate audio',
+  'sent.dl': 'Download audio',
+  'sent.play': 'Play',
+  'sent.pause': 'Pause',
+  'sent.playTitle': 'Play native audio (S)',
+  'sent.genFail': 'Native audio generation failed',
+  'sent.langMismatchTitle': 'Language mismatch',
+  'sent.langMismatchMsg': 'This text looks like {tl}, but your learning language is {cl}. Switch the learning language in Settings first?',
+  'sent.goSettings': 'Go to Settings',
+  'sent.dlFail': 'Download failed',
+  'sent.noKey': 'Please tap the gear icon (top right) and fill in your Azure Speech Key and Region first',
+  'sent.noText': 'No text to read aloud',
+  'sent.ttsFail': 'TTS failed ({status}): {msg}',
+  'sent.emptyBox': 'The text box is empty. Tap a line in the chat to fill it in.',
+  'sent.synthesizing': 'Synthesizing…',
+  'sent.ttsOk': 'TTS works. Test audio played.',
+  'sent.playFail': 'Playback failed',
+  'rec.title': 'Record & Score',
+  'rec.start': 'Start recording',
+  'rec.startTitle': 'Start recording (D)',
+  'rec.stop': '■ Stop',
+  'rec.scoring': 'Scoring…',
+  'rec.preparing': 'Preparing…',
+  'rec.phase': 'Recording {time}',
+  'rec.phaseScoring': 'Scoring, please wait…',
+  'rec.playTitle': 'Play my recording (F)',
+  'rec.history': 'Practice history (this conversation)',
+  'rec.noHistory': 'No practice records yet',
+  'rec.noText': 'Please tap a line in the chat first, or type a {lang} sentence to practice',
+  'rec.noKey': 'Please tap the gear icon (top right) and fill in your Azure Speech Key and Region first',
+  'rec.noAudio': 'No audio captured. Please check your microphone and try again.',
+  'rec.autoSilence': 'No speech detected for 10 seconds. Stopped automatically.',
+  'rec.auto30': 'Recording reached 30 seconds and stopped automatically (Microsoft pronunciation assessment only supports audio under 30 seconds)',
+  'rec.cantStart': 'Cannot start recording',
+  'rec.scoreFail': 'Scoring failed',
+  'rec.timeout': 'Scoring request timed out. Please check your network and try again.',
+  'rec.netFail': 'Network connection failed. Please check your network and try again.',
+  'rec.badKey': 'Azure Key or Region is incorrect. Please tap the gear icon (top right) to check.',
+  'rec.quota': 'Too many requests or quota exhausted. Please try again later.',
+  'rec.serverErr': 'Assessment service error ({status}{msg})',
+  'rec.badResponse': 'Assessment service returned an unexpected response. Please try again.',
+  'rec.noSpeech': 'No speech recognized. Please move closer to the mic, read it through, then try again.',
+  'rec.noResult': 'Assessment service returned no result. Please try again.',
+  'rec.noAssess': 'Assessment service returned transcription only (no pronunciation assessment). Please try again.',
+  'rec.retryKept': '{msg}. Your recording is kept — you can re-score directly once the network recovers, no need to re-record.',
+  'rec.retry': 'Re-score',
+  'rec.accuracy': 'Accuracy',
+  'rec.fluency': 'Fluency',
+  'rec.completeness': 'Completeness',
+  'rec.prosody': 'Prosody',
+  'rec.heard': 'Recognized: {text}',
+  'rec.heardNone': '(none)',
+  'rec.noWordDetail': 'No word details',
+  'rec.noPhDetail': 'No phoneme details',
+  'rec.wordHint': 'Tap a word for phoneme scores{phNote}. Words: red=mispronounced, gray=omitted, orange=inserted.',
+  'rec.phNoteEst': ' (phoneme symbols estimated)',
+  'rec.phNoteReal': ' (real phoneme symbols)',
+  'rec.phEstTitle': 'Estimated by {lang} pronunciation rules',
+  'rec.heardAs': 'heard as {sym}',
+  'dict.noSupport': "This browser doesn't support voice input. You can use Gboard's voice input instead.",
+  'dict.noPerm': 'Microphone permission denied. Please allow it in browser settings and try again.',
+  'dict.noMic': 'No microphone found',
+  'dict.netNeeded': 'Voice recognition needs internet. Please check your connection and try again.',
+  'set.usage': 'Usage',
+  'set.todayCheckin': 'Check in',
+  'set.dayChat': 'Chats',
+  'set.dayTts': 'Listens',
+  'set.dayAssess': 'Recs',
+  'set.dayCost': 'Cost',
+  'set.ttsQuota': 'Audio (this month)',
+  'set.assessQuota': 'Scoring (this month)',
+  'set.chars': '{used} / {quota} chars',
+  'set.minutes': '{used} / 300 min',
+  'set.inTokens': 'Input',
+  'set.outTokens': 'Output',
+  'set.cachedTokens': 'Cached',
+  'set.pricePerM': 'Price/1M',
+  'set.estCost': 'Estimated cost: ',
+  'set.resetChat': 'Reset chat stats',
+  'set.resetChatConfirm': "Clear chat stats? Azure usage resets monthly automatically and won't be affected.",
+  'set.genSync': 'Sync code',
+  'set.scanSync': 'Scan to sync',
+  'set.scanClipboard': 'From clipboard',
+  'set.scanClipboardTitle': 'Paste a sync code from clipboard, image or text',
+  'set.syncMerged': "Today's check-in data merged",
+  'set.syncSelf': "This is this device's own sync code. Try another device.",
+  'set.syncSelf2': "This is this device's own sync code",
+  'set.syncBad': 'This is not a sync code. Please check.',
+  'set.syncBad2': 'This is not a valid sync code. Please make sure you copied a sync code.',
+  'set.syncQrTitle': 'Generate sync code',
+  'set.syncQrSub': 'Scan with another device to merge today\u2019s learning data',
+  'set.syncQrFail': 'QR code generation failed: {msg}',
+  'set.scanTitle': 'Scan to sync',
+  'set.camDenied': 'Camera permission denied. Tap the camera icon in the address bar to allow, then try again.',
+  'set.camBusy': 'Camera is in use by another app. Please close it and try again.',
+  'set.camFail': 'Cannot open camera. Please check and try again.',
+  'set.clipNoQr': 'No QR code found in the image. Please make sure you copied a sync code screenshot.',
+  'set.clipDenied': 'Clipboard permission denied. Tap the icon left of the address bar and allow it in site settings, then try again.',
+  'set.clipEmpty': 'Clipboard is empty. Please copy a sync code first.',
+  'set.clipNoSupport': "This browser doesn't support clipboard reading",
+  'set.dlgClose': 'Close',
+  'set.dlgShare': 'Share',
+  'set.checkinTitle': "Today's check-in",
+  'set.checkinImgAlt': "Today's check-in card",
+  'set.checkinFail': 'Card generation failed: {msg}',
+  'set.checkinGenFail': 'Image generation failed',
+  'set.shareTitle': 'SprechMate check-in',
+  'set.langDisplay': 'Language & Display',
+  'set.uiLang': 'UI language',
+  'set.uiLangZh': '中文',
+  'set.uiLangEn': 'English',
+  'set.learnLang': 'Learning language',
+  'set.autoSpeak': 'Auto-read replies aloud',
+  'set.showLang': 'Show {lang}',
+  'set.showTargetDup': 'Show {lang} (learning)',
+  'set.showTransDup': 'Show {lang} (translation)',
+  'set.dblHint': 'Double-tap to toggle',
+  'set.tpl': 'Prompt templates',
+  'set.tplDesc': 'New conversations use the template selected here; switch the current conversation\u2019s template at the top of the chat page.',
+  'set.tplQuoteTip': 'Convention: ask the AI to write the translation as a quote line (start the line with > ). The app detects it as translation \u2014 hideable, double-tap to toggle, and skipped for TTS and scoring.',
+  'set.tplNew': '＋New',
+  'set.tplRename': 'Rename',
+  'set.tplDel': 'Delete',
+  'set.tplPh': 'Write your prompt here…',
+  'set.tplNewTitle': 'New prompt template',
+  'set.tplNewDesc': 'Give it a name, e.g. "Interviewer" or "Ordering food".',
+  'set.tplNameLabel': 'Template name',
+  'set.tplRenameTitle': 'Rename template',
+  'set.tplMinOne': 'Keep at least one prompt template.',
+  'set.tplDelConfirm': 'Delete prompt template "{name}"?',
+  'set.tplUnnamed': 'Unnamed',
+  'set.tplUnknown': 'Unknown template',
+  'set.tplDeleted': '(deleted)',
+  'set.chatApi': 'Chat API (OpenAI-compatible)',
+  'set.model': 'Model',
+  'set.modelPh': 'e.g. openai/gpt-4o-mini',
+  'set.testConn': 'Test connection',
+  'set.azure': 'Azure Speech (assessment + native TTS)',
+  'set.voiceLabel': '{lang} native voice',
+  'set.voiceHint': 'Voice list follows the learning language',
+  'set.testTts': 'Test TTS',
+  'set.female': 'female',
+  'set.male': 'male',
+  'set.storage': 'Local storage',
+  'set.chatLimit': 'Chat history limit (1–200)',
+  'set.chatLimitDesc': 'Number of messages sent to the AI, including your current one. Set to 1 and the AI won\u2019t see history. Takes effect immediately when lowered; deleted messages can\u2019t be recovered.',
+  'set.recLimit': 'Practice records limit (1–200)',
+  'set.recLimitDesc': 'Keep the latest N practice records per conversation; older ones (with recordings) are deleted. Takes effect immediately when lowered.',
+  'set.ttsLimit': 'Native audio cache limit (0–500, 0 = off)',
+  'set.ttsLimitDesc': 'Same text + same voice is generated only once, then read locally. Set to 0 to disable caching.',
+  'set.convLimit': 'Conversation limit (10–1000)',
+  'set.convLimitDesc': 'Keep only the latest N conversations; older ones (with records and recordings) are deleted. Takes effect immediately when lowered.',
+  'set.storageUsage': 'Storage usage',
+  'set.usedSpace': 'Local storage used',
+  'set.convCount': 'Conversations',
+  'set.ttsCount': 'Native audio cache entries',
+  'set.countUnit': '{n} / {limit}',
+  'set.itemUnit': '{n} / {limit}',
+  'set.quotaAbout': '(about {q})',
+  'set.noEstimate': 'Storage estimate not supported',
+  'set.privacy': 'All data and settings stay in your browser and are never uploaded. Back up important data with "Export all conversations" and "Export settings".',
+  'set.manage': 'Manage settings',
+  'set.exportSet': 'Export settings',
+  'set.importSet': 'Import settings',
+  'set.resetSet': 'Reset to defaults',
+  'set.exportFail': 'Export failed: {msg}',
+  'set.importNotObj': 'File content is not settings',
+  'set.importBadTpl': 'Template format is invalid',
+  'set.importBadTplItem': 'Template entry format is invalid',
+  'set.importConfirm': 'Importing will overwrite all current settings (including prompt templates). Continue?',
+  'set.imported': 'Settings imported.',
+  'set.importFail': 'Import failed: {msg}',
+  'set.importParseFail': 'cannot parse file',
+  'set.importReadFail': 'Import failed: file read error',
+  'set.resetConfirm': 'Reset all settings to defaults? Custom prompt templates will be deleted and the two built-in templates restored.',
+  'set.resetDone': 'Settings have been reset to defaults.',
+  'set.version': 'Version',
+  'lang.english': 'English',
+  'lang.chinese': 'Chinese',
+  'dlg.ok': 'Got it',
+  'dlg.confirm': 'OK',
+  'dlg.cancel': 'Cancel',
+  'dlg.delete': 'Delete',
+  'dlg.clear': 'Clear',
+  'dlg.import': 'Import',
+  'dlg.restore': 'Reset',
+  'dlg.delAll': 'Delete all',
+  'dlg.exportFail': 'Export failed',
+  'misc.storageFull': 'Local storage is full. This content may not have been saved. Delete some old conversations to free space.',
+  'misc.colon': ': ',
+  'misc.scriptFail': 'Script load failed. Please check your network',
+  'misc.newConv': 'New conversation',
+  'misc.times': '',
+  'misc.sentUnit': '',
+  'misc.convName': '{lang} conversation',
+  'misc.exportTime': 'Exported: ',
+  'misc.you': 'You',
+  'misc.ai': 'AI',
+  'misc.practiceRec': 'Practice records',
+  'misc.mdTime': 'Time',
+  'misc.mdScore': 'Score',
+  'misc.mdAcc': 'Accuracy',
+  'misc.mdFlu': 'Fluency',
+  'misc.mdComp': 'Completeness',
+  'misc.mdSentence': 'Sentence',
+  'misc.noConvExport': 'No conversations to export',
+  'misc.allConvTitle': '{lang} conversations ({n} total)',
+  'misc.fileConv': '{lang} conversation-{title}.md',
+  'misc.fileAll': '{lang} conversation-all-{stamp}.md',
+  'ck.chat': 'Chats',
+  'ck.tts': 'Listens',
+  'ck.assess': 'Recordings',
+  'ck.times': '',
+  'ck.sent': ''
+}
+};
+
+/* 取界面字符串：缺 key 时回退中文，再缺就原样返回 key */
+function t(key, params) {
+  const lang = getSettings().uiLang;
+  let s = (STR[lang] && STR[lang][key] != null) ? STR[lang][key] : (STR.zh[key] != null ? STR.zh[key] : key);
+  if (params) s = String(s).replace(/\{(\w+)\}/g, (_, k) => (params[k] != null ? params[k] : '{' + k + '}'));
+  return s;
+}
+/* 学习语言的 locale（发音评估 / 听写 / TTS 用） */
+function learnLocale() { return langOf(getSettings().learnLang).locale; }
+/* 学习语言名（跟界面语言）：德语 / German */
+function learnLangName() { const s = getSettings(); const l = langOf(s.learnLang); return s.uiLang === 'en' ? l.en : l.zh; }
+/* 译文语言名（= 界面语言） */
+function transLangName() { return t(getSettings().uiLang === 'en' ? 'lang.english' : 'lang.chinese'); }
+
+/* 应用界面语言：静态文本 + 动态下拉框 + 语言相关标签 */
+function applyI18n() {
+  const lang = getSettings().uiLang;
+  document.documentElement.lang = lang === 'en' ? 'en' : 'zh-CN';
+  document.title = t('app.title');
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.getAttribute('data-i18n')); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.setAttribute('placeholder', t(el.getAttribute('data-i18n-ph'))); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.setAttribute('title', t(el.getAttribute('data-i18n-title'))); });
+  document.querySelectorAll('[data-i18n-aria]').forEach(el => { el.setAttribute('aria-label', t(el.getAttribute('data-i18n-aria'))); });
+  buildRegionOptions();
+  buildLearnLangOptions();
+  refreshLangLabels();
+  refreshVoiceList(); // 声音标签按新界面语言重建（内置列表，同步）
+}
+/* 随语言变化的动态标签：输入框占位、显示开关、声音标题 */
+function refreshLangLabels() {
+  const s = getSettings();
+  const L = learnLangName(), T = transLangName();
+  const ci = $('chatInput'); if (ci) ci.setAttribute('placeholder', t('chat.inputPh', { lang: L }));
+  // 学习语言和译文语言重名时（如英文界面+英语学习）加注区分
+  const dup = L === T;
+  const sd = $('showDeLabel'); if (sd) sd.textContent = t(dup ? 'set.showTargetDup' : 'set.showLang', { lang: L });
+  const sz = $('showZhLabel'); if (sz) sz.textContent = t(dup ? 'set.showTransDup' : 'set.showLang', { lang: T });
+  const vl = $('voiceLabel'); if (vl) vl.textContent = t('set.voiceLabel', { lang: L });
+  const st = $('sentenceTitle'); if (st) st.textContent = t('sent.title', { lang: L });
+}
+/* Region 下拉框按界面语言重建 */
+function buildRegionOptions() {
+  const sel = $('setRegion'); if (!sel) return;
+  const lang = getSettings().uiLang;
+  const cur = sel.value || getSettings().azureRegion;
+  sel.innerHTML = '';
+  REGIONS.forEach(([v, zh, en]) => {
+    const o = document.createElement('option');
+    o.value = v; o.textContent = (lang === 'en' ? en : zh) + ' (' + v + ')';
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
+/* 学习语言下拉框按 LANGS 生成，标签跟界面语言 */
+function buildLearnLangOptions() {
+  const sel = $('setLearnLang'); if (!sel) return;
+  const s = getSettings();
+  const cur = sel.value || s.learnLang;
+  sel.innerHTML = '';
+  LANGS.forEach(l => {
+    const o = document.createElement('option');
+    o.value = l.code; o.textContent = s.uiLang === 'en' ? l.en : l.zh;
+    sel.appendChild(o);
+  });
+  sel.value = cur;
+}
 
 function clampInt(v, lo, hi, fb) {
   v = parseInt(v, 10);
@@ -627,12 +1369,28 @@ function getSettings() {
     if (stored.showZh === undefined && typeof stored.blurChinese === 'boolean') s.showZh = !stored.blurChinese;
     s.showZh = !!s.showZh;
     delete s.blurChinese;
-    // 老用户迁移：没有模板时用原来的 systemPrompt 生成默认模板（含一个任务示例）
+    // 界面语言：非法值时按浏览器语言重定（zh 开头→中文，否则英文）
+    if (s.uiLang !== 'zh' && s.uiLang !== 'en') {
+      s.uiLang = ((navigator.language || 'en').toLowerCase().indexOf('zh') === 0) ? 'zh' : 'en';
+    }
+    // 学习语言：只认 de/en
+    if (!LANGS.some(l => l.code === s.learnLang)) s.learnLang = 'de';
+    // 老用户迁移：没有模板时按当前语言生成默认模板（含一个任务示例）
     if (!Array.isArray(s.promptTemplates) || !s.promptTemplates.length) {
+      const oldCustom = s.systemPrompt; // 远古备份里的自定义提示词
       s.promptTemplates = [
-        { id: 'default', name: '德语口语陪练', content: s.systemPrompt || DEFAULT_SYSTEM_PROMPT },
-        { id: 'customs', name: '海关官员（任务）', content: DEFAULT_CUSTOMS_PROMPT }
+        { id: 'default', name: defaultPromptName(s.learnLang, s.uiLang), content: oldCustom || buildDefaultPrompt(s.learnLang, s.uiLang), auto: !oldCustom },
+        { id: 'customs', name: customsPromptName(s.learnLang, s.uiLang), content: buildCustomsPrompt(s.learnLang, s.uiLang), auto: true }
       ];
+    } else {
+      // 存量 default 模板：内容还是出厂默认（没被用户改过）→ 标记 auto，语言切换时自动跟随
+      const d = s.promptTemplates.find(x => x.id === 'default');
+      if (d && d.auto === undefined) d.auto = (d.content === DEFAULT_SYSTEM_PROMPT);
+      // 存量 customs 模板：名字是旧硬编码且内容没被改过 → 标记 auto，跟随语言
+      const c = s.promptTemplates.find(x => x.id === 'customs');
+      if (c && c.auto === undefined) {
+        c.auto = (c.name === '海关官员（任务）' || c.name === 'Customs Officer (Task)');
+      }
     }
     if (!s.promptTemplates.some(t => t.id === s.activePromptId)) s.activePromptId = s.promptTemplates[0].id;
     // 僵尸字段：模板上线后 systemPrompt 已废弃；上面迁移用完即删，导出不再出现
@@ -641,6 +1399,24 @@ function getSettings() {
 }
 /* 显示德语的实际生效值：没开自动朗读时强制显示（否则既听不到又看不到） */
 function effShowDe(s) { s = s || getSettings(); return s.autoSpeak ? s.showDe : true; }
+/* 语言切换时：如果默认模板没被用户改过内容（auto），自动跟随新语言 */
+function refreshDefaultPrompt() {
+  const s = getSettings();
+  let changed = false;
+  const d = (s.promptTemplates || []).find(x => x.id === 'default');
+  if (d && d.auto) {
+    d.name = defaultPromptName(s.learnLang, s.uiLang);
+    d.content = buildDefaultPrompt(s.learnLang, s.uiLang);
+    changed = true;
+  }
+  const c = (s.promptTemplates || []).find(x => x.id === 'customs');
+  if (c && c.auto) {
+    c.name = customsPromptName(s.learnLang, s.uiLang);
+    c.content = buildCustomsPrompt(s.learnLang, s.uiLang);
+    changed = true;
+  }
+  if (changed) { saveSettings(s); refreshPromptUI(); }
+}
 /* 当前生效的提示词模板 */
 function activePrompt() {
   const s = getSettings();
@@ -656,7 +1432,7 @@ function refreshPromptUI() {
   (s.promptTemplates || []).forEach(t => {
     const o = document.createElement('option');
     o.value = t.id;
-    o.textContent = t.name || '未命名';
+    o.textContent = t.name || t('set.tplUnnamed');
     sel.appendChild(o);
   });
   sel.value = s.activePromptId;
@@ -674,6 +1450,8 @@ function collectSettings() {
     azureKey: $('setAzKey').value.trim(),
     azureRegion: $('setRegion').value,
     voice: $('setVoice').value,
+    uiLang: $('setUiLang').value,
+    learnLang: $('setLearnLang').value,
     chatHistoryLimit: clampInt($('setChatLimit').value, 1, 200, 30),
     practiceHistoryLimit: clampInt($('setRecLimit').value, 1, 200, 30),
     convLimit: clampInt($('setConvLimit').value, 10, 1000, 200),
@@ -732,6 +1510,8 @@ function fillSettingsForm() {
   $('setAzKey').value = s.azureKey;
   $('setRegion').value = s.azureRegion;
   $('setVoice').value = s.voice;
+  $('setUiLang').value = s.uiLang;
+  $('setLearnLang').value = s.learnLang;
   $('setChatLimit').value = s.chatHistoryLimit;
   $('setRecLimit').value = s.practiceHistoryLimit;
   $('setConvLimit').value = s.convLimit;
@@ -752,15 +1532,34 @@ function refreshSpeakUI() {
   $('showDeRow').classList.toggle('disabled', forceShow);
   $('setShowZh').checked = s.showZh;
 }
-function initSettings() {
-  REGIONS.forEach(([v, l]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = l + ' (' + v + ')';
-    $('setRegion').appendChild(o);
+/* 声音下拉框：内置列表按学习语言展示，标签随界面语言 */
+function renderVoiceOptions(items) {
+  const s = getSettings();
+  const sel = $('setVoice');
+  if (!sel) return;
+  const cur = sel.value || s.voice;
+  sel.innerHTML = '';
+  items.forEach(it => {
+    const o = document.createElement('option');
+    o.value = it.sn;
+    o.textContent = it.sn + ' · ' + it.dn + ' (' + t(it.g === 'm' ? 'set.male' : 'set.female') + ')';
+    sel.appendChild(o);
   });
-  VOICES.forEach(([v, l]) => {
-    const o = document.createElement('option'); o.value = v; o.textContent = v + ' · ' + l;
-    $('setVoice').appendChild(o);
-  });
+  if (items.some(it => it.sn === cur)) sel.value = cur;
+  else if (items.length) { // 之前选的声音不在新语言列表里：换第一个并存回去
+    sel.value = items[0].sn;
+    const s2 = getSettings(); s2.voice = items[0].sn; saveSettings(s2);
+  }
+}
+function refreshVoiceList() {
+  const s = getSettings();
+  const learn = s.learnLang;
+  const items = (VOICES[learn] || VOICES.de).map(([sn, dn, g]) => ({ sn: sn, dn: dn, g: g }));
+  renderVoiceOptions(items);
+}
+async function initSettings() {
+  buildRegionOptions();
+  refreshVoiceList();
   fillSettingsForm();
   $('setPromptSel').addEventListener('change', () => {
     const s2 = getSettings();
@@ -771,10 +1570,10 @@ function initSettings() {
   $('setPrompt').addEventListener('change', () => {
     const s2 = getSettings();
     const t = (s2.promptTemplates || []).find(x => x.id === s2.activePromptId);
-    if (t) { t.content = $('setPrompt').value; saveSettings(s2); }
+    if (t) { t.content = $('setPrompt').value; t.auto = false; saveSettings(s2); } // 手动改过内容：不再自动跟随语言
   });
   $('newTplBtn').onclick = async () => {
-    const name = await promptDlg('新建提示词模板', '起个名字，比如"面试官"或"餐厅点餐"。', '', '模板名称');
+    const name = await promptDlg(t('set.tplNewTitle'), t('set.tplNewDesc'), '', t('set.tplNameLabel'));
     if (!name) return;
     const s2 = getSettings();
     const t = { id: 'p' + Date.now(), name: name, content: '' };
@@ -786,7 +1585,7 @@ function initSettings() {
   };
   $('renameTplBtn').onclick = async () => {
     const ap = activePrompt();
-    const name = await promptDlg('重命名模板', '', ap.name, '模板名称');
+    const name = await promptDlg(t('set.tplRenameTitle'), '', ap.name, t('set.tplNameLabel'));
     if (!name) return;
     const s2 = getSettings();
     const t = s2.promptTemplates.find(x => x.id === ap.id);
@@ -794,23 +1593,37 @@ function initSettings() {
   };
   $('delTplBtn').onclick = async () => {
     const s2 = getSettings();
-    if (s2.promptTemplates.length <= 1) { alertDlg('至少保留一个提示词模板。'); return; }
+    if (s2.promptTemplates.length <= 1) { alertDlg(t('set.tplMinOne')); return; }
     const ap = activePrompt();
-    if (!await confirmDlg('确定删除提示词模板「' + ap.name + '」吗？', '删除')) return;
+    if (!await confirmDlg(t('set.tplDelConfirm', { name: ap.name }), t('dlg.delete'))) return;
     s2.promptTemplates = s2.promptTemplates.filter(x => x.id !== ap.id);
     if (s2.activePromptId === ap.id) s2.activePromptId = s2.promptTemplates[0].id;
     saveSettings(s2);
     refreshPromptUI();
   };
-  ['setBaseUrl','setModel','setKey','setAzKey','setRegion','setVoice','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
+  ['setBaseUrl','setModel','setKey','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
     $(id).addEventListener('change', collectSettings);
   });
+  // Azure Key/Region 变化：只保存（声音列表为内置，不依赖 Key）
+  ['setAzKey','setRegion'].forEach(id => {
+    $(id).addEventListener('change', () => { collectSettings(); });
+  });
+  $('setVoice').addEventListener('change', collectSettings);
   ['setPriceIn','setPriceOut','setPriceCached'].forEach(id => {
     $(id).addEventListener('change', () => { collectSettings(); refreshUsageUI(); });
   });
   $('setAutoSpeak').addEventListener('change', () => { collectSettings(); refreshSpeakUI(); renderChat(); }); // 开关层级：子选项置灰
   $('setShowDe').addEventListener('change', () => { collectSettings(); renderChat(); refreshSentenceBlur(); });
   $('setShowZh').addEventListener('change', () => { collectSettings(); renderChat(); });
+  $('setUiLang').addEventListener('change', () => {
+    collectSettings(); applyI18n(); refreshDefaultPrompt();
+    renderConvList(); renderChat(); renderHistory(); refreshUsageUI();
+    if (lastResult && !$('resultCard').classList.contains('hidden')) renderResult(lastResult.pa, lastResult.recognized, true);
+  });
+  $('setLearnLang').addEventListener('change', () => {
+    collectSettings(); refreshDefaultPrompt(); refreshVoiceList(); refreshLangLabels();
+    renderChat(); refreshSentenceBlur();
+  });
   $('exportSettingsBtn').onclick = exportSettings;
   $('importSettingsBtn').onclick = () => $('importSettingsFile').click();
   $('importSettingsFile').addEventListener('change', e => {
@@ -820,7 +1633,7 @@ function initSettings() {
   });
   $('resetSettingsBtn').onclick = resetSettings;
   $('resetChatBtn').onclick = async () => {
-    if (!await confirmDlg('确定清空聊天统计吗？Azure 用量按月自动清零，不受影响。', '清空')) return;
+    if (!await confirmDlg(t('set.resetChatConfirm'), t('dlg.clear'))) return;
     resetChatUsage();
     refreshUsageUI();
   };
@@ -871,7 +1684,7 @@ function saveConvs(c) {
     // 存满了：不自动删用户数据，只提示一次（内存里的数据本次还能用）
     if (!convsSaveWarned) {
       convsSaveWarned = true;
-      alertDlg('手机本地存满了，这次的内容可能没保存上。删掉一些不用的旧对话，就能继续存了。');
+      alertDlg(t('misc.storageFull'));
     }
   });
 }
@@ -899,8 +1712,8 @@ function activeConv() {
 function convPrompt(c) {
   const ts = getSettings().promptTemplates || [];
   const t = ts.find(x => x.id === c.promptId);
-  if (t) return { id: t.id, name: t.name || '未命名', content: t.content || '', deleted: false };
-  return { id: c.promptId, name: (c.promptName || '未知模板') + '（已删除）', content: c.promptContent || activePrompt().content, deleted: true };
+  if (t) return { id: t.id, name: t.name || t('set.tplUnnamed'), content: t.content || '', deleted: false };
+  return { id: c.promptId, name: (c.promptName || t('set.tplUnknown')) + t('set.tplDeleted'), content: c.promptContent || activePrompt().content, deleted: true };
 }
 /* 老对话补字段：没有 promptId 就按当前默认模板补一份快照 */
 function ensureConvPrompt(c) {
@@ -912,13 +1725,13 @@ function ensureConvPrompt(c) {
 }
 function newConversation() {
   const ap = activePrompt();
-  const c = { id: 'c' + Date.now(), title: '新对话', createdAt: Date.now(), messages: [], records: [],
+  const c = { id: 'c' + Date.now(), title: t('misc.newConv'), createdAt: Date.now(), messages: [], records: [],
     promptId: ap.id, promptName: ap.name, promptContent: ap.content };
   const convs = getConvs();
   convs.unshift(c);
   saveConvs(trimConvsToLimit(convs, getSettings().convLimit));
   setActiveId(c.id);
-  renderConvList(); renderChat(); renderHistory();
+  renderConvList(); renderChat(); renderHistory(); resetPracticeUI();
 }
 /* 对话个数裁剪：只留最近 N 个，最老的连练习录音一起删 */
 function trimConvsToLimit(convs, limit) {
@@ -933,20 +1746,20 @@ function deleteConv(id) {
   let convs = getConvs().filter(x => x.id !== id);
   saveConvs(convs);
   if (getActiveId() === id) setActiveId(convs.length ? convs[0].id : '');
-  if (!convs.length) newConversation(); else { renderConvList(); renderChat(); renderHistory(); }
+  if (!convs.length) newConversation(); else { renderConvList(); renderChat(); renderHistory(); resetPracticeUI(); }
 }
 
 /* 单个对话 → Markdown 文本（防御性：跳过异常条目，避免导出整体失败） */
 function convToMarkdown(c) {
   if (!c || typeof c !== 'object') return '';
   const L = [];
-  L.push('# ' + (c.title || '德语对话'));
+  L.push('# ' + (c.title || t('misc.convName', { lang: learnLangName() })));
   L.push('');
-  L.push('导出时间：' + fmtDateTime(Date.now()));
+  L.push(t('misc.exportTime') + fmtDateTime(Date.now()));
   L.push('');
   const msgs = Array.isArray(c.messages) ? c.messages.filter(Boolean) : [];
   msgs.forEach(m => {
-    L.push(m.role === 'user' ? '## 你' : '## AI');
+    L.push(m.role === 'user' ? '## ' + t('misc.you') : '## ' + t('misc.ai'));
     L.push('');
     L.push(m.content != null ? String(m.content) : '');
     L.push('');
@@ -955,9 +1768,9 @@ function convToMarkdown(c) {
   if (recs.length) {
     L.push('---');
     L.push('');
-    L.push('## 练习记录');
+    L.push('## ' + t('misc.practiceRec'));
     L.push('');
-    L.push('| 时间 | 分数 | 准确度 | 流利度 | 完整度 | 句子 |');
+    L.push('| ' + t('misc.mdTime') + ' | ' + t('misc.mdScore') + ' | ' + t('misc.mdAcc') + ' | ' + t('misc.mdFlu') + ' | ' + t('misc.mdComp') + ' | ' + t('misc.mdSentence') + ' |');
     L.push('|---|---|---|---|---|---|');
     recs.forEach(r => {
       const cell = s => String(s == null ? '' : s).replace(/\|/g, '\\|').replace(/\r?\n/g, ' ');
@@ -987,41 +1800,41 @@ function exportSettings() {
     const pad = n => String(n).padStart(2, '0');
     const name = 'deutsch-settings-' + d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) + '.json';
     downloadJson(name, getSettings());
-  } catch (e) { alertDlg('导出失败：' + (e && e.message || e)); }
+  } catch (e) { alertDlg(t('set.exportFail', { msg: e && e.message || e })); }
 }
 function importSettingsFile(file) {
   const rd = new FileReader();
   rd.onload = async () => {
     try {
       const obj = JSON.parse(rd.result);
-      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error('文件内容不是设置');
+      if (!obj || typeof obj !== 'object' || Array.isArray(obj)) throw new Error(t('set.importNotObj'));
       if (obj.promptTemplates != null) {
-        if (!Array.isArray(obj.promptTemplates)) throw new Error('模板格式不对');
+        if (!Array.isArray(obj.promptTemplates)) throw new Error(t('set.importBadTpl'));
         obj.promptTemplates.forEach(t => {
-          if (!t || typeof t.id !== 'string' || typeof t.name !== 'string' || typeof t.content !== 'string') throw new Error('模板格式不对');
+          if (!t || typeof t.id !== 'string' || typeof t.name !== 'string' || typeof t.content !== 'string') throw new Error(t('set.importBadTplItem'));
         });
       }
-      if (!await confirmDlg('导入将覆盖当前全部设置（含提示词模板），确定吗？', '导入')) return;
+      if (!await confirmDlg(t('set.importConfirm'), t('dlg.import'))) return;
       saveSettings(Object.assign({}, DEFAULTS, obj)); // 缺的字段用默认值补齐
       fillSettingsForm();
       refreshConvPromptSel();
       refreshStorageStats(); // 上限可能变了，刷新显示
-      alertDlg('设置已导入。');
+      alertDlg(t('set.imported'));
     } catch (e) {
-      alertDlg('导入失败：' + (e && e.message || '文件无法解析'));
+      alertDlg(t('set.importFail', { msg: e && e.message || t('set.importParseFail') }));
     }
   };
-  rd.onerror = () => alertDlg('导入失败：文件读取出错');
+  rd.onerror = () => alertDlg(t('set.importReadFail'));
   rd.readAsText(file);
 }
 /* 还原默认设置：自定义模板一并清除，恢复成初始的两个模板 */
 async function resetSettings() {
-  if (!await confirmDlg('确定要还原所有设置为默认值吗？自定义的提示词模板会被删除，恢复成初始的两个模板。', '还原')) return;
+  if (!await confirmDlg(t('set.resetConfirm'), t('dlg.restore'))) return;
   saveSettings(Object.assign({}, DEFAULTS));
   fillSettingsForm();
   refreshConvPromptSel();
   refreshStorageStats();
-  alertDlg('已还原为默认设置。');
+  alertDlg(t('set.resetDone'));
 }
 function downloadMd(filename, text) {
   const blob = new Blob([text], { type: 'text/markdown;charset=utf-8' });
@@ -1038,10 +1851,10 @@ function exportConv(id) {
   try {
     const c = getConvs().find(x => x.id === id);
     if (!c) return;
-    const safeTitle = String(c.title || '未命名').replace(/[\\/:*?"<>|]/g, '_').slice(0, 30) || '未命名';
-    downloadMd('德语对话-' + safeTitle + '.md', convToMarkdown(c));
+    const safeTitle = String(c.title || t('set.tplUnnamed')).replace(/[\\/:*?"<>|]/g, '_').slice(0, 30) || t('set.tplUnnamed');
+    downloadMd(t('misc.fileConv', { lang: learnLangName(), title: safeTitle }), convToMarkdown(c));
   } catch (e) {
-    dlg({ title: '导出失败', message: String((e && e.message) || e) });
+    dlg({ title: t('dlg.exportFail'), message: String((e && e.message) || e) });
   }
 }
 
@@ -1049,14 +1862,14 @@ function exportConv(id) {
 function exportAllConvs() {
   try {
   const convs = getConvs().filter(c => c && typeof c === 'object');
-  if (!convs.length) { alertDlg('暂无对话可导出'); return; }
+  if (!convs.length) { alertDlg(t('misc.noConvExport')); return; }
   const d = new Date();
   const stamp = d.getFullYear() + String(d.getMonth() + 1).padStart(2, '0') + String(d.getDate()).padStart(2, '0') +
     '-' + String(d.getHours()).padStart(2, '0') + String(d.getMinutes()).padStart(2, '0');
-  const head = '# 德语对话合集（共 ' + convs.length + ' 个对话）\n\n导出时间：' + fmtDateTime(d) + '\n';
-  downloadMd('德语对话-全部-' + stamp + '.md', head + '\n---\n\n' + convs.map(convToMarkdown).join('\n\n---\n\n'));
+  const head = '# ' + t('misc.allConvTitle', { lang: learnLangName(), n: convs.length }) + '\n\n' + t('misc.exportTime') + fmtDateTime(d) + '\n';
+  downloadMd(t('misc.fileAll', { lang: learnLangName(), stamp: stamp }), head + '\n---\n\n' + convs.map(convToMarkdown).join('\n\n---\n\n'));
   } catch (e) {
-    dlg({ title: '导出失败', message: String((e && e.message) || e) });
+    dlg({ title: t('dlg.exportFail'), message: String((e && e.message) || e) });
   }
 }
 
@@ -1067,24 +1880,24 @@ function renderConvList() {
   const convs = getConvs();
   const aid = getActiveId();
   list.innerHTML = '';
-  if (!convs.length) list.innerHTML = '<div class="hint">暂无对话</div>';
+  if (!convs.length) list.innerHTML = '<div class="hint">' + t('drawer.empty') + '</div>';
   convs.forEach(c => {
     const b = document.createElement('button');
     b.className = 'conv' + (c.id === aid ? ' active' : '');
     const tt = document.createElement('span'); tt.className = 'tt';
-    const t1 = document.createElement('span'); t1.textContent = c.title || '新对话';
+    const t1 = document.createElement('span'); t1.textContent = c.title || t('misc.newConv');
     const t2 = document.createElement('small'); t2.textContent = fmtDateTime(c.createdAt);
     tt.appendChild(t1); tt.appendChild(t2);
-    const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = '删除';
+    const x = document.createElement('span'); x.className = 'x'; x.textContent = '✕'; x.title = t('drawer.delTitle');
     x.onclick = async e => {
       e.stopPropagation();
-      if (await confirmDlg('确定删除这个对话吗？相关的练习记录和音频也会一并清除。')) deleteConv(c.id);
+      if (await confirmDlg(t('drawer.delOneConfirm'))) deleteConv(c.id);
     };
-    const exp = document.createElement('span'); exp.className = 'exp'; exp.title = '导出为 Markdown';
+    const exp = document.createElement('span'); exp.className = 'exp'; exp.title = t('drawer.exportTitle');
     exp.innerHTML = '<svg class="ic-dl" viewBox="0 0 16 16" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8M4.5 7.5 8 11l3.5-3.5M3 13.5h10"/></svg>';
     exp.onclick = e => { e.stopPropagation(); exportConv(c.id); };
     b.appendChild(exp); b.appendChild(tt); b.appendChild(x);
-    b.onclick = () => { setActiveId(c.id); renderConvList(); renderChat(); renderHistory(); closeDrawer(); };
+    b.onclick = () => { setActiveId(c.id); renderConvList(); renderChat(); renderHistory(); resetPracticeUI(); closeDrawer(); };
     list.appendChild(b);
   });
 }
@@ -1119,7 +1932,7 @@ function renderSearchHits(q) {
   list.innerHTML = '';
   let n = 0;
   getConvs().forEach(c => {
-    const title = c.title || '新对话';
+    const title = c.title || t('misc.newConv');
     const titleHit = title.toLowerCase().includes(lq);
     let hitMsg = null;
     for (const m of (c.messages || [])) {
@@ -1138,10 +1951,10 @@ function renderSearchHits(q) {
     const dt = document.createElement('span'); dt.className = 'hit-date'; dt.textContent = fmtDateTime(c.createdAt);
     tt.appendChild(t1); tt.appendChild(snip);
     b.appendChild(tt); b.appendChild(dt);
-    b.onclick = () => { setActiveId(c.id); renderChat(); renderHistory(); renderConvList(); closeDrawer(); };
+    b.onclick = () => { setActiveId(c.id); renderChat(); renderHistory(); renderConvList(); resetPracticeUI(); closeDrawer(); };
     list.appendChild(b);
   });
-  if (!n) list.innerHTML = '<div class="hint">没有匹配的对话</div>';
+  if (!n) list.innerHTML = '<div class="hint">' + t('drawer.noMatch') + '</div>';
 }
 
 /* ================= 抽屉 ================= */
@@ -1187,7 +2000,7 @@ function unlockScroll() {
   }
 }
 function dlg(o) {
-  o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: '取消', danger: false, input: false, inputValue: '', inputPlaceholder: '' }, o);
+  o = Object.assign({ title: '', message: '', okText: '', cancel: false, cancelText: t('dlg.cancel'), danger: false, input: false, inputValue: '', inputPlaceholder: '' }, o);
   return new Promise(resolve => {
     lockScroll(); // 弹窗期间锁住背景滚动
     const ov = document.createElement('div');
@@ -1235,7 +2048,7 @@ function dlg(o) {
     const ok = document.createElement('button');
     ok.type = 'button';
     ok.className = 'dlg-ok' + (o.danger ? '' : ' pri');
-    ok.textContent = o.okText || (o.cancel ? '确定' : '知道了');
+    ok.textContent = o.okText || (o.cancel ? t('dlg.confirm') : t('dlg.ok'));
     ok.onclick = () => done(true);
     btns.appendChild(ok);
     if (!focusBtn) focusBtn = ok;
@@ -1248,10 +2061,10 @@ function dlg(o) {
     if (inputEl) { inputEl.focus(); inputEl.select(); } else focusBtn.focus();
   });
 }
-function alertDlg(message, okText) { return dlg({ message: message, okText: okText || '知道了' }); }
-function confirmDlg(message, okText) { return dlg({ message: message, okText: okText || '删除', cancel: true, danger: true }); }
+function alertDlg(message, okText) { return dlg({ message: message, okText: okText || t('dlg.ok') }); }
+function confirmDlg(message, okText) { return dlg({ message: message, okText: okText || t('dlg.delete'), cancel: true, danger: true }); }
 function promptDlg(title, message, defaultValue, placeholder) {
-  return dlg({ title: title, message: message || '', okText: '确定', cancel: true, input: true, inputValue: defaultValue || '', inputPlaceholder: placeholder || '' });
+  return dlg({ title: title, message: message || '', okText: t('dlg.confirm'), cancel: true, input: true, inputValue: defaultValue || '', inputPlaceholder: placeholder || '' });
 }
 
 /* ================= 用量统计 ================= */
@@ -1351,6 +2164,13 @@ function chatCost(chatIn, chatOut, chatCached, s) {
   return (chatIn / 1e6) * (+s.priceIn || 0) + (chatOut / 1e6) * (+s.priceOut || 0) + (chatCached / 1e6) * (+s.priceCached || 0);
 }
 const fmtInt = n => Math.round(n).toLocaleString('en-US');
+/* 大数字缩写（小屏幕防溢出）：2420→2,420，12345→12.3K，1234567→1.23M */
+const fmtCompact = n => {
+  n = Math.round(n || 0);
+  if (n < 10000) return n.toLocaleString('en-US');
+  if (n < 1000000) return (n / 1000).toFixed(1).replace(/\.0$/, '') + 'K';
+  return (n / 1000000).toFixed(2).replace(/\.?0+$/, '') + 'M';
+};
 const fmtMin = sec => Math.round(sec / 6) / 10; // 秒 → 分钟（1 位小数）
 /* 进度条内嵌文字：深/浅两层用 clip-path 裁开，填充到哪文字都可读 */
 function setQBar(barId, darkId, lightId, text, pct) {
@@ -1366,18 +2186,21 @@ function refreshUsageUI() {
   const u = getUsage();
   const s = getSettings();
   setQBar('uqTtsBar', 'uqTtsTextA', 'uqTtsTextB',
-    fmtInt(u.ttsChars) + ' / ' + fmtInt(TTS_QUOTA_CHARS) + ' 字符', u.ttsChars / TTS_QUOTA_CHARS * 100);
+    t('set.chars', { used: fmtInt(u.ttsChars), quota: fmtInt(TTS_QUOTA_CHARS) }), u.ttsChars / TTS_QUOTA_CHARS * 100);
   setQBar('uqSpeechBar', 'uqSpeechTextA', 'uqSpeechTextB',
-    fmtMin(u.speechSec) + ' / 300 分钟', u.speechSec / SPEECH_QUOTA_SEC * 100);
-  $('uqIn').textContent = fmtInt(u.chatIn);
-  $('uqOut').textContent = fmtInt(u.chatOut);
-  $('uqCached').textContent = fmtInt(u.chatCached);
+    t('set.minutes', { used: fmtMin(u.speechSec) }), u.speechSec / SPEECH_QUOTA_SEC * 100);
+  $('uqIn').textContent = fmtCompact(u.chatIn);
+  $('uqIn').title = fmtInt(u.chatIn);
+  $('uqOut').textContent = fmtCompact(u.chatOut);
+  $('uqOut').title = fmtInt(u.chatOut);
+  $('uqCached').textContent = fmtCompact(u.chatCached);
+  $('uqCached').title = fmtInt(u.chatCached);
   $('uqCost').textContent = fmtCost(chatCost(u.chatIn, u.chatOut, u.chatCached, s));
   const dToday = dayBucket(u); // 今日小表只看今天
   const md = mergedDayCounts(); // 本机 + 已同步远端设备
-  $('uqDayTts').textContent = (md.ttsCalls || 0) + '句';
-  $('uqDayAssess').textContent = (md.assessCalls || 0) + '次';
-  $('uqDayChat').textContent = (md.chatRounds || 0) + '次';
+  $('uqDayTts').textContent = (md.ttsCalls || 0) + t('misc.sentUnit');
+  $('uqDayAssess').textContent = (md.assessCalls || 0) + t('misc.times');
+  $('uqDayChat').textContent = (md.chatRounds || 0) + t('misc.times');
   $('uqDayCost').textContent = fmtCost(chatCost(dToday.chatIn, dToday.chatOut, dToday.chatCached, s));
 }
 /* ================= 多设备同步（二维码） =================
@@ -1500,10 +2323,10 @@ function drawSyncQr(canvas, text) {
 async function showSyncQr() {
   const ov = document.createElement('div');
   ov.className = 'dlg-ov';
-  ov.innerHTML = '<div class="dlg-card">' +
-    '<p class="sync-sub">用其它设备扫码以加入此设备的今日学习数据</p>' +
+  ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">' + t('set.syncQrTitle') + '</div>' +
+    '<p class="sync-sub">' + t('set.syncQrSub') + '</p>' +
     '<canvas class="sync-qr"></canvas>' +
-    '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button></div></div>';
+    '<div class="dlg-btns"><button type="button" class="dlg-cancel">' + t('set.dlgClose') + '</button></div></div>';
   const close = () => { ov.remove(); unlockScroll(); };
   ov.querySelector('.dlg-cancel').onclick = close;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
@@ -1514,7 +2337,7 @@ async function showSyncQr() {
     drawSyncQr(ov.querySelector('.sync-qr'), syncPayload());
   } catch (e) {
     ov.querySelector('.sync-qr').remove();
-    ov.querySelector('.sync-sub').textContent = '二维码生成失败：' + e.message;
+    ov.querySelector('.sync-sub').textContent = t('set.syncQrFail', { msg: e.message });
   }
 }
 /* 统一解码器：永远用我们自己的 worker 引擎（qr-scanner-worker.min.js），不依赖各浏览器的原生 BarcodeDetector；
@@ -1567,13 +2390,13 @@ function showSyncScan() {
 function markNoCamera() {
   window.__noCamera = true;
   const btn = $('syncScanBtn');
-  if (btn) { btn.textContent = '从剪贴板同步'; btn.title = '粘贴剪贴板中的同步码，图片或文本均可'; }
+  if (btn) { btn.textContent = t('set.scanClipboard'); btn.title = t('set.scanClipboardTitle'); }
 }
 /* 恢复为有摄像头：按钮文案切回“扫码同步”（比如用户后来允许了权限） */
 function restoreCameraBtn() {
   window.__noCamera = false;
   const btn = $('syncScanBtn');
-  if (btn) { btn.textContent = '扫码同步'; btn.title = ''; }
+  if (btn) { btn.textContent = t('set.scanSync'); btn.title = ''; }
 }
 /* 根据有无摄像头自适应按钮文案（无摄像头时变成“从剪贴板同步”） */
 function adaptSyncScanBtn() {
@@ -1589,9 +2412,9 @@ function adaptSyncScanBtn() {
 function showCameraScan() {
   const ov = document.createElement('div');
   ov.className = 'dlg-ov';
-  ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">扫码同步</div>' +
+  ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">' + t('set.scanTitle') + '</div>' +
     '<video class="sync-video" playsinline muted></video>' +
-    '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button></div></div>';
+    '<div class="dlg-btns"><button type="button" class="dlg-cancel">' + t('set.dlgClose') + '</button></div></div>';
   const video = ov.querySelector('.sync-video');
   const cap = document.createElement('canvas');
   const cg = cap.getContext('2d', { willReadFrequently: true });
@@ -1606,9 +2429,9 @@ function showCameraScan() {
   const finish = text => {
     const r = applySyncCode(text);
     close();
-    if (r === 'ok') alertDlg('已合并今日打卡数据');
-    else if (r === 'self') alertDlg('这是本机自己的同步码，换一台设备试试');
-    else alertDlg('这个码不是同步码，请确认');
+    if (r === 'ok') alertDlg(t('set.syncMerged'));
+    else if (r === 'self') alertDlg(t('set.syncSelf'));
+    else alertDlg(t('set.syncBad'));
   };
   ov.querySelector('.dlg-cancel').onclick = close;
   ov.addEventListener('click', e => { if (e.target === ov) close(); });
@@ -1643,11 +2466,11 @@ function showCameraScan() {
       pasteFromClipboard();
     } else if (name === 'NotAllowedError' || name === 'SecurityError') {
       // 只是权限被拒绝：不改按钮，提示用户去开权限后重试
-      alertDlg('摄像头权限被拒绝，请点浏览器地址栏的摄像头图标允许后重试');
+      alertDlg(t('set.camDenied'));
     } else if (name === 'NotReadableError' || name === 'AbortError') {
-      alertDlg('摄像头正被其它应用占用，请关闭后重试');
+      alertDlg(t('set.camBusy'));
     } else {
-      alertDlg('摄像头打不开，请检查后重试');
+      alertDlg(t('set.camFail'));
     }
   });
 }
@@ -1664,11 +2487,11 @@ function pasteFromClipboard() {
         let text = null;
         try { text = await decodeQrBlob(await imgItem.getType(imgType)); } catch (e) {}
         if (text) finishPaste(text);
-        else alertDlg('图片里没有识别到二维码，请确认复制的是同步码截图');
+        else alertDlg(t('set.clipNoQr'));
         return;
       }
       pasteTextFlow();
-    }).catch(() => alertDlg('剪贴板权限被拒绝，请点浏览器地址栏左侧图标，在网站设置中允许后重试'));
+    }).catch(() => alertDlg(t('set.clipDenied')));
   } else pasteTextFlow();
 }
 /* 剪贴板文本流程：直接按同步码 JSON 解析 */
@@ -1676,10 +2499,10 @@ function pasteTextFlow() {
   if (navigator.clipboard && navigator.clipboard.readText) {
     navigator.clipboard.readText().then(t => {
       t = (t || '').trim();
-      if (!t) { alertDlg('剪贴板是空的，请先复制同步码'); return; }
+      if (!t) { alertDlg(t('set.clipEmpty')); return; }
       finishPaste(t, close);
-    }).catch(() => alertDlg('剪贴板权限被拒绝，请点浏览器地址栏左侧图标，在网站设置中允许后重试'));
-  } else alertDlg('当前浏览器不支持剪贴板读取');
+    }).catch(() => alertDlg(t('set.clipDenied')));
+  } else alertDlg(t('set.clipNoSupport'));
 }
 /* 用统一解码器从图片 blob 里解二维码，返回文本或 null */
 function decodeQrBlob(blob) {
@@ -1706,9 +2529,9 @@ function decodeQrBlob(blob) {
 }
 function finishPaste(text) {
   const r = applySyncCode(text);
-  if (r === 'ok') alertDlg('已合并今日打卡数据');
-  else if (r === 'self') alertDlg('这是本机自己的同步码');
-  else alertDlg('内容不是有效的同步码，请确认复制的是同步码');
+  if (r === 'ok') alertDlg(t('set.syncMerged'));
+  else if (r === 'self') alertDlg(t('set.syncSelf2'));
+  else alertDlg(t('set.syncBad2'));
 }
 /* 打卡图小工具：按日期稳定的伪随机数（同一天同一片风景） */
 function hashStr(s) {
@@ -1906,9 +2729,9 @@ function makeCheckinFile() {
     g.fillText(ds, W / 2, divY + 46);
     g.letterSpacing = '0px';
     const stats = [
-      ['对话', (md.chatRounds || 0), '次'],
-      ['听原声', (md.ttsCalls || 0), '句'],
-      ['录音练习', (md.assessCalls || 0), '次']
+      [t('ck.chat'), (md.chatRounds || 0), t('ck.times')],
+      [t('ck.tts'), (md.ttsCalls || 0), t('ck.sent')],
+      [t('ck.assess'), (md.assessCalls || 0), t('ck.times')]
     ];
     const colW = pw / 3;
     const labY = divY + 46 + 50, numY = labY + 68;
@@ -1937,10 +2760,10 @@ function makeCheckinFile() {
       }
     });
     cv.toBlob(blob => {
-      if (!blob) { reject(new Error('图片生成失败')); return; }
+      if (!blob) { reject(new Error(t('set.checkinGenFail'))); return; }
       // 优先 WebP：编码比 PNG 快得多，同体积下画质又比 JPEG 好；不支持的浏览器会自动回退成 PNG
       const ext = blob.type === 'image/webp' ? 'webp' : 'png';
-      resolve(new File([blob], 'deutsch-checkin-' + day + '.' + ext, { type: blob.type }));
+      resolve(new File([blob], 'sprechmate-checkin-' + day + '.' + ext, { type: blob.type }));
     }, 'image/webp', 0.9);
     } catch (e) { reject(e); }
   });
@@ -1959,17 +2782,17 @@ function previewCheckinCard() {
     const url = URL.createObjectURL(file);
     const ov = document.createElement('div');
     ov.className = 'dlg-ov';
-    ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">今日打卡</div>' +
-      '<img class="checkin-img" alt="今日打卡图">' +
-      '<div class="dlg-btns"><button type="button" class="dlg-cancel">关闭</button>' +
-      '<button type="button" class="dlg-ok pri">分享</button></div></div>';
+    ov.innerHTML = '<div class="dlg-card"><div class="dlg-title">' + t('set.checkinTitle') + '</div>' +
+      '<img class="checkin-img" alt="' + t('set.checkinImgAlt') + '">' +
+      '<div class="dlg-btns"><button type="button" class="dlg-cancel">' + t('set.dlgClose') + '</button>' +
+      '<button type="button" class="dlg-ok pri">' + t('set.dlgShare') + '</button></div></div>';
     ov.querySelector('img').src = url;
     lockScroll(); // 预览期间锁住背景滚动
     const close = () => { URL.revokeObjectURL(url); ov.remove(); unlockScroll(); };
     ov.querySelector('.dlg-cancel').onclick = close;
     ov.querySelector('.dlg-ok').onclick = () => {
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        navigator.share({ files: [file], title: '德语练习打卡' }).catch(() => {});
+        navigator.share({ files: [file], title: t('set.shareTitle') }).catch(() => {});
       } else {
         const a = document.createElement('a');
         a.href = url; a.download = file.name;
@@ -1978,7 +2801,7 @@ function previewCheckinCard() {
     };
     ov.addEventListener('click', e => { if (e.target === ov) close(); });
     document.body.appendChild(ov);
-  }).catch(e => { done(); alertDlg('图片生成失败：' + e.message); });
+  }).catch(e => { done(); alertDlg(t('set.checkinFail', { msg: e.message })); });
 }
 
 /* ================= 设置页进出（右上角齿轮） ================= */
@@ -2048,11 +2871,14 @@ function stripMarkdown(s) {
 }
 
 // 清洗出跟读/TTS 用的纯文本：去 markdown → 只留德语行（去掉中文讲解行）→ 去 emoji
-function germanOnly(text) {
-  const clean = stripMarkdown(text);
-  const lines = String(clean).split('\n').filter(l => l.trim() && !/[\u4e00-\u9fff]/.test(l));
-  const t = stripEmoji(lines.join('\n')).replace(/[ \t]{2,}/g, ' ').trim();
-  return t || stripEmoji(stripMarkdown(String(text))).trim();
+/* 提取目标语言文本：去掉译文行（> 开头），其余全部保留 */
+function targetLangText(text) {
+  const raw = String(text || '');
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  // 译文约定：引用块行（> 开头）是译文，去掉；其余全部视为目标语言文本
+  const kept = lines.filter(l => !/^>\s?/.test(l));
+  const t = stripEmoji(kept.join('\n')).replace(/[ \t]{2,}/g, ' ').trim();
+  return t || stripEmoji(stripMarkdown(raw)).trim();
 }
 
 function escapeHtml(s) {
@@ -2106,21 +2932,16 @@ function mdBlock(text) {
   return html;
 }
 
-/* 中德分段包裹：中文（含中文标点）包 .zh，非中文文本段包 .de（是否模糊由 CSS 类控制）。
+/* 译文分段包裹：引用块（> 开头）是译文，包 .zh，走译文显隐开关；
+   其余所有文本都是目标语言，包 .de。只认引用约定，不做字符检测。
    跳过 code/pre（代码示例不动）。只操作文本节点，不影响 markdown 结构。 */
-const CJK_RUN = /[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2013\u2014\u2018-\u201f\u2026]+/g;
-const CJK_ONE = /[\u4e00-\u9fff\u3400-\u4dbf\u3000-\u303f\uff00-\uffef\u2013\u2014\u2018-\u201f\u2026]/;
 function wrapLangSpans(root) {
-  const addDe = (frag, t) => {
-    if (t.trim()) {
-      const s = document.createElement('span');
-      s.className = 'de';
-      s.textContent = t;
-      frag.appendChild(s);
-    } else {
-      frag.appendChild(document.createTextNode(t));
-    }
-  };
+  root.querySelectorAll('blockquote').forEach(bq => {
+    const z = document.createElement('span');
+    z.className = 'zh';
+    z.textContent = bq.textContent;
+    bq.replaceWith(z);
+  });
   const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT);
   const nodes = [];
   while (walker.nextNode()) nodes.push(walker.currentNode);
@@ -2132,28 +2953,13 @@ function wrapLangSpans(root) {
     }
     if (skip || !n.parentNode) return;
     const src = n.textContent;
-    if (!CJK_ONE.test(src)) {
-      if (src.trim()) {
-        const s = document.createElement('span');
-        s.className = 'de';
-        n.parentNode.replaceChild(s, n);
-        s.appendChild(n);
-      }
-      return;
+    // 剩余文本全部视为目标语言，直接包 .de
+    if (src.trim()) {
+      const s = document.createElement('span');
+      s.className = 'de';
+      n.parentNode.replaceChild(s, n);
+      s.appendChild(n);
     }
-    const frag = document.createDocumentFragment();
-    let last = 0, m;
-    CJK_RUN.lastIndex = 0;
-    while ((m = CJK_RUN.exec(src))) {
-      if (m.index > last) addDe(frag, src.slice(last, m.index));
-      const z = document.createElement('span');
-      z.className = 'zh';
-      z.textContent = m[0];
-      frag.appendChild(z);
-      last = m.index + m[0].length;
-    }
-    if (last < src.length) addDe(frag, src.slice(last));
-    n.parentNode.replaceChild(frag, n);
   });
 }
 /* 双击德语/中文：单独切换该语言在这条消息的显示与隐藏（与设置一致时不留覆盖类） */
@@ -2183,13 +2989,13 @@ function refreshConvPromptSel() {
   ts.forEach(t => {
     const o = document.createElement('option');
     o.value = t.id;
-    o.textContent = t.name || '未命名';
+    o.textContent = t.name || t('set.tplUnnamed');
     sel.appendChild(o);
   });
   if (c.promptId && !ts.some(t => t.id === c.promptId)) {
     const o = document.createElement('option');
     o.value = c.promptId;
-    o.textContent = (c.promptName || '未知模板') + '（已删除）';
+    o.textContent = (c.promptName || t('set.tplUnknown')) + t('set.tplDeleted');
     sel.appendChild(o);
   }
   sel.value = c.promptId || '';
@@ -2204,7 +3010,7 @@ function renderChat() {
   const msgs = c ? c.messages : [];
   list.innerHTML = '';
   if (!msgs.length) {
-    list.innerHTML = '<div class="hint">还没有对话，在下面用德语和 AI 聊起来吧。</div>';
+    list.innerHTML = '<div class="hint">' + t('chat.emptyHint', { lang: learnLangName() }) + '</div>';
   }
   msgs.forEach((m, i) => {
     const div = document.createElement('div');
@@ -2221,12 +3027,12 @@ function renderChat() {
       body.classList.add('failed');
       const err = document.createElement('div');
       err.className = 'fail-text';
-      err.textContent = '发送失败：' + (m.failMsg || '网络错误');
+      err.textContent = t('chat.sendFail', { msg: m.failMsg || t('chat.netErr') });
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'retry-btn';
       btn.setAttribute('data-retry', '1');
-      btn.textContent = '↻ 重试';
+      btn.textContent = t('chat.retry');
       body.appendChild(err);
       body.appendChild(btn);
     } else {
@@ -2236,7 +3042,7 @@ function renderChat() {
       } else {
         body.textContent = m.content; // 用户消息保持纯文本、不模糊
       }
-      body.title = '点击生成这句的原声';
+      body.title = t('chat.clickAudio');
       bindBubbleClick(body, m);
     }
     div.appendChild(body);
@@ -2260,7 +3066,7 @@ function bindBubbleClick(el, m) {
       if (suppressBubbleClick) return;
       if (e.target.closest('[data-retry]')) return;
       clearTimeout(bubbleClickTimer);
-      bubbleClickTimer = setTimeout(() => selectSentence(germanOnly(m.content)), 300);
+      bubbleClickTimer = setTimeout(() => selectSentence(targetLangText(m.content)), 300);
     };
     el.ondblclick = e => {
       clearTimeout(bubbleClickTimer);
@@ -2280,12 +3086,16 @@ function chatHeaders(key) {
     'Content-Type': 'application/json',
     'Authorization': 'Bearer ' + key,
     'HTTP-Referer': location.href,
-    'X-Title': 'Deutsch Practice'
+    'X-Title': 'SprechMate'
   };
 }
 
+/* 是否还是默认标题（中英都认，切换界面语言后不误判） */
+function isDefaultTitle(title) {
+  return title === STR.zh['misc.newConv'] || title === STR.en['misc.newConv'];
+}
 function updateConvTitle(c) {
-  if (c.title && c.title !== '新对话') return;
+  if (c.title && !isDefaultTitle(c.title)) return;
   const firstUser = c.messages.find(m => m.role === 'user');
   if (firstUser) {
     c.title = firstUser.content.slice(0, 20) + (firstUser.content.length > 20 ? '…' : '');
@@ -2297,7 +3107,7 @@ let dictRec = null;
 let dictFocusAfter = true; // 听写结束后是否把焦点放回输入框；发送时设为 false，保证 ASDF 快捷键立即可用
 function toggleDictation() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-  if (!SR) { alertDlg('当前浏览器不支持语音输入，可以用 Gboard 的语音输入代替'); return; }
+  if (!SR) { alertDlg(t('dict.noSupport')); return; }
   if (dictRec) { try { dictRec.stop(); } catch (e) {} return; }
   const input = $('chatInput');
   const btn = $('micBtn');
@@ -2306,11 +3116,11 @@ function toggleDictation() {
   const base = input.value.replace(/\s+$/, '');
   const prefix = base ? base + ' ' : '';
   let finalText = '';
-  rec.lang = 'de-DE';
+  rec.lang = learnLocale();
   rec.interimResults = true;
   rec.maxAlternatives = 1;
   btn.classList.add('listening');
-  btn.setAttribute('aria-label', '停止语音输入');
+  btn.setAttribute('aria-label', t('chat.dictStop'));
   rec.onresult = e => {
     let interim = '';
     for (let i = e.resultIndex; i < e.results.length; i++) {
@@ -2321,13 +3131,13 @@ function toggleDictation() {
     input.value = prefix + finalText + interim;
     autoGrowTextarea(input);
   };
-  const done = () => { dictRec = null; btn.classList.remove('listening'); btn.setAttribute('aria-label', '语音输入'); if (dictFocusAfter) input.focus(); dictFocusAfter = true; };
+  const done = () => { dictRec = null; btn.classList.remove('listening'); btn.setAttribute('aria-label', t('chat.dict')); if (dictFocusAfter) input.focus(); dictFocusAfter = true; };
   rec.onend = done;
   rec.onerror = e => {
     done();
-    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') alertDlg('麦克风权限被拒绝，请在浏览器设置里允许后重试');
-    else if (e.error === 'audio-capture') alertDlg('没有找到麦克风');
-    else if (e.error === 'network') alertDlg('语音识别需要联网，请检查网络后重试');
+    if (e.error === 'not-allowed' || e.error === 'service-not-allowed') alertDlg(t('dict.noPerm'));
+    else if (e.error === 'audio-capture') alertDlg(t('dict.noMic'));
+    else if (e.error === 'network') alertDlg(t('dict.netNeeded'));
   };
   try { rec.start(); } catch (e) { done(); }
 }
@@ -2340,7 +3150,7 @@ async function sendChat() {
   const text = input.value.trim();
   if (!text) return;
   if (!s.chatBaseUrl || !s.chatModel || !s.chatKey) {
-    await alertDlg('请先点右上角齿轮，填写聊天接口的 Base URL、模型和 Key');
+    await alertDlg(t('chat.noKey'));
     return;
   }
   let c = activeConv();
@@ -2381,10 +3191,10 @@ async function sendChatCore(c) {
     });
     if (!res.ok || !res.body) {
       const t = await res.text().catch(() => '');
-      let em = '请求失败';
+      let em = t('chat.reqFail');
       try { const j = JSON.parse(t); em = j.error ? (j.error.message || JSON.stringify(j.error)) : t; }
       catch (e) { if (t) em = t; }
-      throw new Error('HTTP ' + res.status + '：' + String(em).slice(0, 200));
+      throw new Error('HTTP ' + res.status + t('misc.colon') + String(em).slice(0, 200));
     }
     const reader = res.body.getReader();
     const decoder = new TextDecoder();
@@ -2418,7 +3228,7 @@ async function sendChatCore(c) {
       }
     }
     try { reader.cancel(); } catch (e) {}
-    if (!aiMsg.content) throw new Error('接口返回为空');
+    if (!aiMsg.content) throw new Error(t('chat.emptyResp'));
     if (!trackChatFromUsage(streamUsage)) {
       // 接口没返回用量：按字符估算（输入按实际发送的消息，输出按收到的回复）
       let pin = 0;
@@ -2437,7 +3247,7 @@ async function sendChatCore(c) {
       renderConvList();
       // 自动朗读回复（练听力）：填入跟读框并播放，不滚动抢屏；没配 Azure Key 则跳过
       if (s.autoSpeak && s.azureKey) {
-        const t = germanOnly(aiMsg.content).trim();
+        const t = targetLangText(aiMsg.content).trim();
         if (t) selectSentence(t, false);
       }
     }
@@ -2479,11 +3289,11 @@ function enterEditMode(msgEl, idx) {
   const actions = document.createElement('div');
   actions.className = 'edit-actions';
   const save = document.createElement('button');
-  save.type = 'button'; save.className = 'edit-save'; save.textContent = '保存';
+  save.type = 'button'; save.className = 'edit-save'; save.textContent = t('chat.editSave');
   const cancel = document.createElement('button');
-  cancel.type = 'button'; cancel.className = 'edit-cancel'; cancel.textContent = '取消';
+  cancel.type = 'button'; cancel.className = 'edit-cancel'; cancel.textContent = t('chat.editCancel');
   save.onclick = () => {
-    if (!ta.value.trim()) { alertDlg('内容不能为空'); return; }
+    if (!ta.value.trim()) { alertDlg(t('chat.editEmpty')); return; }
     // ChatGPT 逻辑：改 AI 的消息只改存档；改自己的消息则丢弃后面的，从这条重发
     const resend = m.role === 'user' && !$('sendBtn').disabled;
     m.content = ta.value;
@@ -2508,23 +3318,23 @@ function enterEditMode(msgEl, idx) {
 async function testChat() {
   const s = getSettings();
   const msg = $('chatTestMsg');
-  msg.textContent = '测试中…';
+  msg.textContent = t('chat.testing');
   try {
-    if (!s.chatBaseUrl || !s.chatModel || !s.chatKey) throw new Error('请先填写 Base URL、模型和 Key');
+    if (!s.chatBaseUrl || !s.chatModel || !s.chatKey) throw new Error(t('chat.noKey'));
     const base = s.chatBaseUrl.replace(/\/+$/, '');
     const res = await fetch(base + '/chat/completions', {
       method: 'POST',
       headers: chatHeaders(s.chatKey),
-      body: JSON.stringify({ model: s.chatModel, messages: [{ role: 'user', content: '请只回复 OK' }], max_tokens: 10 })
+      body: JSON.stringify({ model: s.chatModel, messages: [{ role: 'user', content: t('chat.testAsk') }], max_tokens: 10 })
     });
     const data = await res.json().catch(() => null);
-    if (!res.ok) throw new Error('HTTP ' + res.status + '：' + JSON.stringify(data && data.error || data).slice(0, 160));
+    if (!res.ok) throw new Error('HTTP ' + res.status + t('misc.colon') + JSON.stringify(data && data.error || data).slice(0, 160));
     const r = data && data.choices && data.choices[0] && data.choices[0].message ? data.choices[0].message.content : '';
     trackChatFromUsage(data); // 测试也记（用量很小）
-    if (r) msg.textContent = '连接成功，模型回复：' + String(r).slice(0, 60);
-    else msg.textContent = '连接成功';
+    if (r) msg.textContent = t('chat.testOkReply', { reply: String(r).slice(0, 60) });
+    else msg.textContent = t('chat.testOk');
   } catch (e) {
-    msg.textContent = '失败：' + e.message;
+    msg.textContent = t('chat.testFail', { msg: e.message });
   }
 }
 
@@ -2561,11 +3371,11 @@ function createPlayer(ns, getRate) {
   const playBtn = $(ns + 'PlayBtn'), seek = $(ns + 'Seek'),
         cur = $(ns + 'Cur'), durEl = $(ns + 'Dur');
   const fmt = s => { s = Math.max(0, Math.floor(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
-  const setIcon = playing => { playBtn.innerHTML = playing ? '<span class="ic-pause"></span><span>暂停</span>' : '<span class="ic-play"></span><span>播放</span>'; };
+  const setIcon = playing => { playBtn.innerHTML = playing ? '<span class="ic-pause"></span><span data-i18n="sent.pause">' + t('sent.pause') + '</span>' : '<span class="ic-play"></span><span data-i18n="sent.play">' + t('sent.play') + '</span>'; };
   playBtn.onclick = () => {
     if (!audio.src) return;
     if (getRate) audio.playbackRate = getRate(); // 每次播放都按当前语速配置来
-    if (audio.paused) audio.play().catch(e => dlg({ title: '播放失败', message: e.message }));
+    if (audio.paused) audio.play().catch(e => dlg({ title: t('sent.playFail'), message: e.message }));
     else audio.pause();
   };
   audio.addEventListener('play', () => setIcon(true));
@@ -2589,11 +3399,36 @@ function createPlayer(ns, getRate) {
       setIcon(false); seek.value = 0; cur.textContent = '0:00';
       if (autoplay) audio.play().catch(() => {});
     },
+    clear() { // 切会话时回到初始状态：停播、清 src、禁用按钮
+      audio.pause();
+      audio.removeAttribute('src');
+      audio.load();
+      setIcon(false); seek.value = 0; cur.textContent = '0:00'; durEl.textContent = '0:00';
+      seek.disabled = true; playBtn.disabled = true;
+    },
     setRate(r) { audio.playbackRate = r; }
   };
 }
 const refPlayer = createPlayer('ref', getRefRate);
 const myPlayer = createPlayer('my');
+
+/* 切会话时跟读区回到初始状态：清空文本框、原声/录音、打分卡（练习历史由 renderHistory 按新会话重渲染） */
+function resetPracticeUI() {
+  const box = $('sentenceText');
+  if (box) { box.value = ''; autoGrowTextarea(box); }
+  deBlurOverride = null;
+  refreshSentenceBlur();
+  if (lastRefUrl) { URL.revokeObjectURL(lastRefUrl); lastRefUrl = null; }
+  lastRefBlob = null; lastRefText = '';
+  refPlayer.clear();
+  if (myRecordingUrl) { URL.revokeObjectURL(myRecordingUrl); myRecordingUrl = null; }
+  myPlayer.clear();
+  const rc = $('resultCard');
+  if (rc) { rc.innerHTML = ''; rc.classList.add('hidden'); }
+  const rh = $('recHint');
+  if (rh) rh.textContent = '';
+  lastResult = null;
+}
 
 /* 原声音速预设（0.5x–1.5x），存浏览器，下次打开还在 */
 const LS_RATE = 'deutsch.refRate.v1';
@@ -2622,14 +3457,16 @@ function initRefRate() {
 /* ================= Azure TTS（原声） ================= */
 let lastRefBlob = null, lastRefUrl = null;
 
-async function ttsBlob(text) {
+async function ttsBlob(text, voice) {
   const s = getSettings();
-  if (!s.azureKey || !s.azureRegion) throw new Error('请先点右上角齿轮，填写 Azure Speech Key 和 Region');
+  if (!s.azureKey || !s.azureRegion) throw new Error(t('sent.noKey'));
   const t = String(text || '').trim();
-  if (!t) throw new Error('没有可朗读的文本');
+  if (!t) throw new Error(t('sent.noText'));
+  const v = voice || s.voice;
   const url = 'https://' + s.azureRegion + '.tts.speech.microsoft.com/cognitiveservices/v1';
-  const ssml = "<speak version='1.0' xml:lang='de-DE'><voice xml:lang='de-DE' name='" +
-    esc(s.voice) + "'>" + escapeXml(t) + "</voice></speak>";
+  const vLocale = String(v || '').split('-').slice(0, 2).join('-') || learnLocale(); // 从声音名取 locale（如 de-DE-KatjaNeural → de-DE）
+  const ssml = "<speak version='1.0' xml:lang='" + vLocale + "'><voice xml:lang='" + vLocale + "' name='" +
+    esc(v) + "'>" + escapeXml(t) + "</voice></speak>";
   const res = await fetch(url, {
     method: 'POST',
     headers: {
@@ -2641,9 +3478,11 @@ async function ttsBlob(text) {
   });
   if (!res.ok) {
     const et = await res.text().catch(() => '');
-    throw new Error('TTS 失败（' + res.status + '）：' + et.slice(0, 180));
+    throw new Error(t('sent.ttsFail', { status: res.status, msg: et.slice(0, 180) }));
   }
-  return await res.blob();
+  const outBlob = await res.blob();
+  if (!isValidAudioBlob(outBlob)) throw new Error(t('sent.ttsFail', { status: res.status, msg: 'empty audio' }));
+  return outBlob;
 }
 
 /* 短字符串 hash（djb2）：TTS 缓存 key 用 */
@@ -2653,14 +3492,78 @@ function hashStr(s) {
   return (h >>> 0).toString(36);
 }
 /* TTS 带本地缓存：同一句话 + 同一声音只调一次 API，音频存 IndexedDB（最多保留 100 条） */
+/* 从文本字符范围粗判语言（仅用于 TTS 选声音：文本是日语就别拿德语声音硬读；和显示逻辑无关）；
+   拉丁系（德/英/法/西等）靠字符分不出来，返回 null 走当前声音 */
+function guessLangByScript(t) {
+  t = String(t || '');
+  if (/[\u3040-\u30ff]/.test(t)) return 'ja';   // 假名
+  if (/[\uac00-\ud7af]/.test(t)) return 'ko';   // 谚文
+  if (/[\u0e00-\u0e7f]/.test(t)) return 'th';   // 泰文
+  if (/[\u0400-\u04ff]/.test(t)) return 'ru';   // 西里尔
+  if (/[\u0600-\u06ff]/.test(t)) return 'ar';   // 阿拉伯文
+  if (/[\u0900-\u097f]/.test(t)) return 'hi';   // 天城文（印地语）
+  if (/[\u0b80-\u0bff]/.test(t)) return 'ta';   // 泰米尔文
+  if (/[\u4e00-\u9fff]/.test(t)) return 'zh';   // 汉字：日文已在前面被假名拦下，剩下的判中文
+  return null;
+}
+/* 空/无效音频判定：Azure 错配（德语声音读日文）可能返回空 body，必须拦下，不能进缓存 */
+const isValidAudioBlob = b => b instanceof Blob && b.size > 0;
+/* 在 TTS 缓存里按文本找其他 locale 声音的音频（换学习语言后，旧声音的音频不再变孤儿） */
+async function ttsFindByTextOtherLocale(t, curLocale) {
+  const suffix = ':' + hashStr(t);
+  try {
+    const db = await idb();
+    return await new Promise((resolve, reject) => {
+      const tx = db.transaction('audios', 'readonly');
+      const rq = tx.objectStore('audios').openCursor();
+      rq.onsuccess = e => {
+        const cur = e.target.result;
+        if (!cur) return resolve(null);
+        const k = cur.key;
+        if (typeof k === 'string' && k.indexOf('tts:') === 0 && k.endsWith(suffix)) {
+          const vk = k.slice(4, k.length - suffix.length); // 声音名
+          const vLocale = vk.split('-').slice(0, 2).join('-');
+          const val = cur.value;
+          if (val && isValidAudioBlob(val.blob) && val.text === t && vLocale !== curLocale) return resolve(val);
+        }
+        cur.continue();
+      };
+      rq.onerror = () => reject(rq.error);
+    });
+  } catch (e) { return null; }
+}
 async function ttsCached(rawText, voice) {
-  const t = germanOnly(rawText); // 统一过滤：去中文行、去 emoji
-  if (!t) throw new Error('文本框是空的，点击对话中的一句话可自动填入');
+  const t = targetLangText(rawText); // 统一过滤：去译文行、去 emoji
+  if (!t) throw new Error(t('sent.emptyBox'));
   const v = voice || getSettings().voice;
   const key = 'tts:' + v + ':' + hashStr(t);
   const hit = await idbGet(key).catch(() => null);
-  if (hit && hit.blob && hit.text === t) return { blob: hit.blob, text: t, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段视为未命中，重新生成一次即自愈
-  const blob = await ttsBlob(t);
+  if (hit && isValidAudioBlob(hit.blob) && hit.text === t) return { blob: hit.blob, text: t, cached: true }; // 命中时校验原文：防 hash 冲突播错句子；老缓存无 text 字段/空 blob 视为未命中，重新生成一次即自愈
+  // 跨语言兜底：当前声音 miss 时，找同一句话其他 locale 声音的缓存直接用（不调 API、不计费）；
+  // 同 locale 只是换了声音时不兜底——用户想听新声音，重新生成
+  const curLocale = String(v).split('-').slice(0, 2).join('-');
+  const anyHit = await ttsFindByTextOtherLocale(t, curLocale);
+  if (anyHit && isValidAudioBlob(anyHit.blob)) return { blob: anyHit.blob, text: t, cached: true };
+  // 都没命中：按文本语言和当前声音是否匹配——不匹配时弹窗提示去设置切换，不默默生成
+  const guessed = guessLangByScript(t);
+  const vLang = String(v).split('-')[0];
+  if (guessed && guessed !== vLang) {
+    const s0 = getSettings();
+    const tl = langOf(guessed), cl = langOf(s0.learnLang);
+    const tlName = s0.uiLang === 'en' ? tl.en : tl.zh;
+    const clName = s0.uiLang === 'en' ? cl.en : cl.zh;
+    const go = await dlg({
+      title: t('sent.langMismatchTitle'),
+      message: t('sent.langMismatchMsg', { tl: tlName, cl: clName }),
+      okText: t('sent.goSettings'),
+      cancel: true
+    });
+    const abort = new Error('lang-mismatch');
+    abort.silent = true; // 去设置/取消都不弹错，静默中断
+    if (go) openSettings();
+    throw abort;
+  }
+  const blob = await ttsBlob(t, v);
   trackUsage({ ttsChars: t.length, ttsCalls: 1 }); // 只有真正调了 API 才计费：缓存命中不计
   const lim = getSettings().ttsCacheLimit; // 已钳制 0–500；0 = 关闭缓存
   if (lim > 0) {
@@ -2702,7 +3605,10 @@ async function genRefAudio(text, autoplay) {
     lastRefUrl = URL.createObjectURL(r.blob);
     refPlayer.load(lastRefUrl, autoplay !== false);
     return true;
-  } catch (e) { dlg({ title: '原声生成失败', message: e.message }); return false; }
+  } catch (e) {
+    if (!e || !e.silent) dlg({ title: t('sent.genFail'), message: e.message });
+    return false;
+  }
 }
 
 async function downloadRefAudio() {
@@ -2723,17 +3629,17 @@ async function downloadRefAudio() {
     document.body.appendChild(a);
     a.click();
     a.remove();
-  } catch (e) { dlg({ title: '下载失败', message: e.message }); }
+  } catch (e) { if (!e || !e.silent) dlg({ title: t('sent.dlFail'), message: e.message }); }
 }
 
 async function testTts() {
   const msg = $('ttsTestMsg');
-  msg.textContent = '合成中…';
+  msg.textContent = t('sent.synthesizing');
   try {
     const blob = await ttsBlob('Guten Tag! Wie geht es dir?');
     await new Audio(URL.createObjectURL(blob)).play();
-    msg.textContent = 'TTS 正常，已播放测试语音';
-  } catch (e) { msg.textContent = '失败：' + e.message; }
+    msg.textContent = t('sent.ttsOk');
+  } catch (e) { msg.textContent = t('chat.testFail', { msg: e.message }); }
 }
 
 /* ================= 发音评估（跟读打分）+ 同步录下用户音频 ================= */
@@ -2763,33 +3669,34 @@ function setRecHint(t) { $('recHint').textContent = t || ''; }
 
 let myRecordingUrl = null;
 let pendingRetry = null; // 打分失败但录音保留时：{ blob, text }，供"重新打分"用
+let lastResult = null; // 上次打分结果 { pa, recognized }，切换界面语言时重渲染
 
 /* 录音按钮四态：idle（开始录音）/ starting（准备中）/ recording（■ 停止）/ scoring（打分中） */
 function setRecUI(state) {
   const btn = $('recBtn');
   if (state === 'recording') {
     btn.classList.add('recording');
-    $('recLabel').textContent = '■ 停止';
+    $('recLabel').textContent = t('rec.stop');
     btn.disabled = false;
     $('recStatus').classList.remove('hidden');
     $('recSpin').classList.add('hidden');
-    $('recPhase').textContent = '录音中 0:00';
+    $('recPhase').textContent = t('rec.phase', { time: '0:00' });
     delete $('recPhase').dataset.t;
   } else if (state === 'scoring') {
     btn.classList.remove('recording');
-    $('recLabel').textContent = '打分中…';
+    $('recLabel').textContent = t('rec.scoring');
     btn.disabled = true;
     $('recSpin').classList.remove('hidden');
-    $('recPhase').textContent = '正在打分，请稍候…';
+    $('recPhase').textContent = t('rec.phaseScoring');
     stopMeter();
   } else if (state === 'starting') {
     btn.classList.remove('recording');
-    $('recLabel').textContent = '准备中…';
+    $('recLabel').textContent = t('rec.preparing');
     btn.disabled = true;
     $('recStatus').classList.add('hidden');
   } else {
     btn.classList.remove('recording');
-    $('recLabel').textContent = '开始录音';
+    $('recLabel').textContent = t('rec.start');
     btn.disabled = false;
     $('recStatus').classList.add('hidden');
     stopMeter();
@@ -2821,7 +3728,7 @@ function startMeter(stream) {
       if (rms > SPEECH_RMS) lastSpeech = now;
       else if (!silenceFired && now - lastSpeech > REC_SILENCE_MS) {
         silenceFired = true;
-        autoStopRecording('连续 10 秒没有检测到说话声，已自动停止');
+        autoStopRecording(t('rec.autoSilence'));
         return;
       }
       const target = Math.min(100, Math.round(rms * 320));
@@ -2832,7 +3739,7 @@ function startMeter(stream) {
         if (fill) fill.style.width = (Math.round(shown / 5) * 5) + '%';
         const el = Math.floor((now - recT0) / 1000); // 已录时长（秒）
         const ph = $('recPhase');
-        if (ph && ph.dataset.t !== String(el)) { ph.dataset.t = String(el); ph.textContent = '录音中 ' + fmtRecTime(el); }
+        if (ph && ph.dataset.t !== String(el)) { ph.dataset.t = String(el); ph.textContent = t('rec.phase', { time: fmtRecTime(el) }); }
       }
       meterRAF = requestAnimationFrame(loop);
     };
@@ -2875,9 +3782,9 @@ async function onRecBtn() {
 /* 开始：只录音（MediaRecorder）；点停止后转 PCM，经 REST 发去打分 */
 async function startRecording() {
   const text = $('sentenceText').value.trim();
-  if (!text) { alertDlg('请先点击对话中的一句话，或在文本框输入要练习的德语句子'); return; }
+  if (!text) { alertDlg(t('rec.noText', { lang: learnLangName() })); return; }
   const s = getSettings();
-  if (!s.azureKey || !s.azureRegion) { alertDlg('请先点右上角齿轮，填写 Azure Speech Key 和 Region'); return; }
+  if (!s.azureKey || !s.azureRegion) { alertDlg(t('rec.noKey')); return; }
   setRecUI('starting');
   setRecHint('');
   try {
@@ -2892,13 +3799,13 @@ async function startRecording() {
     startMeter(stream);
     recSession = { recorder: recorder, stream: stream, chunks: chunks, text: text };
     recSession.maxTimer = setTimeout(() => {
-      autoStopRecording('录音达到 30 秒，已自动停止（微软发音评估仅支持 30 秒内音频）');
+      autoStopRecording(t('rec.auto30'));
     }, REC_MAX_MS);
     setRecUI('recording');
   } catch (e) {
     recSession = null;
     setRecUI('idle');
-    dlg({ title: '无法开始录音', message: String((e && e.message) || e) });
+    dlg({ title: t('rec.cantStart'), message: String((e && e.message) || e) });
   }
 }
 
@@ -2914,7 +3821,7 @@ async function stopRecording() {
     if (rs.recorder.state !== 'inactive') {
       await new Promise(res => { rs.recorder.onstop = res; rs.recorder.stop(); });
     }
-    if (!rs.chunks.length) throw new Error('没有录到声音，请检查麦克风后重试');
+    if (!rs.chunks.length) throw new Error(t('rec.noAudio'));
     blob = new Blob(rs.chunks, { type: rs.recorder.mimeType || 'audio/webm' });
     // 回放：停止后自动播放我的录音
     if (myRecordingUrl) URL.revokeObjectURL(myRecordingUrl);
@@ -2928,12 +3835,12 @@ async function stopRecording() {
     savePracticeRecord(rs.text, r.pa, r.recognized, blob);
   } catch (e) {
     const msg = String((e && e.message) || e);
-    if (blob && /网络|超时/.test(msg)) {
+    if (blob && e && e.keepRecording) {
       // 网络问题：录音保留，给"重新打分"按钮，不用重录
       pendingRetry = { blob: blob, text: rs.text };
       showRetryCard(msg);
     } else {
-      dlg({ title: '打分失败', message: msg });
+      dlg({ title: t('rec.scoreFail'), message: msg });
     }
   } finally {
     try { rs.stream.getTracks().forEach(t => t.stop()); } catch (e) {}
@@ -2947,8 +3854,8 @@ async function stopRecording() {
 function showRetryCard(msg) {
   const card = $('resultCard');
   card.classList.remove('hidden');
-  card.innerHTML = '<div class="retrybox"><p>' + msg + '。你的录音已保留，网络恢复后可直接重新打分，无需重录。</p>'
-    + '<button id="retryScoreBtn" class="btn-pri">重新打分</button></div>';
+  card.innerHTML = '<div class="retrybox"><p>' + t('rec.retryKept', { msg: msg }) + '</p>'
+    + '<button id="retryScoreBtn" class="btn-pri">' + t('rec.retry') + '</button></div>';
   $('retryScoreBtn').onclick = retryScoring;
 }
 async function retryScoring() {
@@ -2956,7 +3863,7 @@ async function retryScoring() {
   if (!pr) return;
   const btn = $('retryScoreBtn');
   btn.disabled = true;
-  btn.textContent = '打分中…';
+  btn.textContent = t('rec.scoring');
   try {
     const pcm16 = await decodeToPcm16k(pr.blob);
     const r = await assessPcm(pcm16, pr.text);
@@ -2965,8 +3872,8 @@ async function retryScoring() {
     savePracticeRecord(pr.text, r.pa, r.recognized, pr.blob);
   } catch (e) {
     btn.disabled = false;
-    btn.textContent = '重新打分';
-    dlg({ title: '打分失败', message: String((e && e.message) || e) });
+    btn.textContent = t('rec.retry');
+    dlg({ title: t('rec.scoreFail'), message: String((e && e.message) || e) });
   }
 }
 
@@ -2999,7 +3906,7 @@ async function decodeToPcm16k(blob) {
 /* REST 发音评估：POST 16kHz WAV 到 Azure，不再依赖 SDK */
 async function assessPcm(pcm16, referenceText) {
   const s = getSettings();
-  if (!s.azureKey || !s.azureRegion) throw new Error('请先点右上角齿轮，填写 Azure Speech Key 和 Region');
+  if (!s.azureKey || !s.azureRegion) throw new Error(t('sent.noKey'));
   const config = {
     ReferenceText: referenceText,
     GradingSystem: 'HundredMark',
@@ -3010,7 +3917,7 @@ async function assessPcm(pcm16, referenceText) {
     nbestPhonemeCount: 3
   };
   const url = 'https://' + s.azureRegion + '.stt.speech.microsoft.com/speech/recognition/conversation/cognitiveservices/v1'
-    + '?language=de-DE&format=detailed';
+    + '?language=' + learnLocale() + '&format=detailed';
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), 60000);
   let res;
@@ -3027,23 +3934,25 @@ async function assessPcm(pcm16, referenceText) {
       body: pcm16ToWavBlob(pcm16)
     });
   } catch (e) {
-    throw new Error((e && e.name === 'AbortError') ? '打分请求超时，请检查网络后重试' : '网络连接失败，请检查网络后重试');
+    const ne = new Error((e && e.name === 'AbortError') ? t('rec.timeout') : t('rec.netFail'));
+    ne.keepRecording = true; // 网络类失败：录音保留，可直接重新打分
+    throw ne;
   } finally {
     clearTimeout(timer);
   }
-  if (res.status === 401 || res.status === 403) throw new Error('Azure Key 或 Region 不正确，请点右上角齿轮检查');
-  if (res.status === 429) throw new Error('请求太频繁或配额用完，稍后再试');
+  if (res.status === 401 || res.status === 403) throw new Error(t('rec.badKey'));
+  if (res.status === 429) throw new Error(t('rec.quota'));
   if (!res.ok) {
     const t = await res.text().catch(() => '');
-    throw new Error('打分服务异常（' + res.status + '）' + (t ? '：' + t.slice(0, 120) : ''));
+    throw new Error(t('rec.serverErr', { status: res.status, msg: t ? t('misc.colon') + t.slice(0, 120) : '' }));
   }
   let json;
   try { json = await res.json(); }
-  catch (e) { throw new Error('打分服务返回异常，请重试'); }
+  catch (e) { throw new Error(t('rec.badResponse')); }
   if (!json || json.RecognitionStatus !== 'Success')
-    throw new Error('没有识别到语音，请靠近麦克风、完整读一遍再试');
+    throw new Error(t('rec.noSpeech'));
   const best = json.NBest && json.NBest[0];
-  if (!best) throw new Error('打分服务没有返回结果，请重试');
+  if (!best) throw new Error(t('rec.noResult'));
   // 适配成 renderResult 原来的字段形态：总分/子分 + Words（含单词与音素明细）
   // REST 的分数可能是平铺的（best.AccuracyScore），也可能嵌套在 PronunciationAssessment 下——两种都兼容
   const a = best.PronunciationAssessment || {};
@@ -3051,7 +3960,7 @@ async function assessPcm(pcm16, referenceText) {
   const hasScore = (...vs) => vs.some(v => typeof v === 'number' && !isNaN(v));
   // 防御：有转写但无评估 = 配置没被接受，抛错而不是渲染误导人的 0 分
   if (!hasScore(a.AccuracyScore, best.AccuracyScore))
-    throw new Error('打分服务未返回发音评估（只返回了转写），请重试');
+    throw new Error(t('rec.noAssess'));
   const normPhoneme = p => {
     const ppa = p.PronunciationAssessment || {};
     return {
@@ -3082,6 +3991,8 @@ async function assessPcm(pcm16, referenceText) {
       accuracyScore: pick(a.AccuracyScore, best.AccuracyScore),
       fluencyScore: pick(a.FluencyScore, best.FluencyScore),
       completenessScore: pick(a.CompletenessScore, best.CompletenessScore),
+      prosodyScore: pick(a.ProsodyScore, best.ProsodyScore), // 仅 en-US 有
+      hasProsody: hasScore(a.ProsodyScore, best.ProsodyScore),
       detailResult: { Words: (best.Words || []).map(normWord) }
     },
     recognized: best.Display || best.Lexical || json.DisplayText || ''
@@ -3202,14 +4113,18 @@ function phonemeHeard(p) {
   return '';
 }
 
-function renderResult(pa, recognized) {
+function renderResult(pa, recognized, skipScroll) {
+  lastResult = { pa: pa, recognized: recognized }; // 存一份，切换界面语言时重渲染
   const card = $('resultCard');
   card.classList.remove('hidden');
   const overall = Math.round(pa.pronunciationScore || 0);
   const acc = Math.round(pa.accuracyScore || 0);
   const flu = Math.round(pa.fluencyScore || 0);
   const com = Math.round(pa.completenessScore || 0);
+  const pro = Math.round(pa.prosodyScore || 0);
   const C = 2 * Math.PI * 54;
+  const learnLang = getSettings().learnLang;
+  const isEn = learnLang === 'en';
   let wordsHtml = '';
   const words = (pa.detailResult && pa.detailResult.Words) || [];
   words.forEach((w, i) => {
@@ -3222,9 +4137,9 @@ function renderResult(pa, recognized) {
       : err === 'Insertion' ? 'ins' : 'warn';
     let ph = '';
     const phList = w.Phonemes || [];
-    // Azure 不给德语音标 → 用发音规则估算（数量对得上才用，否则只显示分数）
+    // 德语 Azure 不给音素名 → 用发音规则估算（数量对得上才用，仅德语）；英语直接返回真实 IPA
     let est = null;
-    if (phList.length && !phList.some(phonemeSym)) {
+    if (learnLang === 'de' && phList.length && !phList.some(phonemeSym)) {
       const g = germanG2P(w.Word);
       if (g && g.length === phList.length) est = g;
     }
@@ -3236,29 +4151,30 @@ function renderResult(pa, recognized) {
       const heard = phonemeHeard(p);
       const showHeard = heard && heard !== pc && ps < 80;
       ph += '<span class="ph ' + pcls + '">' +
-        (pc ? '<b' + (isEst ? ' class="est" title="按德语发音规则估算"' : '') + '>' + esc(pc) + '</b>' : '') +
+        (pc ? '<b' + (isEst ? ' class="est" title="' + t('rec.phEstTitle', { lang: learnLangName() }) + '"' : '') + '>' + esc(pc) + '</b>' : '') +
         '<small>' + ps + '</small>' +
-        (showHeard ? '<i>读成' + esc(heard) + '</i>' : '') +
+        (showHeard ? '<i>' + t('rec.heardAs', { sym: esc(heard) }) + '</i>' : '') +
         '</span>';
     });
     wordsHtml += '<div class="word-wrap"><button class="word ' + cls + '" data-i="' + i + '">' +
       esc(w.Word || '') + '<small>' + score + '</small></button>' +
-      '<div class="phs hidden" id="phs-' + i + '">' + (ph || '<span class="hint">无音素明细</span>') + '</div></div>';
+      '<div class="phs hidden" id="phs-' + i + '">' + (ph || '<span class="hint">' + t('rec.noPhDetail') + '</span>') + '</div></div>';
   });
+  const phNote = isEn ? t('rec.phNoteReal') : learnLang === 'de' ? t('rec.phNoteEst') : '';
   card.innerHTML =
     '<div class="score-row">' +
     '<svg class="ring" viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="ring-bg"/>' +
     '<circle cx="60" cy="60" r="54" class="ring-fg" stroke-dasharray="' + C.toFixed(1) +
     '" stroke-dashoffset="' + (C * (1 - overall / 100)).toFixed(1) + '"/>' +
     '<text x="60" y="69" class="ring-num">' + overall + '</text></svg>' +
-    '<div class="subs">' + subBar('准确度', acc) + subBar('流利度', flu) + subBar('完整度', com) + '</div></div>' +
-    '<div class="heard">系统听到：' + esc(recognized || '（无）') + '</div>' +
-    '<div class="words">' + (wordsHtml || '<span class="hint">无单词明细</span>') + '</div>' +
-    '<div class="hint">点单词看音素得分（音标为估算值）。单词：红=读错，灰=漏读，橙=多读。</div>';
+    '<div class="subs">' + subBar(t('rec.accuracy'), acc) + subBar(t('rec.fluency'), flu) + subBar(t('rec.completeness'), com) + (pa.hasProsody ? subBar(t('rec.prosody'), pro) : '') + '</div></div>' +
+    '<div class="heard">' + t('rec.heard', { text: esc(recognized || t('rec.heardNone')) }) + '</div>' +
+    '<div class="words">' + (wordsHtml || '<span class="hint">' + t('rec.noWordDetail') + '</span>') + '</div>' +
+    '<div class="hint">' + t('rec.wordHint', { phNote: phNote }) + '</div>';
   card.querySelectorAll('.word').forEach(b => b.addEventListener('click', () => {
     $('phs-' + b.dataset.i).classList.toggle('hidden');
   }));
-  card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (!skipScroll) card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 /* ================= IndexedDB：存音频 blob（原声 / 我的录音） ================= */
@@ -3418,7 +4334,7 @@ function renderHistory() {
   const recs = (conv && conv.records) || [];
   list.innerHTML = '';
   if (!recs.length) {
-    list.innerHTML = '<div class="hint">暂无练习记录</div>';
+    list.innerHTML = '<div class="hint">' + t('rec.noHistory') + '</div>';
     return;
   }
   recs.forEach(rec => {
@@ -3475,15 +4391,15 @@ function fmtBytes(n) {
 async function refreshStorageStats() {
   if (!$('statUsage')) return;
   const s = getSettings();
-  $('statConvs').textContent = getConvs().length + ' / ' + s.convLimit + ' 个';
-  try { $('statTts').textContent = (await idbCount('tts:')) + ' / ' + s.ttsCacheLimit + ' 条'; }
+  $('statConvs').textContent = t('set.countUnit', { n: getConvs().length, limit: s.convLimit });
+  try { $('statTts').textContent = t('set.itemUnit', { n: await idbCount('tts:'), limit: s.ttsCacheLimit }); }
   catch (e) { $('statTts').textContent = '—'; }
   try {
     if (navigator.storage && navigator.storage.estimate) {
       const { usage, quota } = await navigator.storage.estimate();
-      $('statUsage').textContent = fmtBytes(usage) + '（配额约 ' + fmtBytes(quota) + '）';
+      $('statUsage').textContent = fmtBytes(usage) + t('set.quotaAbout', { q: fmtBytes(quota) });
     } else {
-      $('statUsage').textContent = '浏览器不支持统计';
+      $('statUsage').textContent = t('set.noEstimate');
     }
   } catch (e) { $('statUsage').textContent = '—'; }
 }
@@ -3527,7 +4443,8 @@ if ('launchQueue' in window) {
 }
 
 async function init() {
-  initSettings();
+  applyI18n(); // 先应用界面语言（静态文本）
+  await initSettings();
   initSettingsNav();
   handleSharedText();
   await initConvsStore(); // 对话数据从 IndexedDB 加载（含 localStorage 老数据迁移）
@@ -3607,7 +4524,7 @@ async function init() {
     refreshConvPromptSel();
   });
   $('delAllBtn').onclick = async () => {
-    if (await confirmDlg('确定删除所有对话吗？相关的练习记录和音频也会一并清除。', '全部删除')) {
+    if (await confirmDlg(t('drawer.delAllConfirm'), t('dlg.delAll'))) {
       getConvs().forEach(deleteConvAudios);
       saveConvs([]); setActiveId('');
       newConversation(); closeDrawer();
@@ -3617,8 +4534,8 @@ async function init() {
     const cutoff = Date.now() - days * 24 * 3600 * 1000;
     const convs = getConvs();
     const old = convs.filter(c => (c.createdAt || 0) < cutoff);
-    if (!old.length) { await alertDlg('没有 ' + days + ' 天前的对话'); return; }
-    if (!await confirmDlg('确定删除 ' + old.length + ' 个 ' + days + ' 天前的对话吗？相关的练习记录和录音也会一并清除，删了找不回来。')) return;
+    if (!old.length) { await alertDlg(t('drawer.delOldNone', { days: days })); return; }
+    if (!await confirmDlg(t('drawer.delOldConfirm', { n: old.length, days: days }))) return;
     old.forEach(deleteConvAudios); // 录音同步清掉
     const rest = convs.filter(c => (c.createdAt || 0) >= cutoff);
     saveConvs(rest);
