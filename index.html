@@ -473,6 +473,20 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <input id="setModel" type="text" data-i18n-ph="set.modelPh" placeholder="例如 openai/gpt-4o-mini"/>
       </div>
       <div class="field">
+        <label><span data-i18n="set.reasoningEffort">思考强度</span> <span class="hint" data-i18n="set.reHint">（思考模型可用，各家取值不同）</span></label>
+        <select id="setReasoningEffort">
+          <option value="" data-i18n="set.reDefault">不发送（默认）</option>
+          <option value="none">none</option>
+          <option value="minimal">minimal</option>
+          <option value="low">low</option>
+          <option value="medium">medium</option>
+          <option value="high">high</option>
+          <option value="xhigh">xhigh</option>
+          <option value="max">max</option>
+          <option value="ultra">ultra</option>
+        </select>
+      </div>
+      <div class="field">
         <label>API Key</label>
         <input id="setKey" type="password" autocomplete="off" placeholder="sk-..."/>
       </div>
@@ -493,9 +507,8 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <select id="setRegion"></select>
       </div>
       <div class="field">
-        <label id="voiceLabel">德语原声声音</label>
+        <label id="voiceLabel">德语原声声音（声音列表跟随学习语言）</label>
         <select id="setVoice"></select>
-        <p class="desc" data-i18n="set.voiceHint">声音列表跟随学习语言</p>
       </div>
       <div class="test-row">
         <button id="testTtsBtn" data-i18n="set.testTts">测试 TTS</button>
@@ -546,7 +559,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver"><span data-i18n="set.version">版本</span> v20261008-37 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261009-09 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -674,6 +687,7 @@ const DEFAULTS = {
   priceIn: 0, // 输入 token 单价（每百万）
   priceOut: 0, // 输出 token 单价（每百万）
   priceCached: 0, // 缓存 token 单价（每百万）
+  reasoningEffort: '', // 思考强度：''=不发送，none/low/high/max
 };
 
 const REGIONS = [
@@ -958,11 +972,13 @@ zh: {
   'set.tplDeleted': '（已删除）',
   'set.chatApi': '聊天接口（OpenAI 兼容）',
   'set.model': '模型',
+  'set.reasoningEffort': '思考强度',
+  'set.reDefault': '不发送（默认）',
+  'set.reHint': '（思考模型可用，各家取值不同）',
   'set.modelPh': '例如 openai/gpt-4o-mini',
   'set.testConn': '测试连接',
   'set.azure': 'Azure Speech（发音评估 + 原声 TTS）',
-  'set.voiceLabel': '{lang}原声声音',
-  'set.voiceHint': '声音列表跟随学习语言',
+  'set.voiceLabel': '{lang}原声声音（声音列表跟随学习语言）',
   'set.testTts': '测试 TTS',
   'set.female': '女声',
   'set.male': '男声',
@@ -1227,11 +1243,13 @@ en: {
   'set.tplDeleted': '(deleted)',
   'set.chatApi': 'Chat API (OpenAI-compatible)',
   'set.model': 'Model',
+  'set.reasoningEffort': 'Reasoning effort',
+  'set.reDefault': "Don't send (default)",
+  'set.reHint': '(Thinking models only; values vary by provider)',
   'set.modelPh': 'e.g. openai/gpt-4o-mini',
   'set.testConn': 'Test connection',
   'set.azure': 'Azure Speech (assessment + native TTS)',
-  'set.voiceLabel': '{lang} native voice',
-  'set.voiceHint': 'Voice list follows the learning language',
+  'set.voiceLabel': '{lang} native voice (voice list follows learning language)',
   'set.testTts': 'Test TTS',
   'set.female': 'female',
   'set.male': 'male',
@@ -1472,6 +1490,7 @@ function collectSettings() {
   saveSettings({
     chatBaseUrl: $('setBaseUrl').value.trim(),
     chatModel: $('setModel').value.trim(),
+    reasoningEffort: $('setReasoningEffort').value,
     chatKey: $('setKey').value.trim(),
     azureKey: $('setAzKey').value.trim(),
     azureRegion: $('setRegion').value,
@@ -1532,6 +1551,7 @@ function fillSettingsForm() {
   const s = getSettings();
   $('setBaseUrl').value = s.chatBaseUrl;
   $('setModel').value = s.chatModel;
+  $('setReasoningEffort').value = s.reasoningEffort || '';
   $('setKey').value = s.chatKey;
   $('setAzKey').value = s.azureKey;
   $('setRegion').value = s.azureRegion;
@@ -1627,7 +1647,7 @@ async function initSettings() {
     saveSettings(s2);
     refreshPromptUI();
   };
-  ['setBaseUrl','setModel','setKey','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
+  ['setBaseUrl','setModel','setKey','setReasoningEffort','setChatLimit','setRecLimit','setTtsLimit'].forEach(id => {
     $(id).addEventListener('change', collectSettings);
   });
   // Azure Key/Region 变化：只保存（声音列表为内置，不依赖 Key）
@@ -2172,7 +2192,7 @@ function trackChatFromUsage(j) {
   trackUsage({
     chatIn: p,
     chatOut: out,
-    chatCached: (u.prompt_tokens_details && u.prompt_tokens_details.cached_tokens) || 0
+    chatCached: (u.prompt_tokens_details && u.prompt_tokens_details.cached_tokens) || u.prompt_cache_hit_tokens || 0
   });
   return true;
 }
@@ -2187,7 +2207,8 @@ function estTokens(s) {
   return Math.ceil(cjk + other / 4);
 }
 function chatCost(chatIn, chatOut, chatCached, s) {
-  return (chatIn / 1e6) * (+s.priceIn || 0) + (chatOut / 1e6) * (+s.priceOut || 0) + (chatCached / 1e6) * (+s.priceCached || 0);
+  const uncachedIn = Math.max(0, chatIn - chatCached); // prompt_tokens 已含 cached，先减掉再按原价算
+  return (uncachedIn / 1e6) * (+s.priceIn || 0) + (chatOut / 1e6) * (+s.priceOut || 0) + (chatCached / 1e6) * (+s.priceCached || 0);
 }
 const fmtInt = n => Math.round(n).toLocaleString('en-US');
 /* 大数字缩写（小屏幕防溢出）：2420→2,420，12345→12.3K，1234567→1.23M */
@@ -3189,6 +3210,11 @@ async function sendChat() {
 
 /* 核心发送流程：push AI 占位 → 流式 → 成功渲染 / 失败变成可重试气泡。
    重试时直接调这个，不再重复 push 用户消息 */
+/* 思考强度：用户在设置里选了值才发送 reasoning_effort，默认不传（各家默认值不同） */
+function reasoningEffortParam(s) {
+  const v = (s && s.reasoningEffort) || '';
+  return v ? { reasoning_effort: v } : {};
+}
 async function sendChatCore(c) {
   const s = getSettings();
   const sendBtn = $('sendBtn');
@@ -3213,7 +3239,7 @@ async function sendChatCore(c) {
     const res = await fetch(base + '/chat/completions', {
       method: 'POST',
       headers: chatHeaders(s.chatKey),
-      body: JSON.stringify({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs, stream_options: { include_usage: true } })
+      body: JSON.stringify(Object.assign({ model: s.chatModel, temperature: 0.7, stream: true, messages: apiMsgs, stream_options: { include_usage: true } }, reasoningEffortParam(s)))
     });
     if (!res.ok || !res.body) {
       const txt = await res.text().catch(() => '');
@@ -3229,7 +3255,13 @@ async function sendChatCore(c) {
     const paint = () => {
       if (!uiAlive()) return;
       const b = lastBubble();
-      if (b) b.textContent = aiMsg.content; // 流式中先显示纯文本
+      if (b) {
+        const st = getSettings();
+        const hideZh = !st.showZh, hideDe = !effShowDe(st);
+        let pt = aiMsg.content;
+        if (hideZh || hideDe) pt = pt.split('\n').filter(l => l.trimStart().startsWith('>') ? !hideZh : !hideDe).join('\n'); // 流式中按最终显隐状态先滤掉对应语言层
+        b.textContent = pt;
+      }
       const list = $('chatList');
       list.scrollTop = list.scrollHeight;
     };
@@ -3351,7 +3383,7 @@ async function testChat() {
     const res = await fetch(base + '/chat/completions', {
       method: 'POST',
       headers: chatHeaders(s.chatKey),
-      body: JSON.stringify({ model: s.chatModel, messages: [{ role: 'user', content: t('chat.testAsk') }], max_tokens: 10 })
+      body: JSON.stringify(Object.assign({ model: s.chatModel, messages: [{ role: 'user', content: t('chat.testAsk') }], max_tokens: 10 }, reasoningEffortParam(s)))
     });
     const data = await res.json().catch(() => null);
     if (!res.ok) throw new Error('HTTP ' + res.status + t('misc.colon') + JSON.stringify(data && data.error || data).slice(0, 160));
