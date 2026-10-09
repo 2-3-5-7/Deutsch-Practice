@@ -60,16 +60,15 @@ main{max-width:680px;margin:0 auto;padding:12px 12px 24px}
 .bubble h1,.bubble h2,.bubble h3,.bubble h4{margin:6px 0 4px;font-size:14px}
 .bubble a{color:var(--pri-d)}
 .bubble strong{font-weight:700}
-.chat-input{display:flex;gap:8px}
+.chat-input{display:flex;gap:8px;align-items:center}
 .chat-input textarea{flex:1;resize:none;border:1px solid var(--line);border-radius:10px;padding:9px;font-size:14px;font-family:inherit}
-.micbtn{flex:none;width:44px;border:none;border-radius:10px;background:#f0ebfd;color:var(--pri);display:flex;align-items:center;justify-content:center}
+.micbtn{flex:none;width:50px;height:72px;border:none;border-radius:10px;background:#f0ebfd;color:var(--pri);display:flex;align-items:center;justify-content:center}
 .micbtn svg{width:20px;height:20px}
 .micbtn.listening{background:#fee2e2;color:#dc2626;animation:micpulse 1.1s ease-in-out infinite}
 @keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
 button{font-family:inherit;cursor:pointer}
-#sendBtn{background:var(--pri);color:#fff;border:none;border-radius:10px;padding:0 18px;font-size:14px}
-#sendBtn:active{background:var(--pri-d)}
-#sendBtn:disabled{opacity:.6}
+.clearbtn{flex:none;width:50px;height:72px;border:none;border-radius:10px;background:#f0ebfd;color:var(--pri);display:flex;align-items:center;justify-content:center}
+.clearbtn svg{width:20px;height:20px}
 textarea#sentenceText{width:100%;border:1px solid var(--line);border-radius:10px;padding:10px;font-size:15px;font-family:inherit;resize:none;overflow:hidden}
 .btn-row{display:flex;gap:8px;margin:10px 0;flex-wrap:wrap}
 .btn-row button{flex:1;min-width:100px;padding:11px 6px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:14px;color:var(--ink)}
@@ -306,9 +305,9 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
       <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" data-i18n-title="chat.promptTitle" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn" data-i18n="chat.new">＋ 新对话</button></div>
       <div id="chatList" class="chat-list"></div>
       <div class="chat-input">
-        <textarea id="chatInput" rows="2" placeholder="用德语说点什么…"></textarea>
-        <button id="micBtn" class="micbtn" data-i18n-aria="chat.dict" aria-label="语音输入" data-i18n-title="chat.dictTitle" title="语音输入 (Alt+A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
-        <button id="sendBtn" data-i18n="chat.send">发送</button>
+        <button id="clearBtn" class="clearbtn" data-i18n-aria="chat.clear" aria-label="清空" data-i18n-title="chat.clearTitle" title="清空 (Alt+A)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg></button>
+        <textarea id="chatInput" rows="4" placeholder="用德语说点什么…"></textarea>
+        <button id="micBtn" class="micbtn" data-i18n-aria="chat.dict" aria-label="语音输入" data-i18n-title="chat.dictTitle" title="语音输入 (Alt+S)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="17" x2="12" y2="21"/></svg></button>
       </div>
 
     </div>
@@ -559,7 +558,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver"><span data-i18n="set.version">版本</span> v20261009-09 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261009-23 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -808,11 +807,12 @@ zh: {
   'guide.go': '去设置',
   'chat.new': '＋ 新对话',
   'chat.promptTitle': '当前对话使用的提示词模板',
-  'chat.inputPh': '用{lang}说点什么…',
-  'chat.send': '发送',
+  'chat.inputPh': '用{lang}说点什么…（回车发送，Shift+回车换行）',
+  'chat.clear': '清空',
+  'chat.clearTitle': '清空 (Alt+A)',
   'chat.dict': '语音输入',
   'chat.dictStop': '停止语音输入',
-  'chat.dictTitle': '语音输入 (Alt+A)',
+  'chat.dictTitle': '语音输入 (Alt+S)',
   'chat.emptyHint': '还没有对话，在下面用{lang}和 AI 聊起来吧。',
   'chat.sendFail': '发送失败：{msg}',
   'chat.retry': '↻ 重试',
@@ -1079,11 +1079,12 @@ en: {
   'guide.go': 'Go to settings',
   'chat.new': '＋ New chat',
   'chat.promptTitle': 'Prompt template used by this conversation',
-  'chat.inputPh': 'Say something in {lang}…',
-  'chat.send': 'Send',
+  'chat.inputPh': 'Say something in {lang}… (Enter to send, Shift+Enter for new line)',
+  'chat.clear': 'Clear',
+  'chat.clearTitle': 'Clear (Alt+A)',
   'chat.dict': 'Voice input',
   'chat.dictStop': 'Stop voice input',
-  'chat.dictTitle': 'Voice input (Alt+A)',
+  'chat.dictTitle': 'Voice input (Alt+S)',
   'chat.emptyHint': 'No conversation yet. Start chatting with AI in {lang} below.',
   'chat.sendFail': 'Send failed: {msg}',
   'chat.retry': '↻ Retry',
@@ -3113,7 +3114,7 @@ function bindBubbleClick(el, m) {
       if (suppressBubbleClick) return;
       if (e.target.closest('[data-retry]')) return;
       clearTimeout(bubbleClickTimer);
-      bubbleClickTimer = setTimeout(() => selectSentence(targetLangText(m.content)), 300);
+      bubbleClickTimer = setTimeout(() => selectSentence(targetLangText(m.content), false), 300); // 点气泡不滚动，用户自己滚
     };
     el.ondblclick = e => {
       clearTimeout(bubbleClickTimer);
@@ -3152,6 +3153,7 @@ function updateConvTitle(c) {
 /* 聊天框语音输入：Web Speech API，锁定德语识别；结果填入输入框，不自动发送 */
 let dictRec = null;
 let dictFocusAfter = true; // 听写结束后是否把焦点放回输入框；发送时设为 false，保证 ASDF 快捷键立即可用
+let chatSending = false; // 流式输出中防重复发送
 function toggleDictation() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { alertDlg(t('dict.noSupport')); return; }
@@ -3217,9 +3219,8 @@ function reasoningEffortParam(s) {
 }
 async function sendChatCore(c) {
   const s = getSettings();
-  const sendBtn = $('sendBtn');
-  if (sendBtn.disabled) return; // 流式输出中，不重复发送
-  sendBtn.disabled = true;
+  if (chatSending) return; // 流式输出中，不重复发送
+  chatSending = true;
   const convId = c.id;
   const aiMsg = { role: 'assistant', content: '' };
   try {
@@ -3314,14 +3315,14 @@ async function sendChatCore(c) {
     if (i >= 0) c.messages[i] = { role: 'assistant', content: '', failed: true, failMsg: e.message };
     persistConv(c); renderChat();
   } finally {
-    sendBtn.disabled = false;
+    chatSending = false;
   }
 }
 
 /* 重试上一次失败的发送：删掉失败气泡，原样重发 */
 function retrySend() {
   const c = activeConv();
-  if (!c || $('sendBtn').disabled) return;
+  if (!c || chatSending) return;
   const i = c.messages.map(m => !!m.failed).lastIndexOf(true);
   if (i < 0) return;
   c.messages.splice(i, 1);
@@ -3333,7 +3334,7 @@ function retrySend() {
 function enterEditMode(msgEl, idx) {
   const c = activeConv();
   const m = c && c.messages[idx];
-  if (!m || $('sendBtn').disabled) return;
+  if (!m || chatSending) return;
   const bubble = msgEl.querySelector('.bubble');
   bubble.onclick = null; // 编辑时不触发跟读
   bubble.ondblclick = null; // 编辑时不触发显隐切换
@@ -3353,7 +3354,7 @@ function enterEditMode(msgEl, idx) {
   save.onclick = () => {
     if (!ta.value.trim()) { alertDlg(t('chat.editEmpty')); return; }
     // ChatGPT 逻辑：改 AI 的消息只改存档；改自己的消息则丢弃后面的，从这条重发
-    const resend = m.role === 'user' && !$('sendBtn').disabled;
+    const resend = m.role === 'user' && !chatSending;
     m.content = ta.value;
     if (resend) {
       c.messages = c.messages.slice(0, idx + 1);
@@ -4544,7 +4545,7 @@ async function init() {
     const c = activeConv();
     const m = c && c.messages[idx];
     if (!m || !m.content || m.failed) return;
-    if ($('sendBtn').disabled) return; // 流式输出中不编辑，避免和重发打架
+    if (chatSending) return; // 流式输出中不编辑，避免和重发打架
     e.preventDefault();
     suppressBubbleClick = true;
     setTimeout(() => { suppressBubbleClick = false; }, 600);
@@ -4566,7 +4567,7 @@ async function init() {
       const c = activeConv();
       const m = c && c.messages[idx];
       if (!m || !m.content || m.failed) return;
-      if ($('sendBtn').disabled) return; // 流式输出中不编辑
+      if (chatSending) return; // 流式输出中不编辑
       suppressBubbleClick = true;
       setTimeout(() => { suppressBubbleClick = false; }, 600);
       enterEditMode(msgEl, idx);
@@ -4616,21 +4617,20 @@ async function init() {
   $('delOldBtn').onclick = () => deleteConvsOlderThan(10);
   $('delOld30Btn').onclick = () => deleteConvsOlderThan(30);
 
-  $('sendBtn').onclick = sendChat;
   $('micBtn').onclick = toggleDictation;
-  /* PC 快捷键：Alt+A 语音输入（聊天输入框里也能用，方便说一半继续说）/ S 播放原声 / D 开始录音 / F 播放我的录音
-     S/D/F 焦点在任何输入框时不触发；Alt+A 只在页面和聊天输入框响应，其他输入框不响应
+  /* PC 快捷键：Alt+A 清空输入 / Alt+S 语音输入（聊天输入框里也能用，方便说一半继续说）/ S 播放原声 / D 开始录音 / F 播放我的录音
+     S/D/F 焦点在任何输入框时不触发；Alt+A/Alt+S 只在页面和聊天输入框响应，其他输入框不响应
      设置页、弹窗/抽屉打开时都不触发（按钮 title 里有提示，移动端不受影响） */
   document.addEventListener('keydown', e => {
     const k = (e.key || '').toLowerCase();
     const noMod = !e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey;
     let id = null;
-    if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey && k === 'a') id = 'micBtn';
+    if (e.altKey && !e.ctrlKey && !e.metaKey && !e.shiftKey) id = k === 'a' ? 'clearBtn' : k === 's' ? 'micBtn' : null; // 左←A，右←S
     else if (noMod) id = k === 's' ? 'refPlayBtn' : k === 'd' ? 'recBtn' : k === 'f' ? 'myPlayBtn' : null;
     if (!id) return;
     const ae = document.activeElement;
     const inField = ae && (ae.tagName === 'INPUT' || ae.tagName === 'TEXTAREA' || ae.tagName === 'SELECT' || ae.isContentEditable);
-    if (inField && !(id === 'micBtn' && ae.id === 'chatInput')) return; // 只有聊天输入框响应 Alt+A
+    if (inField && !((id === 'micBtn' || id === 'clearBtn') && ae.id === 'chatInput')) return; // 聊天输入框内响应 Alt+A / Alt+S
     if ($('view-practice').classList.contains('hidden')) return; // 设置页不触发
     if (document.querySelector('.dlg-ov')) return; // 弹窗打开时不触发
     if ($('drawer').classList.contains('open')) return; // 抽屉打开时不触发
@@ -4642,6 +4642,8 @@ async function init() {
   $('chatInput').addEventListener('keydown', e => {
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
   });
+  /* 清空按钮：常驻可点（空的清空还是空的）；点完焦点回输入框 */
+  $('clearBtn').onclick = () => { const i = $('chatInput'); i.value = ''; i.focus(); };
 
   $('genBtn').onclick = () => genRefAudio($('sentenceText').value, true);
   $('dlRefBtn').onclick = downloadRefAudio;
