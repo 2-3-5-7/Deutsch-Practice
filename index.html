@@ -299,7 +299,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
     <div id="keyGuide" class="key-guide hidden">
       <div class="key-guide-text"><b data-i18n="guide.title">还没配置聊天接口</b><span data-i18n="guide.desc">点右上角齿轮，填好 Base URL、模型和 Key 就能开始聊天。</span></div>
       <button id="keyGuideBtn" class="key-guide-go" data-i18n="guide.go">去设置</button>
-      <button id="keyGuideX" class="key-guide-x" aria-label="关闭">✕</button>
+      <button id="keyGuideX" class="key-guide-x" data-i18n-aria="guide.close" aria-label="关闭">✕</button>
     </div>
     <div class="card">
       <div class="chat-head"><select id="convPromptSel" class="conv-prompt-sel" data-i18n-title="chat.promptTitle" title="当前对话使用的提示词模板"></select><button id="newChatBtn2" class="linkbtn" data-i18n="chat.new">＋ 新对话</button></div>
@@ -464,7 +464,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
     <div class="card">
       <h2 data-i18n="set.chatApi">聊天接口（OpenAI 兼容）</h2>
       <div class="field">
-        <label>Base URL（Endpoint）</label>
+        <label data-i18n="set.baseUrl">Base URL（Endpoint）</label>
         <input id="setBaseUrl" type="text" placeholder="https://openrouter.ai/api/v1"/>
       </div>
       <div class="field">
@@ -558,7 +558,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver"><span data-i18n="set.version">版本</span> v20261010-01 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261010-02 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -805,6 +805,7 @@ zh: {
   'guide.title': '还没配置聊天接口',
   'guide.desc': '点右上角齿轮，填好 Base URL、模型和 Key 就能开始聊天。',
   'guide.go': '去设置',
+  'guide.close': '关闭',
   'chat.new': '＋ 新对话',
   'chat.promptTitle': '当前对话使用的提示词模板',
   'chat.inputPh': '用{lang}说点什么…（回车发送，Shift+回车换行）',
@@ -971,6 +972,7 @@ zh: {
   'set.tplUnknown': '未知模板',
   'set.tplDeleted': '（已删除）',
   'set.chatApi': '聊天接口（OpenAI 兼容）',
+  'set.baseUrl': 'Base URL（Endpoint）',
   'set.model': '模型',
   'set.reasoningEffort': '思考强度',
   'set.reDefault': '不发送（默认）',
@@ -1077,6 +1079,7 @@ en: {
   'guide.title': 'Chat API not configured',
   'guide.desc': 'Tap the gear icon (top right) and fill in Base URL, model and Key to start chatting.',
   'guide.go': 'Go to settings',
+  'guide.close': 'Close',
   'chat.new': '＋ New chat',
   'chat.promptTitle': 'Prompt template used by this conversation',
   'chat.inputPh': 'Say something in {lang}… (Enter to send, Shift+Enter for new line)',
@@ -1243,6 +1246,7 @@ en: {
   'set.tplUnknown': 'Unknown template',
   'set.tplDeleted': '(deleted)',
   'set.chatApi': 'Chat API (OpenAI-compatible)',
+  'set.baseUrl': 'Base URL (Endpoint)',
   'set.model': 'Model',
   'set.reasoningEffort': 'Reasoning effort',
   'set.reDefault': "Don't send (default)",
