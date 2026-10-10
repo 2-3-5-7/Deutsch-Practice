@@ -558,7 +558,7 @@ mark{background:#fff3b0;border-radius:2px;padding:0 1px}
         <button id="resetSettingsBtn" type="button" class="danger" data-i18n="set.resetSet">还原默认设置</button>
       </div>
     </div>
-    <div class="ver"><span data-i18n="set.version">版本</span> v20261009-23 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
+    <div class="ver"><span data-i18n="set.version">版本</span> v20261010-01 · <a class="ver-link" href="https://github.com/2-3-5-7/SprechMate" target="_blank" rel="noopener">GitHub</a></div>
   </section>
 </main>
 <script>
@@ -3411,7 +3411,7 @@ function selectSentence(text, scroll) {
   autoGrowTextarea(box);
   refreshSentenceBlur(); // 隐藏德语开启且没焦点时模糊
   genRefAudio(t, true); // 自动生成并播放
-  if (scroll !== false) $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  if (scroll !== false) $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
 }
 
 /* 隐藏德语开启时，原声跟读框在没有焦点时模糊（里面也是德语）；点进去编辑则显示。
@@ -4487,16 +4487,17 @@ function applySharedText(shared) {
     box.value = t;
     autoGrowTextarea(box);
     refreshSentenceBlur();
-    $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    $('sentenceCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }
 }
-function handleSharedText() {
+/* 分享来的文本只解析并清掉 URL 参数；实际填框+生成+滚动等 init 渲染完成后再做，否则滚动位置会被后续渲染冲掉 */
+function getSharedText() {
   let q;
-  try { q = new URLSearchParams(location.search); } catch (e) { return; }
+  try { q = new URLSearchParams(location.search); } catch (e) { return ''; }
   const shared = (q.get('text') || '').trim() || (q.get('title') || '').trim();
-  if (!shared) return;
+  if (!shared) return '';
   try { history.replaceState(null, '', location.pathname); } catch (e) {} // 清掉参数，刷新不再重复触发
-  applySharedText(shared);
+  return shared;
 }
 /* App 已打开时再被分享唤起：focus-existing 只聚焦不刷新页面，分享参数走 launchQueue 送达 */
 if ('launchQueue' in window) {
@@ -4516,11 +4517,12 @@ async function init() {
   await initSettings();
   refreshDefaultPrompt(); // 启动时把两个内置模板覆盖为最新版
   initSettingsNav();
-  handleSharedText();
+  const sharedText = getSharedText();
   await initConvsStore(); // 对话数据从 IndexedDB 加载（含 localStorage 老数据迁移）
   if (!getConvs().length) newConversation();
   migrateOldHistory();
   renderConvList(); renderChat(); renderHistory();
+  if (sharedText) applySharedText(sharedText); // 渲染完成后再填框+生成音频+居中滚动
 
   $('menuBtn').onclick = openDrawer;
   $('closeDrawer').onclick = closeDrawer;
